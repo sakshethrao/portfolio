@@ -20,7 +20,7 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
-const url = "https://saksheth.dev"; // TODO: set to the real deployed domain
+const url = "https://sakshethbuilds.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(url),
