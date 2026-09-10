@@ -333,6 +333,16 @@ a {
   }
 }
 
+/* ---------------------------------------------------------------------------
+   Résumé rows
+   --------------------------------------------------------------------------- */
+@media (max-width: 620px) {
+  .resume-row {
+    grid-template-columns: 1fr !important;
+    gap: 6px !important;
+  }
+}
+
 /* link underline that grows from the left, used in nav + inline links */
 .link-underline {
   background-image: linear-gradient(var(--accent), var(--accent));

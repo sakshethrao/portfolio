@@ -1,5 +1,5 @@
 import { publicProjects } from "@/content/projects";
-import { experiments } from "@/content/experiments";
+import { experiments, labIntro } from "@/content/experiments";
 import { Reveal } from "./Reveal";
 import { FeatureProject } from "./work/FeatureProject";
 import { DeviceProject } from "./work/DeviceProject";
@@ -84,13 +84,14 @@ function Lab() {
             The Lab
           </div>
           <div style={{ fontSize: 13, color: "var(--muted)", maxWidth: 360 }}>
-            Things I built because I was curious. Not everything needs to become a startup.
+            {labIntro}
           </div>
         </div>
       </Reveal>
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-        {experiments.map((x, i) => (
-          <Reveal key={x.title} delay={i * 0.04}>
+        {experiments.map((x, i) => {
+          const href = x.liveUrl ?? x.githubUrl;
+          const note = (
             <div
               className="sticky-note mono"
               style={{
@@ -102,7 +103,7 @@ function Lab() {
                 padding: "16px 18px",
                 fontSize: 13,
                 lineHeight: 1.45,
-                maxWidth: 220,
+                maxWidth: 230,
               }}
             >
               <span style={{ fontSize: 15 }}>{x.emoji} </span>
@@ -112,9 +113,25 @@ function Lab() {
                   learned: {x.learned}
                 </span>
               )}
+              {href && (
+                <span style={{ display: "block", marginTop: 8, color: "var(--accent)", fontSize: 11 }}>
+                  {x.liveUrl ? "open ↗" : "code ↗"}
+                </span>
+              )}
             </div>
-          </Reveal>
-        ))}
+          );
+          return (
+            <Reveal key={x.title} delay={i * 0.04}>
+              {href ? (
+                <a href={href} target="_blank" rel="noreferrer" style={{ display: "block" }}>
+                  {note}
+                </a>
+              ) : (
+                note
+              )}
+            </Reveal>
+          );
+        })}
       </div>
     </div>
   );

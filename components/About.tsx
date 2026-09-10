@@ -1,4 +1,4 @@
-import { about, roles } from "@/content/experience";
+import { about, roles, education } from "@/content/experience";
 import { site } from "@/content/site";
 import { Reveal } from "./Reveal";
 
@@ -21,6 +21,10 @@ export function About() {
             <TagColumn title="Working on" tags={about.works} />
             <TagColumn title="Off hours" tags={about.offHours} />
           </div>
+
+          <div className="mono" style={{ marginTop: 28, fontSize: 12, lineHeight: 1.7, color: "var(--faint)", maxWidth: 520 }}>
+            {about.toolkit.join("  ·  ")}
+          </div>
         </Reveal>
 
         <Reveal delay={0.08}>
@@ -39,16 +43,26 @@ export function About() {
                   {r.summary && (
                     <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--muted-2)", margin: "6px 0 0" }}>{r.summary}</p>
                   )}
-                  {r.points && (
-                    <ul style={{ margin: "8px 0 0", paddingLeft: 16, fontSize: 13, lineHeight: 1.6, color: "var(--muted-2)" }}>
-                      {r.points.map((p, i) => <li key={i}>{p}</li>)}
-                    </ul>
-                  )}
                 </div>
               ))}
             </div>
 
-            <a href="/resume" className="mono pill-outline" style={{ display: "inline-block", marginTop: 24 }}>
+            <div className="mono" style={{ fontSize: 11, letterSpacing: "0.04em", color: "var(--muted-2)", margin: "28px 0 14px" }}>
+              EDUCATION
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {education.map((e) => (
+                <div key={e.school}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", flexWrap: "wrap" }}>
+                    <span className="sora" style={{ fontWeight: 700, fontSize: 14 }}>{e.school}</span>
+                    <span className="mono" style={{ fontSize: 11, color: "var(--faint)" }}>{e.period}</span>
+                  </div>
+                  <div style={{ fontSize: 12.5, color: "var(--muted-2)", marginTop: 3 }}>{e.program}</div>
+                </div>
+              ))}
+            </div>
+
+            <a href="/resume" className="mono pill-outline" style={{ display: "inline-block", marginTop: 26 }}>
               Full résumé ↓
             </a>
             <div className="mono" style={{ marginTop: 18, fontSize: 12, color: "var(--muted-2)", display: "flex", gap: 16, flexWrap: "wrap" }}>

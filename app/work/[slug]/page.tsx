@@ -107,8 +107,8 @@ export default async function ProjectPage({
                 <p key={i} style={{ fontSize: 15, lineHeight: 1.75, color: "var(--muted)", margin: 0 }}>{n}</p>
               ))}
               {!cs && (
-                <p className="mono" style={{ fontSize: 13, color: "var(--faint)" }}>
-                  TODO — add a caseStudy block for this project in content/projects.ts.
+                <p style={{ fontSize: 15, lineHeight: 1.75, color: "var(--muted)", margin: 0 }}>
+                  A full write-up for this one is on the way.
                 </p>
               )}
             </div>

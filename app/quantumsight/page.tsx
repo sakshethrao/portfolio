@@ -133,8 +133,7 @@ export default function QuantumSightPage() {
               Short notes from building in public. Newest first.
             </p>
             <div className="mono" style={{ fontSize: 13, color: "var(--faint)", border: "1px dashed var(--line-strong)", borderRadius: 14, padding: "20px 22px" }}>
-              TODO — drop dated entries here (content/quantumsight-log.ts). One or two
-              lines each: what shipped, what broke, what you learned.
+              First entries land soon.
             </div>
           </div>
         </Reveal>

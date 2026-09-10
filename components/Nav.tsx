@@ -90,9 +90,11 @@ export function Nav() {
           <SocialDot href={site.socials.linkedin} label="LinkedIn">
             in
           </SocialDot>
-          <SocialDot href={site.socials.instagram} label="Instagram">
-            ig
-          </SocialDot>
+          {site.socials.instagram && (
+            <SocialDot href={site.socials.instagram} label="Instagram">
+              ig
+            </SocialDot>
+          )}
           <SocialDot href={site.socials.github} label="GitHub">
             gh
           </SocialDot>
@@ -176,9 +178,11 @@ export function Nav() {
             <a href={site.socials.linkedin} target="_blank" rel="noreferrer">
               LinkedIn ↗
             </a>
-            <a href={site.socials.instagram} target="_blank" rel="noreferrer">
-              Instagram ↗
-            </a>
+            {site.socials.instagram && (
+              <a href={site.socials.instagram} target="_blank" rel="noreferrer">
+                Instagram ↗
+              </a>
+            )}
             <a href={site.socials.github} target="_blank" rel="noreferrer">
               GitHub ↗
             </a>

@@ -1,37 +1,112 @@
 import type { Role } from "@/lib/types";
 
 /**
- * Professional experience. Kept deliberately short — this is a builder's site,
- * not a career timeline. Add roles as needed.
+ * Professional background. Kept short on purpose — this is a builder's site,
+ * not a career timeline. The full detail lives in the CV on /resume.
  */
 
 export const roles: Role[] = [
   {
-    company: "QuantumSight Technologies",
+    company: "QuantumSight",
     title: "Founder",
     period: "2025 — now",
-    location: "SF / Remote",
+    location: "Remote",
     summary:
-      "Building an AI company making existing CCTV infrastructure intelligent.",
+      "Building an AI layer that makes existing CCTV infrastructure understand what it's looking at — no rip-and-replace. Early pilots underway.",
   },
   {
     company: "KPMG",
-    title: "TODO — your title",
-    period: "TODO — start – end",
-    location: "TODO",
-    summary: "TODO — one line on what you did here.",
-    // points: ["...", "..."], // optional, keep to 2–3
+    title: "Consultant",
+    period: "2022 — 2026",
+    location: "Gurugram",
+    summary:
+      "Risk advisory and strategy across automotive, telecom and quick-commerce. Promoted from Analyst to Consultant in three years.",
+    points: [
+      "Flagged $8M in revenue leakage from unreported licensing liabilities; closed access-control gaps across 10 systems, mitigating ₹1Cr+ in risk.",
+      "Worked on Blinkit's post-acquisition integration — access controls and DPDP data-privacy remediation.",
+      "Market-entry analysis for Lyca Mobile (South Africa mobile money) and Iraq's telecom regulator.",
+    ],
   },
+  {
+    company: "Nicho",
+    title: "Co-Founder",
+    period: "2020 — 2022",
+    location: "Pune",
+    summary:
+      "Co-founded a commission-based D2C marketplace for Made-in-India streetwear.",
+    points: [
+      "Onboarded 18 brands through 250+ founder conversations; grew to 1,000+ customers at a sub-₹250 CAC with a team of 9.",
+      "~3–4× ROAS and a 20–25% repeat rate across 25+ campaigns and launches.",
+    ],
+  },
+];
+
+/** rendered as a lighter tier on /resume */
+export const earlier: Role[] = [
+  {
+    company: "KPMG — Risk Advisory",
+    title: "Intern",
+    period: "Jan – Jul 2022",
+    location: "Gurugram",
+    summary:
+      "Automotive: lifted asset utilisation 20% and surfaced ₹15L+ in misplaced finished-goods inventory.",
+  },
+  {
+    company: "Bajaj Allianz General Insurance",
+    title: "Data Analyst Intern",
+    period: "Jul – Sep 2021",
+    location: "Pune",
+    summary:
+      "Reworked the UX of a cross-selling platform and built the data pipelines behind it.",
+  },
+  {
+    company: "AIESEC",
+    title: "Business Development Lead",
+    period: "2019 — 2020",
+    location: "Manipal",
+    summary:
+      "Ran BD and community events — ₹45K raised, restaurant partnerships, and OnePlus India as a sponsor.",
+  },
+];
+
+export const education = [
+  {
+    school: "Masters' Union",
+    program: "PG Program in Technology & Business Management",
+    period: "2026 — now",
+    location: "Gurugram",
+    note: "Manoj Kohli merit scholarship · Venture Initiation track",
+  },
+  {
+    school: "Manipal Institute of Technology",
+    program: "B.Tech, Computer & Communication Engineering — Minor in Big Data",
+    period: "2018 — 2022",
+    location: "Manipal",
+  },
+];
+
+export const certifications = [
+  { name: "Lean Six Sigma Green Belt", issuer: "KPMG", year: "2023" },
+  { name: "Machine Learning with Big Data", issuer: "UC San Diego", year: "2021" },
+  { name: "Big Data Modeling & Management Systems", issuer: "UC San Diego", year: "2021" },
 ];
 
 /** short list rendered near About */
 export const about = {
-  lead: "I work across product, technology, startups, AI and — mostly — building.",
+  lead: "KPMG taught me how large companies actually work — and break. Nicho taught me how to build one from nothing. Everything since has been a version of building.",
   body: [
-    "TODO — two or three sentences in your own voice. What you're drawn to, how you work, what you're building now. Skip anything that sounds like a LinkedIn summary.",
-    "Outside of that: travel, sport, and a standing habit of building things nobody asked for.",
+    "These days that means QuantumSight — an AI company teaching the CCTV cameras buildings already own to understand what they're looking at — plus a steady run of smaller apps and experiments. I'm at Masters' Union in Gurugram on a merit scholarship doing a PG program in Technology & Business Management, which mostly buys me more time to build.",
+    "Before the consulting years I studied Computer & Communication Engineering at Manipal. Outside of work: travel, cricket (I used to captain it), a camera, and a hard-to-shake habit of building things nobody asked for.",
   ],
-  /** small tag row */
-  works: ["Product", "Technology", "Startups", "AI", "Building"],
-  offHours: ["Travel", "Sport", "Curiosity", "Experimenting"],
+  /** small tag rows */
+  works: ["Product", "Strategy", "Startups", "AI", "Building"],
+  offHours: ["Travel", "Cricket", "Photography", "Tinkering"],
+  /** de-emphasised toolkit line, not a logo wall */
+  toolkit: [
+    "GTM & ops",
+    "Stakeholder management",
+    "Advanced Excel",
+    "Figma",
+    "Premiere / Illustrator / Photoshop",
+  ],
 };

@@ -28,42 +28,62 @@ export const projects: Project[] = [
       approach:
         "QuantumSight sits on top of existing CCTV — no rip-and-replace. An edge box runs vision models on the local feed and turns raw footage into events a security team can actually act on.",
       outcome:
-        "TODO — current stage in your own words (prototype running on N cameras, first pilot site, etc.). Keep it honest; no invented metrics.",
+        "Early stage: a working prototype running against live camera feeds, with the first pilot conversations in progress.",
       stages: [
         { label: "Concept", state: "done" },
-        { label: "Prototype", state: "done" },
-        { label: "Pilot", state: "current" },
+        { label: "Prototype", state: "current" },
+        { label: "Pilot", state: "todo" },
         { label: "Scale", state: "todo" },
       ],
       notes: [
         "Pipeline: existing CCTV → QS AI Box (edge) → cloud inference → alerts dashboard.",
-        "TODO — a paragraph on what you're building right now and what you've learned shipping it.",
+        "Built mostly in the open — edge inference, a lean dashboard, and a lot of iterating on what actually counts as an event worth a person's attention.",
       ],
     },
   },
   {
     slug: "nurture",
+    // TODO(Saksheth): send a one-line description, screenshots for public/nurture/,
+    // the live URL, and whether the GitHub link should show.
     title: "Nurture",
-    // TODO: real one-liner. Placeholder below is deliberately vague until you send the description.
-    tagline: "A real app I built end to end — description coming from you.",
+    tagline:
+      "An app built end to end with React, Supabase and Claude Code. Full write-up coming.",
     status: "LIVE",
     category: "Consumer app",
     period: "2025",
     layout: "device",
     featured: true,
     tech: ["React", "Supabase", "Vercel", "Claude Code"],
-    // liveUrl: "https://...", // TODO
-    // githubUrl: "https://github.com/...", // TODO — or leave off if private
+    // liveUrl: "https://...",
+    // githubUrl: "https://github.com/sakshethrao/Nurture",
     screens: [
-      // TODO: drop real screenshots here, e.g.
-      // "/nurture/home.png", "/nurture/schedule.png", "/nurture/pay.png"
+      // drop real screenshots here: "/nurture/home.png", "/nurture/schedule.png", ...
     ],
     caseStudy: {
-      problem: "TODO — what wasn't working before Nurture.",
-      approach: "TODO — how you built it and what the app actually does.",
-      outcome: "TODO — where it stands now (used by whom, what it replaced).",
       notes: [
-        "Built solo with React + Supabase, deployed on Vercel, paired with Claude Code.",
+        "Built solo with React and Supabase, deployed on Vercel, paired with Claude Code. A proper write-up and screenshots are on the way.",
+      ],
+    },
+  },
+  {
+    slug: "nicho",
+    title: "Nicho",
+    tagline:
+      "A D2C marketplace for Made-in-India streetwear — co-founded and scaled to 18 brands and 1,000+ customers.",
+    status: "ARCHIVED",
+    category: "D2C marketplace",
+    period: "2020 — 2022",
+    layout: "compact",
+    tech: ["Marketplace ops", "Meta Ads", "GTM", "Retention"],
+    caseStudy: {
+      problem:
+        "India makes excellent streetwear, but the good independent labels were scattered — hard to discover, harder to buy from in one place.",
+      approach:
+        "Co-founded a commission-based marketplace and ran it with a team of 9. Onboarded 18 brands through 250+ founder conversations, aligned joint marketing, and built onboarding that cut vendor turnaround ~40%.",
+      outcome:
+        "₹10L+ GMV and 1,000+ customers at a sub-₹250 CAC. Roughly 3–4× ROAS and a 20–25% repeat rate across 25+ campaigns before we moved on.",
+      notes: [
+        "The clearest lesson in doing distribution, ops and retention at once — with no budget to waste on any of them.",
       ],
     },
   },

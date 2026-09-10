@@ -5,37 +5,37 @@
 
 export const site = {
   name: "Saksheth Rao",
-  role: "Product · Technology · Startups",
+  role: "Strategy · Operations · Building",
   /** shown under the hero headline */
   intro:
-    "Products. Startups. AI. Cloud infrastructure I probably didn't need to set up myself. The occasional detour into travel photography — because not everything has to ship.",
-  location: "SF / Remote",
+    "Four years of consulting, one streetwear marketplace, and a startup that teaches old cameras new tricks. Plus a steady stream of small apps built because the idea wouldn't leave me alone.",
+  location: "Gurugram, India",
   /** blinking status line in the hero */
-  nowBuilding: "CURRENTLY BUILDING QUANTUMSIGHT — SF / REMOTE",
+  nowBuilding: "CURRENTLY BUILDING QUANTUMSIGHT — GURUGRAM / REMOTE",
   /** rotating "currently thinking about —" ticker */
   thoughts: [
     "computer vision at the edge",
     "a Supabase schema I keep rewriting",
     "whether Claude Code counts as a co-founder",
+    "what to build after the marketplace",
     "a trip I keep postponing",
   ],
 
   email: "saksheth.rao@gmail.com",
 
   socials: {
-    // TODO: replace with exact URLs
-    linkedin: "https://www.linkedin.com/in/saksheth-rao/",
-    instagram: "https://www.instagram.com/",
-    github: "https://github.com/",
+    linkedin: "https://www.linkedin.com/in/sakshethrao/",
+    // TODO: send the exact Instagram handle — left empty so no broken link shows
+    instagram: "",
+    github: "https://github.com/sakshethrao",
   },
 
   /** footer build-credit line, mirrors the mockup */
   builtWith: "BUILT WITH CLAUDE CODE · NEXT.JS · TAILWIND · VERCEL",
 
   resume: {
-    /** drop the PDF at public/saksheth-rao-resume.pdf */
-    file: "/saksheth-rao-resume.pdf",
-    updated: "TODO — e.g. Sep 2025",
+    file: "/saksheth-rao-cv.pdf",
+    updated: "2026",
   },
 
   nav: [

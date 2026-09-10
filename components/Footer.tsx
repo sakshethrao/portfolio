@@ -35,7 +35,9 @@ export function Footer() {
           </FooterCol>
           <FooterCol title="Elsewhere">
             <a href={site.socials.linkedin} target="_blank" rel="noreferrer" className="link-underline">LinkedIn ↗</a>
-            <a href={site.socials.instagram} target="_blank" rel="noreferrer" className="link-underline">Instagram ↗</a>
+            {site.socials.instagram && (
+              <a href={site.socials.instagram} target="_blank" rel="noreferrer" className="link-underline">Instagram ↗</a>
+            )}
             <a href={site.socials.github} target="_blank" rel="noreferrer" className="link-underline">GitHub ↗</a>
             <a href={`mailto:${site.email}`} className="link-underline">Email ↗</a>
           </FooterCol>
