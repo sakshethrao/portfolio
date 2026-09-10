@@ -43,25 +43,27 @@ export const projects: Project[] = [
   },
   {
     slug: "nurture",
-    // TODO(Saksheth): send a one-line description, screenshots for public/nurture/,
-    // the live URL, and whether the GitHub link should show.
+    // TODO(Saksheth): live URL + whether to show the GitHub link.
     title: "Nurture",
     tagline:
-      "An app built end to end with React, Supabase and Claude Code. Full write-up coming.",
+      "A two-sided marketplace matching working parents with verified nannies — and training the nannies too.",
     status: "LIVE",
-    category: "Consumer app",
+    category: "Marketplace app",
     period: "2025",
     layout: "device",
     featured: true,
-    tech: ["React", "Supabase", "Vercel", "Claude Code"],
+    tech: ["Next.js", "React", "Supabase", "Vercel", "Claude Code"],
     // liveUrl: "https://...",
     // githubUrl: "https://github.com/sakshethrao/Nurture",
-    screens: [
-      // drop real screenshots here: "/nurture/home.png", "/nurture/schedule.png", ...
-    ],
     caseStudy: {
+      problem:
+        "Hiring a nanny in India runs on word of mouth and blind trust — no easy way to check verification, experience or references before someone's in your home.",
+      approach:
+        "A full app for both sides: parents onboard their child and routines, get AI-ranked matches, and see Aadhaar / police / reference checks up front. Nannies build a profile and take free certification courses that unlock better matches. Next.js App Router, Supabase for auth + data, a design system ported from a Stitch spec.",
+      outcome:
+        "The preview on this page is the real interface — matching, profiles, verification and the nanny-side training, running screen for screen.",
       notes: [
-        "Built solo with React and Supabase, deployed on Vercel, paired with Claude Code. A proper write-up and screenshots are on the way.",
+        "Warm, verification-forward design: sage-on-cream, Plus Jakarta Sans, everything very rounded — meant to read as calm and trustworthy rather than clinical.",
       ],
     },
   },

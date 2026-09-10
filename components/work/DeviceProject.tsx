@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Project } from "@/lib/types";
 import { StatusBadge } from "@/components/StatusBadge";
-import { PhoneShowcase } from "@/components/PhoneShowcase";
+import { ProjectPhone } from "./ProjectPhone";
 
 export function DeviceProject({
   project,
@@ -24,18 +24,20 @@ export function DeviceProject({
       <div
         style={{
           display: "flex",
-          justifyContent: "center",
+          flexDirection: "column",
           alignItems: "center",
+          gap: 12,
           background: "var(--paper-3)",
           borderRadius: 16,
-          padding: "28px 12px",
+          padding: "28px 12px 22px",
         }}
       >
-        <PhoneShowcase
-          screens={project.screens}
-          title={project.title}
-          tech={project.tech}
-        />
+        <ProjectPhone project={project} />
+        {project.slug === "nurture" && (
+          <span className="mono" style={{ fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.04em" }}>
+            LIVE PREVIEW — TAP THE BOTTOM BAR
+          </span>
+        )}
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 12 }}>

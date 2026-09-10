@@ -4,7 +4,7 @@ import Image from "next/image";
 import { PageIntro } from "@/components/PageIntro";
 import { Reveal } from "@/components/Reveal";
 import { StatusBadge } from "@/components/StatusBadge";
-import { PhoneShowcase } from "@/components/PhoneShowcase";
+import { ProjectPhone } from "@/components/work/ProjectPhone";
 import { projects, getProject, publicProjects } from "@/content/projects";
 
 export function generateStaticParams() {
@@ -92,8 +92,13 @@ export default async function ProjectPage({
         >
           {p.layout === "device" && (
             <Reveal>
-              <div style={{ display: "flex", justifyContent: "center", background: "var(--paper-3)", borderRadius: 18, padding: "32px 12px", position: "sticky", top: 90 }}>
-                <PhoneShowcase screens={p.screens} title={p.title} tech={p.tech} scale={0.9} />
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, background: "var(--paper-3)", borderRadius: 18, padding: "32px 12px 24px", position: "sticky", top: 90 }}>
+                <ProjectPhone project={p} scale={0.86} />
+                {p.slug === "nurture" && (
+                  <span className="mono" style={{ fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.04em" }}>
+                    LIVE PREVIEW — TAP THE BOTTOM BAR
+                  </span>
+                )}
               </div>
             </Reveal>
           )}

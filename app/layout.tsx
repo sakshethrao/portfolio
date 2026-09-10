@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Sora, JetBrains_Mono } from "next/font/google";
+import { Sora, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AccentProvider } from "@/components/AccentProvider";
 import { Nav } from "@/components/Nav";
@@ -17,6 +17,14 @@ const mono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--font-mono",
+  display: "swap",
+});
+
+// used only inside the Nurture app preview, to match that product's type
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-jakarta",
   display: "swap",
 });
 
@@ -67,7 +75,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${sora.variable} ${mono.variable}`}>
+    <html lang="en" className={`${sora.variable} ${mono.variable} ${jakarta.variable}`}>
       <body>
         <AccentProvider>
           <a href="#main" className="skip mono">
