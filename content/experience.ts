@@ -11,8 +11,7 @@ export const roles: Role[] = [
     title: "Founder",
     period: "2025 — now",
     location: "Remote",
-    summary:
-      "Building an AI layer that makes existing CCTV infrastructure understand what it's looking at — no rip-and-replace. Early pilots underway.",
+    summary: "Building computer vision that makes existing CCTV understand what it sees.",
   },
   {
     company: "KPMG",
@@ -93,10 +92,10 @@ export const certifications = [
 
 /** short list rendered near About */
 export const about = {
-  lead: "KPMG taught me how large companies actually work — and break. Nicho taught me how to build one from nothing. Everything since has been a version of building.",
+  lead: "KPMG taught me how large companies work — and break. Nicho taught me how to build one. Everything since has been a version of building.",
   body: [
-    "These days that means QuantumSight — an AI company teaching the CCTV cameras buildings already own to understand what they're looking at — plus a steady run of smaller apps and experiments. I'm at Masters' Union in Gurugram on a merit scholarship doing a PG program in Technology & Business Management, which mostly buys me more time to build.",
-    "Before the consulting years I studied Computer & Communication Engineering at Manipal. Outside of work: travel, cricket (I used to captain it), a camera, and a hard-to-shake habit of building things nobody asked for.",
+    "Right now that's QuantumSight, a handful of smaller apps, and a PG program in Technology & Business Management at Masters' Union.",
+    "Before consulting I studied Computer & Communication Engineering at Manipal. Off the clock: travel, cricket, a camera.",
   ],
   /** small tag rows */
   works: ["Product", "Strategy", "Startups", "AI", "Building"],

@@ -6,9 +6,9 @@
 export const site = {
   name: "Saksheth Rao",
   role: "Strategy · Operations · Building",
-  /** shown under the hero headline */
+  /** shown under the hero headline — keep to one line */
   intro:
-    "Four years of consulting, one streetwear marketplace, and a startup that teaches old cameras new tricks. Plus a steady stream of small apps built because the idea wouldn't leave me alone.",
+    "Consulting, a streetwear marketplace, now computer vision — plus a lot of small apps in between.",
   location: "Gurugram, India",
   /** blinking status line in the hero */
   nowBuilding: "CURRENTLY BUILDING QUANTUMSIGHT — GURUGRAM / REMOTE",
@@ -17,16 +17,14 @@ export const site = {
     "computer vision at the edge",
     "a Supabase schema I keep rewriting",
     "whether Claude Code counts as a co-founder",
-    "what to build after the marketplace",
-    "a trip I keep postponing",
+    "the next small app",
   ],
 
   email: "saksheth.rao@gmail.com",
 
   socials: {
     linkedin: "https://www.linkedin.com/in/sakshethrao/",
-    // TODO: send the exact Instagram handle — left empty so no broken link shows
-    instagram: "",
+    instagram: "https://www.instagram.com/sakshethrao/",
     github: "https://github.com/sakshethrao",
   },
 

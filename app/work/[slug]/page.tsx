@@ -92,10 +92,10 @@ export default async function ProjectPage({
         >
           {p.layout === "device" && (
             <Reveal>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, background: "var(--paper-3)", borderRadius: 18, padding: "32px 12px 24px", position: "sticky", top: 90 }}>
-                <ProjectPhone project={p} scale={0.86} />
+              <div className="device-stage" style={{ position: "sticky", top: 90 }}>
+                <ProjectPhone project={p} />
                 {p.slug === "nurture" && (
-                  <span className="mono" style={{ fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.04em" }}>
+                  <span className="mono" style={{ fontSize: 10, color: "var(--faint)", letterSpacing: "0.04em" }}>
                     LIVE PREVIEW — TAP THE BOTTOM BAR
                   </span>
                 )}

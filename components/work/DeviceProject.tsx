@@ -21,20 +21,10 @@ export function DeviceProject({
         padding: "clamp(20px, 3vw, 34px)",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 12,
-          background: "var(--paper-3)",
-          borderRadius: 16,
-          padding: "28px 12px 22px",
-        }}
-      >
+      <div className="device-stage">
         <ProjectPhone project={project} />
         {project.slug === "nurture" && (
-          <span className="mono" style={{ fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.04em" }}>
+          <span className="mono" style={{ fontSize: 10, color: "var(--faint)", letterSpacing: "0.04em" }}>
             LIVE PREVIEW — TAP THE BOTTOM BAR
           </span>
         )}

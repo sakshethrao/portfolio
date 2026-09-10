@@ -29,12 +29,12 @@ export function Work() {
             <div className="eyebrow" style={{ marginBottom: 10 }}>
               BUILDS — {shipped} SHIPPED{building ? `, ${building} IN PROGRESS` : ""}
             </div>
-            <h2 className="sora" style={{ fontWeight: 700, fontSize: "clamp(28px, 4vw, 46px)", lineHeight: 1.1, letterSpacing: "-0.01em", margin: 0, maxWidth: 640 }}>
-              Selected work, and a running list of things I&rsquo;ve actually shipped.
+            <h2 className="sora" style={{ fontWeight: 700, fontSize: "clamp(28px, 4vw, 46px)", lineHeight: 1.1, letterSpacing: "-0.01em", margin: 0, maxWidth: 560 }}>
+              Things I&rsquo;ve built.
             </h2>
           </div>
-          <p style={{ fontSize: 14, lineHeight: 1.5, color: "var(--muted)", maxWidth: 280, margin: 0 }}>
-            Not a portfolio grid — an index. New rows get added, nothing gets redesigned.
+          <p style={{ fontSize: 14, lineHeight: 1.5, color: "var(--muted)", maxWidth: 240, margin: 0 }}>
+            An index, not a grid. New rows get added; nothing gets redesigned.
           </p>
         </div>
       </Reveal>

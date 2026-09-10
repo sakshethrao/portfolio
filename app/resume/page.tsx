@@ -81,25 +81,6 @@ export default function ResumePage() {
             </ul>
           </div>
         </Section>
-
-        <div
-          style={{
-            marginTop: 44,
-            border: "1px solid var(--line)",
-            borderRadius: 16,
-            overflow: "hidden",
-            background: "var(--paper-3)",
-          }}
-        >
-          <object data={file} type="application/pdf" width="100%" style={{ height: "min(80vh, 1000px)", display: "block" }}>
-            <div className="mono" style={{ padding: 40, textAlign: "center", fontSize: 13, color: "var(--muted)" }}>
-              Your browser can&rsquo;t preview PDFs inline.{" "}
-              <a href={file} className="link-underline" style={{ color: "var(--ink)" }}>
-                Open the CV ↗
-              </a>
-            </div>
-          </object>
-        </div>
       </section>
     </>
   );
