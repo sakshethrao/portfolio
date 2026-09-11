@@ -73,6 +73,21 @@ export const projects: Project[] = [
     },
   },
   {
+    slug: "influencer-payment-os",
+    title: "Influencer Payment OS",
+    tagline: "Automates the influencer-campaign payment lifecycle — invoices, reminders, escalations.",
+    status: "EXPERIMENT",
+    category: "Automation · Make.com",
+    period: "2026",
+    layout: "browser",
+    tech: ["Make.com", "Google Sheets", "Gmail", "Google Docs"],
+    caseStudy: {
+      problem: "Influencer agencies chase payments by memory and spreadsheets — approvals, invoices and reminders, all manual.",
+      approach: "Two Make.com scenarios treat a Google Sheet as the database: one raises and emails invoices, the other tracks every campaign's payment clock and fires the right reminder — 7-day, 3-day, due-today, overdue, critical escalation, paid — logging every action.",
+      outcome: "An academic/demo build on seeded data. A verified run sends 9 reminder emails and generates 2 invoices end to end, exactly as replayed here.",
+    },
+  },
+  {
     slug: "nicho",
     title: "Nicho",
     tagline: "A D2C marketplace for Indian streetwear. 18 brands, 1,000+ customers.",

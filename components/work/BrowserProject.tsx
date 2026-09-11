@@ -2,8 +2,9 @@ import Link from "next/link";
 import type { Project } from "@/lib/types";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ParchiDemo } from "@/components/parchi/ParchiDemo";
+import { MakeFlow } from "@/components/make/MakeFlow";
 
-/** full-width row: header + a live browser-window demo beneath it */
+/** full-width row: header + a bespoke, per-project live demo beneath it */
 export function BrowserProject({
   project,
   index,
@@ -61,10 +62,19 @@ export function BrowserProject({
       </div>
 
       {project.slug === "parchi" && (
-        <div>
+        <div style={{ minWidth: 0 }}>
           <ParchiDemo />
           <span className="mono" style={{ display: "block", marginTop: 10, fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.04em" }}>
             LIVE DEMO — DROP THE RECEIPT, THEN CHECK THE DASHBOARD
+          </span>
+        </div>
+      )}
+
+      {project.slug === "influencer-payment-os" && (
+        <div style={{ minWidth: 0 }}>
+          <MakeFlow />
+          <span className="mono" style={{ display: "block", marginTop: 10, fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.04em" }}>
+            LIVE DEMO — HIT RUN ONCE, WATCH IT MOVE THROUGH THE SCENARIO
           </span>
         </div>
       )}

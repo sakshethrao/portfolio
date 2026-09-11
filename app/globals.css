@@ -238,6 +238,12 @@ a {
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
+.work-grid > * {
+  /* grid items default to a content-based min-width, which lets any card
+     with a wide inner demo (e.g. a horizontally-scrollable flow diagram)
+     blow out the whole row's track width. Force it back to the track. */
+  min-width: 0;
+}
 .feature-split {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
@@ -462,6 +468,17 @@ a {
 @keyframes parchi-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes make-log-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

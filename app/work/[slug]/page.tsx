@@ -6,6 +6,7 @@ import { Reveal } from "@/components/Reveal";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ProjectPhone } from "@/components/work/ProjectPhone";
 import { ParchiDemo } from "@/components/parchi/ParchiDemo";
+import { MakeFlow } from "@/components/make/MakeFlow";
 import { projects, getProject, publicProjects } from "@/content/projects";
 
 export function generateStaticParams() {
@@ -88,6 +89,17 @@ export default async function ProjectPage({
               <ParchiDemo />
               <span className="mono" style={{ display: "block", marginTop: 10, fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.04em" }}>
                 LIVE DEMO — DROP THE RECEIPT, THEN CHECK THE DASHBOARD
+              </span>
+            </div>
+          </Reveal>
+        )}
+
+        {p.slug === "influencer-payment-os" && (
+          <Reveal>
+            <div style={{ marginBottom: 40 }}>
+              <MakeFlow />
+              <span className="mono" style={{ display: "block", marginTop: 10, fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.04em" }}>
+                LIVE DEMO — HIT RUN ONCE, WATCH IT MOVE THROUGH THE SCENARIO
               </span>
             </div>
           </Reveal>
