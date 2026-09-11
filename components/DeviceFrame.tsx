@@ -46,7 +46,7 @@ export function DeviceFrame({
           position: "relative",
           background: dark ? "#000" : "#f2f2f7",
           boxShadow:
-            "0 30px 60px rgba(18,18,18,0.16), 0 0 0 1px rgba(18,18,18,0.10), inset 0 0 0 6px rgba(18,18,18,0.9)",
+            "0 24px 50px -10px rgba(18,18,18,0.35), 0 4px 14px rgba(18,18,18,0.14), 0 0 0 1.5px rgba(18,18,18,0.22)",
           fontFamily: "-apple-system, system-ui, sans-serif",
         }}
       >
@@ -100,6 +100,20 @@ export function DeviceFrame({
         >
           <div style={{ height: "100%", overflowY: "auto" }}>{children}</div>
         </div>
+
+        {/* bezel ring — drawn above the scrollable content so the frame edge
+            never gets covered by whatever the app content's background is */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: 46,
+            boxShadow: `inset 0 0 0 6px ${dark ? "rgba(0,0,0,0.9)" : "rgba(18,18,18,0.85)"}`,
+            pointerEvents: "none",
+            zIndex: 40,
+          }}
+        />
 
         {/* home indicator */}
         <div
