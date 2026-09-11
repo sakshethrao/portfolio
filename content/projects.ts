@@ -56,20 +56,19 @@ export const projects: Project[] = [
     },
   },
   {
-    slug: "qr-payments",
-    // TODO(Saksheth): name it if you'd rather not use "QR Payments". Screens welcome.
-    title: "QR Payments",
-    tagline: "Snap a payment screenshot; it reads the details and files the expense.",
+    slug: "parchi",
+    title: "Parchi",
+    tagline: "The kirana counter's UPI ledger — screenshot a payment and it logs itself.",
     status: "LIVE",
-    category: "Expense tracking",
+    category: "Retail · UPI ledger",
     period: "2025",
     layout: "compact",
     tech: ["Next.js", "Supabase", "Tesseract OCR", "Recharts"],
     githubUrl: "https://github.com/sakshethrao/QR-payment-dashboard",
     caseStudy: {
-      problem: "Tracking spend means retyping every UPI payment into a sheet. Nobody keeps that up.",
-      approach: "Drop in a payment screenshot — OCR pulls the amount, date and merchant, auto-tags a category, and logs the transaction. Charts and Excel/PDF export on top.",
-      outcome: "Used for my own monthly expenses. Cuts logging a payment to one drag-and-drop.",
+      problem: "Small shops track UPI payments from memory or paper chits — easy to lose, hard to reconcile at day's end.",
+      approach: "Drop in a payment screenshot — OCR reads the amount, UPI ID, bank and reference number, flags anything uncertain for a quick check, and logs it against a customer.",
+      outcome: "Revenue by day, week and month, pending reviews, and per-customer history — a digital parchi book.",
     },
   },
   {
