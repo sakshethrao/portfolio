@@ -5,6 +5,7 @@ import { PageIntro } from "@/components/PageIntro";
 import { Reveal } from "@/components/Reveal";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ProjectPhone } from "@/components/work/ProjectPhone";
+import { ParchiDemo } from "@/components/parchi/ParchiDemo";
 import { projects, getProject, publicProjects } from "@/content/projects";
 
 export function generateStaticParams() {
@@ -80,6 +81,17 @@ export default async function ProjectPage({
             </span>
           </div>
         </Reveal>
+
+        {p.slug === "parchi" && (
+          <Reveal>
+            <div style={{ marginBottom: 40 }}>
+              <ParchiDemo />
+              <span className="mono" style={{ display: "block", marginTop: 10, fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.04em" }}>
+                LIVE DEMO — DROP THE RECEIPT, THEN CHECK THE DASHBOARD
+              </span>
+            </div>
+          </Reveal>
+        )}
 
         <div
           style={{

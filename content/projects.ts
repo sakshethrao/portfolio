@@ -62,7 +62,8 @@ export const projects: Project[] = [
     status: "LIVE",
     category: "Retail · UPI ledger",
     period: "2025",
-    layout: "compact",
+    layout: "browser",
+    featured: true,
     tech: ["Next.js", "Supabase", "Tesseract OCR", "Recharts"],
     githubUrl: "https://github.com/sakshethrao/QR-payment-dashboard",
     caseStudy: {

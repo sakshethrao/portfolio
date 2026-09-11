@@ -459,6 +459,18 @@ a {
   }
 }
 
+@keyframes parchi-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 560px) {
+  .parchi-upload-flow {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 /* link underline that grows from the left, used in nav + inline links */
 .link-underline {
   background-image: linear-gradient(var(--accent), var(--accent));

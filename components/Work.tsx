@@ -3,6 +3,7 @@ import { experiments, labIntro } from "@/content/experiments";
 import { Reveal } from "./Reveal";
 import { FeatureProject } from "./work/FeatureProject";
 import { DeviceProject } from "./work/DeviceProject";
+import { BrowserProject } from "./work/BrowserProject";
 import { SmallProject } from "./work/SmallProject";
 import { CompactProject } from "./work/CompactProject";
 
@@ -53,6 +54,12 @@ export function Work() {
             return (
               <Reveal key={key} style={{ gridColumn: "1 / -1" }}>
                 <DeviceProject project={project} index={index} />
+              </Reveal>
+            );
+          if (project.layout === "browser")
+            return (
+              <Reveal key={key} style={{ gridColumn: "1 / -1" }}>
+                <BrowserProject project={project} index={index} />
               </Reveal>
             );
           if (project.layout === "compact")

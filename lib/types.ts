@@ -6,11 +6,12 @@ export type ProjectStatus = "LIVE" | "BUILDING" | "EXPERIMENT" | "ARCHIVED";
  *
  *  - "feature"  full-width row, room for a custom visual + expandable detail
  *  - "device"   framed inside an iOS device mockup (real app screenshots)
+ *  - "browser"  framed inside a browser-window mockup (web app demos)
  *  - "panel"    standard card with a small custom visual slot
  *  - "terminal" card whose visual is a monospace/terminal block
  *  - "compact"  single-line row, for archived / minor work
  */
-export type ProjectLayout = "feature" | "device" | "panel" | "terminal" | "compact";
+export type ProjectLayout = "feature" | "device" | "browser" | "panel" | "terminal" | "compact";
 
 export interface Project {
   slug: string;
