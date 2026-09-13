@@ -36,21 +36,21 @@ export const site = {
     updated: "2026",
   },
 
+  /** the Index. label → shown in the overlay; section → matches data-section on the page */
   nav: [
-    { label: "BUILDS", href: "/#work" },
-    { label: "LAB", href: "/#lab" },
-    { label: "QUANTUMSIGHT", href: "/quantumsight" },
-    { label: "ABOUT", href: "/#about" },
-    { label: "TRAVEL", href: "/gallery" },
-    { label: "RÉSUMÉ", href: "/resume" },
+    { label: "Studio", href: "/#studio", section: "studio" },
+    { label: "Builds", href: "/#builds", section: "builds" },
+    { label: "QuantumSight", href: "/quantumsight", section: "quantumsight" },
+    { label: "Experience", href: "/#experience", section: "experience" },
+    { label: "Travel", href: "/gallery", section: "travel" },
+    { label: "Résumé", href: "/resume", section: "resume" },
   ],
 
-  /** accent colour picker — first entry is the default */
+  /** accent colour picker — first entry is the default. Flat colours only. */
   accents: [
     { name: "Signal red", value: "#FF3B30" },
     { name: "Field green", value: "#1A8F4C" },
     { name: "Ultramarine", value: "#2A5CFF" },
-    { name: "Iris", value: "#8A5CF6" },
   ],
 } as const;
 

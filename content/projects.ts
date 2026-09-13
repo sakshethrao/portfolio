@@ -96,6 +96,11 @@ export const projects: Project[] = [
     period: "2020 — 2022",
     layout: "compact",
     tech: ["Marketplace ops", "Meta Ads", "GTM"],
+    figures: [
+      { value: "18", label: "brands" },
+      { value: "1,000+", label: "customers" },
+      { value: "₹10L+", label: "GMV" },
+    ],
     caseStudy: {
       problem: "India's best independent streetwear labels were scattered and hard to buy from in one place.",
       approach: "Co-founded a commission-based marketplace, ran it with a team of 9, onboarded 18 brands through 250+ founder conversations.",

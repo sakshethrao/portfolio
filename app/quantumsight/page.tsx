@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { PageIntro } from "@/components/PageIntro";
 import { Reveal } from "@/components/Reveal";
-import { DetectionViz } from "@/components/DetectionViz";
+import { Magnetic } from "@/components/Magnetic";
+import { CameraStage } from "@/components/quantumsight/CameraStage";
+import { ShotViewer, type Shot } from "@/components/quantumsight/ShotViewer";
 import { getProject } from "@/content/projects";
 import { site } from "@/content/site";
 
@@ -20,10 +21,10 @@ const PIPELINE = [
   { n: "04", label: "Alerts", note: "Events a security team can act on — not 40 live tiles." },
 ];
 
-const SHOTS = [
-  { src: "/quantumsight/feed.jpg", w: 1202, h: 605, caption: "Live feed — every camera, detections drawn in real time" },
-  { src: "/quantumsight/analysis.jpg", w: 1202, h: 605, caption: "Per-camera analysis with the model set that's running" },
-  { src: "/quantumsight/config.jpg", w: 1204, h: 536, caption: "Detection models and confidence thresholds, per site" },
+const SHOTS: Shot[] = [
+  { key: "feed", label: "Live feed", src: "/quantumsight/feed-crop.jpg", w: 1202, h: 535, caption: "Live feed — every camera, detections drawn in real time" },
+  { key: "analysis", label: "Analysis", src: "/quantumsight/analysis-crop.jpg", w: 1202, h: 535, caption: "Per-camera analysis with the model set that's running" },
+  { key: "config", label: "Config", src: "/quantumsight/config-crop.jpg", w: 1204, h: 466, caption: "Detection models and confidence thresholds, per site" },
 ];
 
 export default function QuantumSightPage() {
@@ -34,97 +35,86 @@ export default function QuantumSightPage() {
     <>
       <PageIntro
         eyebrow="The Company"
-        title="Making existing cameras intelligent."
+        title={
+          <>
+            Making existing cameras <span className="serif-i" style={{ fontSize: "1.1em" }}>intelligent</span>.
+          </>
+        }
         lead="Buildings already have the cameras. QuantumSight is the layer that understands what they see."
+        aside={<CameraStage />}
       />
 
-      <section className="wrap" style={{ padding: "0 var(--pad) clamp(56px, 9vw, 100px)" }}>
+      {/* the problem */}
+      <section className="wrap" style={{ padding: "clamp(24px, 4vw, 48px) var(--pad) clamp(56px, 9vw, 100px)" }}>
         <Reveal>
-          <div
-            className="qs-page-split"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 1fr) minmax(0, 0.8fr)",
-              gap: "clamp(24px, 5vw, 56px)",
-              alignItems: "center",
-              borderTop: "1px solid var(--line)",
-              paddingTop: "clamp(32px, 6vw, 56px)",
-            }}
-          >
-            <div>
-              <div className="eyebrow" style={{ marginBottom: 12 }}>The problem</div>
-              <p className="sora" style={{ fontSize: "clamp(18px, 2.6vw, 26px)", fontWeight: 500, lineHeight: 1.35, color: "var(--ink)", margin: 0, maxWidth: 420 }}>
+          <div className="grid-12" style={{ borderTop: "1px solid var(--line)", paddingTop: "clamp(28px, 4vw, 48px)", rowGap: 20 }}>
+            <div className="eyebrow qs-label" style={{ gridColumn: "1 / span 12" }}>The problem</div>
+            <div className="qs-body" style={{ gridColumn: "1 / span 12" }}>
+              <p className="display" style={{ fontSize: "clamp(22px, 3vw, 40px)", fontWeight: 400, lineHeight: 1.1, margin: 0, maxWidth: 640 }}>
                 Footage only matters after something has already gone wrong.
               </p>
-              <p style={{ fontSize: 15, lineHeight: 1.7, color: "var(--muted)", marginTop: 16, maxWidth: 420 }}>
-                {cs?.approach}
-              </p>
+              <p style={{ fontSize: 16, lineHeight: 1.65, color: "var(--muted)", marginTop: 18, maxWidth: 520 }}>{cs?.approach}</p>
             </div>
-            <DetectionViz />
           </div>
         </Reveal>
       </section>
 
-      {/* real product */}
-      <section style={{ background: "var(--paper-3)", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)" }}>
-        <div className="wrap" style={{ padding: "clamp(48px, 8vw, 88px) var(--pad)" }}>
+      {/* the real product */}
+      <section style={{ background: "var(--ink-2)", color: "#fff" }}>
+        <div className="wrap" style={{ padding: "clamp(56px, 8vw, 100px) var(--pad)" }}>
           <Reveal>
-            <div className="eyebrow" style={{ marginBottom: 12 }}>The dashboard</div>
-            <h2 className="sora" style={{ fontWeight: 700, fontSize: "clamp(22px, 3vw, 34px)", letterSpacing: "-0.01em", margin: "0 0 32px", maxWidth: 460 }}>
-              Running today, against real feeds.
-            </h2>
+            <div className="grid-12" style={{ rowGap: 16, marginBottom: 36, alignItems: "end" }}>
+              <div style={{ gridColumn: "1 / span 12" }} className="qs-body">
+                <div className="eyebrow" style={{ color: "rgba(255,255,255,0.5)", marginBottom: 14 }}>What it sees</div>
+                <h2 className="display" style={{ fontWeight: 500, fontSize: "clamp(30px, 4.6vw, 68px)", margin: 0 }}>
+                  Running today, against real feeds.
+                </h2>
+              </div>
+            </div>
           </Reveal>
-          <div style={{ display: "flex", flexDirection: "column", gap: "clamp(20px, 4vw, 40px)" }}>
-            {SHOTS.map((shot, i) => (
-              <Reveal key={shot.src} delay={i * 0.04}>
-                <figure style={{ margin: 0 }}>
-                  <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid var(--line)", background: "#0d0f10" }}>
-                    <Image
-                      src={shot.src}
-                      alt={shot.caption}
-                      width={shot.w}
-                      height={shot.h}
-                      sizes="(max-width: 1000px) 100vw, 900px"
-                      style={{ width: "100%", height: "auto", display: "block" }}
-                    />
-                  </div>
-                  <figcaption className="mono" style={{ fontSize: 11, color: "var(--faint)", marginTop: 8, letterSpacing: "0.02em" }}>
-                    {shot.caption}
-                  </figcaption>
-                </figure>
-              </Reveal>
-            ))}
-          </div>
+          <Reveal>
+            <ShotViewer shots={SHOTS} />
+          </Reveal>
         </div>
       </section>
 
       {/* how it works */}
-      <section className="wrap" style={{ padding: "clamp(48px, 8vw, 88px) var(--pad)" }}>
+      <section className="wrap" style={{ padding: "clamp(56px, 8vw, 100px) var(--pad)" }}>
         <Reveal>
-          <div className="eyebrow" style={{ marginBottom: 12 }}>How it works</div>
-          <h2 className="sora" style={{ fontWeight: 700, fontSize: "clamp(22px, 3vw, 34px)", letterSpacing: "-0.01em", margin: "0 0 32px", maxWidth: 440 }}>
+          <div className="eyebrow" style={{ marginBottom: 14 }}>How it works</div>
+          <h2 className="display" style={{ fontWeight: 500, fontSize: "clamp(30px, 4.6vw, 68px)", margin: "0 0 36px" }}>
             Four steps, camera to alert.
           </h2>
+          <div className="mono" style={{ display: "flex", flexWrap: "wrap", gap: "10px 18px", fontSize: "clamp(13px, 1.3vw, 17px)", letterSpacing: "0.02em", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)", padding: "22px 0" }}>
+            {PIPELINE.map((s, i) => (
+              <span key={s.n} style={{ display: "inline-flex", alignItems: "center", gap: 18 }}>
+                <span style={{ fontWeight: 500 }}>{s.label}</span>
+                {i < PIPELINE.length - 1 && <span style={{ color: "var(--faint)" }}>→</span>}
+              </span>
+            ))}
+          </div>
         </Reveal>
-        <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
+        <div>
           {PIPELINE.map((s, i) => (
-            <Reveal as="li" key={s.n} delay={i * 0.05}>
-              <div style={{ background: "var(--paper)", border: "1px solid var(--line)", borderRadius: 16, padding: 20, height: "100%" }}>
-                <div className="mono" style={{ fontSize: 11, color: "var(--accent)", marginBottom: 10 }}>{s.n}</div>
-                <div className="sora" style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>{s.label}</div>
-                <p style={{ fontSize: 12.5, lineHeight: 1.55, color: "var(--muted)", margin: 0 }}>{s.note}</p>
+            <Reveal key={s.n} delay={i * 0.03}>
+              <div className="timeline-row" style={{ padding: "18px 0", borderTop: i === 0 ? 0 : undefined }}>
+                <div className="mono" style={{ fontSize: 11, letterSpacing: "0.08em", color: "var(--accent)" }}>{s.n}</div>
+                <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 2fr)", gap: 20 }} className="resume-row">
+                  <div style={{ fontWeight: 600, fontSize: 16 }}>{s.label}</div>
+                  <p style={{ fontSize: 14.5, lineHeight: 1.6, color: "var(--muted)", margin: 0 }}>{s.note}</p>
+                </div>
               </div>
             </Reveal>
           ))}
-        </ol>
+        </div>
       </section>
 
       {/* where it is now */}
-      <section className="wrap" style={{ padding: "0 var(--pad) clamp(48px, 8vw, 88px)" }}>
+      <section className="wrap" style={{ padding: "0 var(--pad) clamp(56px, 8vw, 100px)" }}>
         <Reveal>
-          <div style={{ borderTop: "1px solid var(--line)", paddingTop: "clamp(32px, 6vw, 48px)" }}>
-            <div className="eyebrow" style={{ marginBottom: 14 }}>Where it is now</div>
-            <div style={{ display: "flex", gap: 0, maxWidth: 560, marginBottom: 20 }}>
+          <div style={{ borderTop: "1px solid var(--line)", paddingTop: "clamp(28px, 5vw, 48px)" }}>
+            <div className="eyebrow" style={{ marginBottom: 18 }}>Where it is now</div>
+            <div style={{ display: "flex", maxWidth: 640, marginBottom: 22 }}>
               {(cs?.stages ?? []).map((s) => (
                 <div
                   key={s.label}
@@ -133,54 +123,51 @@ export default function QuantumSightPage() {
                     flex: 1,
                     paddingTop: 10,
                     fontSize: 10.5,
-                    fontWeight: 600,
+                    letterSpacing: "0.08em",
                     borderTop:
-                      s.state === "todo"
-                        ? "2px dashed rgba(18,18,18,0.2)"
-                        : `2px solid ${s.state === "current" ? "var(--accent)" : "rgba(18,18,18,0.75)"}`,
-                    color:
-                      s.state === "current"
-                        ? "var(--accent)"
-                        : s.state === "todo"
-                          ? "rgba(18,18,18,0.35)"
-                          : "rgba(18,18,18,0.75)",
+                      s.state === "todo" ? "1px dashed rgba(18,18,18,0.25)" : `2px solid ${s.state === "current" ? "var(--accent)" : "rgba(18,18,18,0.8)"}`,
+                    color: s.state === "current" ? "var(--accent)" : s.state === "todo" ? "rgba(18,18,18,0.35)" : "rgba(18,18,18,0.8)",
                   }}
                 >
                   {s.label.toUpperCase()}
                 </div>
               ))}
             </div>
-            <p style={{ fontSize: 15, lineHeight: 1.7, color: "var(--muted)", margin: 0, maxWidth: 460 }}>
-              {cs?.outcome}
-            </p>
-            <p className="mono" style={{ fontSize: 11.5, color: "var(--faint)", marginTop: 18 }}>
+            <p style={{ fontSize: 16, lineHeight: 1.65, color: "var(--muted)", margin: 0, maxWidth: 520 }}>{cs?.outcome}</p>
+            <p className="mono" style={{ fontSize: 11, letterSpacing: "0.06em", color: "var(--faint)", marginTop: 20 }}>
               BUILT WITH — {(qs?.tech ?? []).join(" · ").toUpperCase()}
             </p>
           </div>
         </Reveal>
       </section>
 
-      {/* CTA */}
-      <section className="wrap" style={{ padding: "0 var(--pad) clamp(64px, 12vw, 120px)" }}>
-        <Reveal>
-          <div style={{ background: "var(--ink)", color: "#fff", borderRadius: 22, padding: "clamp(28px, 5vw, 52px)" }}>
-            <h2 className="sora" style={{ fontWeight: 800, fontSize: "clamp(24px, 4vw, 40px)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: 0, maxWidth: 520 }}>
-              Cameras that could be doing more?
+      {/* CTA — a full-bleed ink band */}
+      <section style={{ background: "var(--ink)", color: "#fff" }}>
+        <div className="wrap" style={{ padding: "clamp(56px, 9vw, 120px) var(--pad)" }}>
+          <Reveal>
+            <h2 className="display" style={{ fontWeight: 500, fontSize: "clamp(34px, 6vw, 92px)", margin: 0, maxWidth: 900 }}>
+              Cameras that could be doing <span className="serif-i" style={{ fontSize: "1.08em" }}>more</span>?
             </h2>
-            <p style={{ fontSize: 14.5, lineHeight: 1.6, color: "rgba(255,255,255,0.7)", margin: "14px 0 26px", maxWidth: 400 }}>
-              Running early pilots now.
-            </p>
+            <p style={{ fontSize: 16, lineHeight: 1.6, color: "rgba(255,255,255,0.65)", margin: "18px 0 30px", maxWidth: 400 }}>Running early pilots now.</p>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <a href={`mailto:${site.email}?subject=QuantumSight pilot`} className="mono" style={{ background: "#fff", color: "var(--ink)", padding: "12px 20px", borderRadius: 99, fontWeight: 600, fontSize: 13 }}>
-                {site.email} ↗
-              </a>
-              <Link href="/#work" className="mono" style={{ border: "1px solid rgba(255,255,255,0.3)", color: "#fff", padding: "12px 20px", borderRadius: 99, fontWeight: 600, fontSize: 13 }}>
+              <Magnetic>
+                <a href={`mailto:${site.email}?subject=QuantumSight pilot`} className="pill-solid" style={{ background: "#fff", color: "var(--ink)", borderColor: "#fff" }}>
+                  {site.email} ↗
+                </a>
+              </Magnetic>
+              <Link href="/#builds" className="pill-outline" style={{ borderColor: "rgba(255,255,255,0.35)", color: "#fff" }}>
                 See other builds →
               </Link>
             </div>
-          </div>
-        </Reveal>
+          </Reveal>
+        </div>
       </section>
+      <style>{`
+        @media (min-width: 900px) {
+          .qs-label { grid-column: 1 / span 3 !important; }
+          .qs-body { grid-column: 4 / span 9 !important; }
+        }
+      `}</style>
     </>
   );
 }

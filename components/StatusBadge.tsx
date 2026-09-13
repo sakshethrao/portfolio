@@ -7,22 +7,28 @@ const COLORS: Record<ProjectStatus, string> = {
   ARCHIVED: "var(--faint)",
 };
 
-export function StatusBadge({ status }: { status: ProjectStatus }) {
+/** a dot and a word — not a pill */
+export function StatusBadge({ status, light = false }: { status: ProjectStatus; light?: boolean }) {
   const color = COLORS[status];
   return (
     <span
       className="mono"
       style={{
-        fontWeight: 600,
-        fontSize: 10.5,
-        letterSpacing: "0.04em",
-        color,
-        border: `1px solid ${color}`,
-        padding: "3px 9px",
-        borderRadius: 99,
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 7,
+        fontWeight: 500,
+        fontSize: 11,
+        letterSpacing: "0.06em",
+        color: light ? "rgba(255,255,255,0.7)" : "var(--muted)",
         whiteSpace: "nowrap",
       }}
     >
+      <span
+        aria-hidden
+        className={status === "BUILDING" ? "blink" : undefined}
+        style={{ width: 6, height: 6, borderRadius: 99, background: color, display: "inline-block" }}
+      />
       {status}
     </span>
   );

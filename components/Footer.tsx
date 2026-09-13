@@ -1,63 +1,56 @@
-import Link from "next/link";
 import { site } from "@/content/site";
+import { photos } from "@/content/gallery";
+import { AccentSwatches } from "./AccentSwatches";
 
+/** one ruled line. LinkedIn is a link; Instagram is a handle with a peek. */
 export function Footer() {
   const year = new Date().getFullYear();
+  const peek = photos.filter((p) => p.src).slice(0, 3);
+  const handle = site.socials.instagram.replace(/\/$/, "").split("/").pop();
+
   return (
-    <footer style={{ borderTop: "1px solid var(--line)", marginTop: 40 }}>
+    <footer style={{ borderTop: "1px solid var(--line)" }}>
       <div
-        className="wrap"
+        className="wrap mono"
         style={{
-          paddingTop: 44,
-          paddingBottom: 44,
+          paddingTop: 22,
+          paddingBottom: 26,
           display: "flex",
           justifyContent: "space-between",
-          gap: 28,
+          alignItems: "center",
+          gap: 20,
           flexWrap: "wrap",
+          fontSize: 11,
+          letterSpacing: "0.05em",
+          color: "var(--muted-2)",
         }}
       >
-        <div style={{ maxWidth: 300 }}>
-          <div className="sora" style={{ fontWeight: 700, fontSize: 16, letterSpacing: "-0.01em" }}>
-            {site.name}
-          </div>
-          <p className="mono" style={{ fontSize: 11, lineHeight: 1.7, color: "var(--faint)", margin: "10px 0 0", letterSpacing: "0.02em" }}>
-            {site.builtWith}
-          </p>
-        </div>
+        <span>© {year} {site.name.toUpperCase()} · STILL BUILDING.</span>
 
-        <div className="mono" style={{ display: "flex", gap: 44, flexWrap: "wrap", fontSize: 12 }}>
-          <FooterCol title="Site">
-            <Link href="/#work" className="link-underline">Builds</Link>
-            <Link href="/#lab" className="link-underline">Lab</Link>
-            <Link href="/quantumsight" className="link-underline">QuantumSight</Link>
-            <Link href="/gallery" className="link-underline">Travel</Link>
-            <Link href="/resume" className="link-underline">Résumé</Link>
-          </FooterCol>
-          <FooterCol title="Elsewhere">
-            <a href={site.socials.linkedin} target="_blank" rel="noreferrer" className="link-underline">LinkedIn ↗</a>
-            {site.socials.instagram && (
-              <a href={site.socials.instagram} target="_blank" rel="noreferrer" className="link-underline">Instagram ↗</a>
+        <span style={{ display: "flex", gap: 22, flexWrap: "wrap", alignItems: "center" }}>
+          <a href={site.socials.linkedin} target="_blank" rel="noreferrer" className="link-underline">LINKEDIN ↗</a>
+          <a href={site.socials.instagram} target="_blank" rel="noreferrer" className="link-underline ig-peek" style={{ position: "relative" }}>
+            @{handle}
+            {peek.length > 0 && (
+              <span className="ig-strip" aria-hidden>
+                {peek.map((p) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img key={p.src} src={p.src} alt="" width={56} height={56} style={{ objectFit: "cover", display: "block" }} />
+                ))}
+              </span>
             )}
-            <a href={site.socials.github} target="_blank" rel="noreferrer" className="link-underline">GitHub ↗</a>
-            <a href={`mailto:${site.email}`} className="link-underline">Email ↗</a>
-          </FooterCol>
-        </div>
-      </div>
+          </a>
+          <a href={site.socials.github} target="_blank" rel="noreferrer" className="link-underline">GITHUB ↗</a>
+          <a href={`mailto:${site.email}`} className="link-underline">EMAIL ↗</a>
+          <AccentSwatches />
+        </span>
 
-      <div className="wrap" style={{ paddingBottom: 32 }}>
-        <div className="mono" style={{ fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.03em" }}>
-          © {year} {site.name} · Still building.
-        </div>
+        <span style={{ color: "var(--faint)" }}>{site.builtWith}</span>
       </div>
+      <style>{`
+        .ig-strip { position: absolute; left: 0; bottom: calc(100% + 10px); display: flex; gap: 4px; opacity: 0; transform: translateY(6px); transition: opacity .25s var(--ease), transform .25s var(--ease); pointer-events: none; }
+        .ig-peek:hover .ig-strip { opacity: 1; transform: translateY(0); }
+      `}</style>
     </footer>
-  );
-}
-
-function FooterCol({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-      <div style={{ color: "var(--muted-2)", letterSpacing: "0.04em", marginBottom: 2 }}>{title.toUpperCase()}</div>
-      {children}
-    </div>
   );
 }

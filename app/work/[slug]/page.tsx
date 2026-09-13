@@ -1,156 +1,57 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import Image from "next/image";
-import { PageIntro } from "@/components/PageIntro";
 import { Reveal } from "@/components/Reveal";
-import { StatusBadge } from "@/components/StatusBadge";
-import { ProjectPhone } from "@/components/work/ProjectPhone";
-import { ParchiDemo } from "@/components/parchi/ParchiDemo";
-import { MakeFlow } from "@/components/make/MakeFlow";
+import { SpreadDevice } from "@/components/builds/SpreadDevice";
+import { SpreadBrowser } from "@/components/builds/SpreadBrowser";
+import { SpreadLedger } from "@/components/builds/SpreadLedger";
+import { SpreadSmall } from "@/components/builds/SpreadSmall";
 import { projects, getProject, publicProjects } from "@/content/projects";
 
 export function generateStaticParams() {
-  return projects
-    .filter((p) => !p.private && p.slug !== "quantumsight")
-    .map((p) => ({ slug: p.slug }));
+  return projects.filter((p) => !p.private && p.slug !== "quantumsight").map((p) => ({ slug: p.slug }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const p = getProject(slug);
   if (!p) return {};
   return { title: p.title, description: p.tagline };
 }
 
-export default async function ProjectPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const p = getProject(slug);
   if (!p || p.private) notFound();
-  // QuantumSight has its own dedicated page
-  if (p.slug === "quantumsight") notFound();
+  if (p.slug === "quantumsight") notFound(); // has its own page
 
+  const index = publicProjects.findIndex((x) => x.slug === p.slug) + 1;
   const cs = p.caseStudy;
 
   return (
     <>
-      <PageIntro
-        eyebrow={p.category}
-        title={p.title}
-        lead={p.tagline}
-        back={{ href: "/#work", label: "← All builds" }}
-      />
+      <div className="wrap" style={{ paddingTop: "clamp(84px, 12vh, 120px)" }}>
+        <Link href="/#builds" className="mono link-underline" style={{ fontSize: 11, letterSpacing: "0.06em", color: "var(--muted-2)" }}>
+          ← ALL BUILDS
+        </Link>
+      </div>
+
+      {/* the same spread as on the index — you've zoomed in, not moved */}
+      {p.layout === "device" && <SpreadDevice project={p} index={index} detail />}
+      {p.layout === "browser" && <SpreadBrowser project={p} index={index} detail />}
+      {p.layout === "compact" && <SpreadLedger project={p} index={index} detail />}
+      {(p.layout === "panel" || p.layout === "terminal") && <SpreadSmall project={p} index={index} detail />}
 
       <section className="wrap" style={{ padding: "0 var(--pad) clamp(64px, 10vw, 120px)" }}>
-        <Reveal>
-          <div
-            className="mono"
-            style={{
-              display: "flex",
-              gap: 16,
-              flexWrap: "wrap",
-              alignItems: "center",
-              borderTop: "1px solid var(--line)",
-              borderBottom: "1px solid var(--line)",
-              padding: "18px 0",
-              fontSize: 12,
-              color: "var(--muted-2)",
-              marginBottom: 40,
-            }}
-          >
-            <StatusBadge status={p.status} />
-            <span>{p.period}</span>
-            <span style={{ color: "var(--faint)" }}>{p.tech.join(" · ")}</span>
-            <span style={{ marginLeft: "auto", display: "flex", gap: 12 }}>
-              {p.liveUrl && (
-                <a href={p.liveUrl} target="_blank" rel="noreferrer" className="link-underline" style={{ color: "var(--ink)" }}>
-                  Live ↗
-                </a>
-              )}
-              {p.githubUrl && (
-                <a href={p.githubUrl} target="_blank" rel="noreferrer" className="link-underline" style={{ color: "var(--ink)" }}>
-                  Code ↗
-                </a>
-              )}
-            </span>
-          </div>
-        </Reveal>
-
-        {p.slug === "parchi" && (
-          <Reveal>
-            <div style={{ marginBottom: 40 }}>
-              <ParchiDemo />
-              <span className="mono" style={{ display: "block", marginTop: 10, fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.04em" }}>
-                LIVE DEMO — DROP THE RECEIPT, THEN CHECK THE DASHBOARD
-              </span>
-            </div>
-          </Reveal>
-        )}
-
-        {p.slug === "influencer-payment-os" && (
-          <Reveal>
-            <div style={{ marginBottom: 40 }}>
-              <MakeFlow />
-              <span className="mono" style={{ display: "block", marginTop: 10, fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.04em" }}>
-                LIVE DEMO — HIT RUN ONCE, WATCH IT MOVE THROUGH THE SCENARIO
-              </span>
-            </div>
-          </Reveal>
-        )}
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: p.layout === "device" ? "minmax(0, 0.8fr) minmax(0, 1fr)" : "1fr",
-            gap: "clamp(28px, 5vw, 64px)",
-            alignItems: "start",
-          }}
-          className={p.layout === "device" ? "qs-page-split" : undefined}
-        >
-          {p.layout === "device" && (
-            <Reveal>
-              <div className="device-stage" style={{ position: "sticky", top: 90 }}>
-                <ProjectPhone project={p} />
-                {p.slug === "nurture" && (
-                  <span className="mono" style={{ fontSize: 10, color: "var(--faint)", letterSpacing: "0.04em" }}>
-                    LIVE PREVIEW — TAP THE BOTTOM BAR
-                  </span>
-                )}
-              </div>
-            </Reveal>
-          )}
-
-          <Reveal>
-            <div style={{ display: "flex", flexDirection: "column", gap: 28, maxWidth: 640 }}>
-              {cs?.problem && <Block label="The problem" body={cs.problem} />}
-              {cs?.approach && <Block label="What I built" body={cs.approach} />}
-              {cs?.outcome && <Block label="Where it stands" body={cs.outcome} />}
-              {cs?.notes?.map((n, i) => (
-                <p key={i} style={{ fontSize: 15, lineHeight: 1.75, color: "var(--muted)", margin: 0 }}>{n}</p>
-              ))}
-              {!cs && (
-                <p style={{ fontSize: 15, lineHeight: 1.75, color: "var(--muted)", margin: 0 }}>
-                  A full write-up for this one is on the way.
-                </p>
-              )}
-            </div>
-          </Reveal>
+        <div style={{ borderTop: "1px solid var(--ink)" }}>
+          {cs?.problem && <Block label="The problem" body={cs.problem} />}
+          {cs?.approach && <Block label="What I built" body={cs.approach} />}
+          {cs?.outcome && <Block label="Where it stands" body={cs.outcome} />}
+          {cs?.notes?.map((n, i) => (
+            <Block key={i} label={i === 0 ? "Notes" : ""} body={n} muted />
+          ))}
+          {!cs && <Block label="Write-up" body="A full write-up for this one is on the way." muted />}
         </div>
-
-        {p.image && p.layout !== "device" && (
-          <Reveal>
-            <div style={{ marginTop: 48, borderRadius: 18, overflow: "hidden", border: "1px solid var(--line)", position: "relative", aspectRatio: "16 / 10" }}>
-              <Image src={p.image} alt={p.title} fill sizes="(max-width: 1280px) 100vw, 1180px" style={{ objectFit: "cover" }} />
-            </div>
-          </Reveal>
-        )}
       </section>
 
       <NextProjects slug={p.slug} />
@@ -158,32 +59,40 @@ export default async function ProjectPage({
   );
 }
 
-function Block({ label, body }: { label: string; body: string }) {
+function Block({ label, body, muted }: { label: string; body: string; muted?: boolean }) {
   return (
-    <div>
-      <div className="mono" style={{ fontSize: 11, letterSpacing: "0.04em", color: "var(--muted-2)", marginBottom: 8 }}>
-        {label.toUpperCase()}
+    <Reveal>
+      <div className="timeline-row" style={{ borderTop: label ? undefined : 0, paddingTop: label ? undefined : 0 }}>
+        <div className="eyebrow" style={{ paddingTop: 6 }}>{label}</div>
+        <p style={{ fontSize: muted ? 15.5 : "clamp(17px, 1.6vw, 22px)", lineHeight: muted ? 1.65 : 1.5, color: muted ? "var(--muted)" : "var(--ink)", margin: 0, maxWidth: 720 }}>
+          {body}
+        </p>
       </div>
-      <p style={{ fontSize: 16, lineHeight: 1.75, color: "var(--ink)", margin: 0 }}>{body}</p>
-    </div>
+    </Reveal>
   );
 }
 
 function NextProjects({ slug }: { slug: string }) {
-  const others = publicProjects.filter((p) => p.slug !== slug && p.slug !== "quantumsight").slice(0, 3);
+  const others = publicProjects.filter((p) => p.slug !== slug);
   if (!others.length) return null;
   return (
     <section className="wrap" style={{ padding: "0 var(--pad) clamp(72px, 12vw, 130px)" }}>
-      <div style={{ borderTop: "1px solid var(--line)", paddingTop: 32 }}>
-        <div className="mono" style={{ fontSize: 11, color: "var(--muted-2)", marginBottom: 18 }}>MORE BUILDS</div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          {others.map((o) => (
-            <a key={o.slug} href={`/work/${o.slug}`} style={{ display: "flex", justifyContent: "space-between", gap: 16, padding: "16px 0", borderBottom: "1px solid var(--line)" }}>
-              <span className="sora" style={{ fontWeight: 700, fontSize: 17 }}>{o.title}</span>
-              <span style={{ fontSize: 13, color: "var(--muted)", flex: 1, textAlign: "right" }}>{o.tagline}</span>
-            </a>
-          ))}
-        </div>
+      <div className="eyebrow" style={{ marginBottom: 6 }}>More builds</div>
+      <div>
+        {others.map((o) => (
+          <Link
+            key={o.slug}
+            href={o.slug === "quantumsight" ? "/quantumsight" : `/work/${o.slug}`}
+            className="timeline-row"
+            style={{ padding: "18px 0", alignItems: "baseline" }}
+          >
+            <span className="mono" style={{ fontSize: 11, letterSpacing: "0.06em", color: "var(--faint)" }}>{o.period.toUpperCase()}</span>
+            <span style={{ display: "flex", justifyContent: "space-between", gap: 20, flexWrap: "wrap" }}>
+              <span className="display" style={{ fontWeight: 500, fontSize: "clamp(22px, 2.6vw, 34px)" }}>{o.title}</span>
+              <span style={{ fontSize: 14, color: "var(--muted)", maxWidth: 420 }}>{o.tagline}</span>
+            </span>
+          </Link>
+        ))}
       </div>
     </section>
   );

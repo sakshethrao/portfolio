@@ -35,6 +35,8 @@ export interface Project {
   screens?: string[];
   /** monospace lines for layout: "terminal" */
   terminal?: string[];
+  /** headline numbers, set at display size (layout: "compact" ledger) */
+  figures?: { value: string; label: string }[];
   /** longer-form write-up shown on the detail page / expandable panel */
   caseStudy?: {
     problem?: string;

@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import { PageIntro } from "@/components/PageIntro";
+import { Magnetic } from "@/components/Magnetic";
 import { site } from "@/content/site";
-import {
-  roles,
-  earlier,
-  education,
-  certifications,
-} from "@/content/experience";
+import { roles, earlier, education, certifications } from "@/content/experience";
 import type { Role } from "@/lib/types";
 
 export const metadata: Metadata = {
@@ -21,21 +17,26 @@ export default function ResumePage() {
     <>
       <PageIntro
         eyebrow="Résumé"
-        title="The short version."
+        title={
+          <>
+            The <span className="serif-i" style={{ fontSize: "1.1em" }}>short</span> version.
+          </>
+        }
         lead="The site is the long version. Here's the one page you can print."
       />
 
-      <section className="wrap" style={{ padding: "0 var(--pad) clamp(72px, 12vw, 130px)" }}>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 36 }}>
-          <a href={file} target="_blank" rel="noreferrer" className="mono pill-solid">
-            View PDF ↗
-          </a>
-          <a href={file} download className="mono pill-outline">
-            Download ↓
-          </a>
-          <span className="mono" style={{ alignSelf: "center", fontSize: 11, color: "var(--faint)" }}>
-            Updated {site.resume.updated}
-          </span>
+      <section data-section="resume" className="wrap" style={{ padding: "0 var(--pad) clamp(72px, 12vw, 130px)" }}>
+        {/* document masthead */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap", borderTop: "1px solid var(--ink)", borderBottom: "1px solid var(--line)", padding: "18px 0", marginBottom: "clamp(32px, 5vw, 56px)" }}>
+          <div className="mono" style={{ fontSize: 11, letterSpacing: "0.06em", color: "var(--muted-2)" }}>
+            {site.name.toUpperCase()} — CV · UPDATED {site.resume.updated} · PDF
+          </div>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <Magnetic>
+              <a href={file} target="_blank" rel="noreferrer" className="pill-solid">View ↗</a>
+            </Magnetic>
+            <a href={file} download className="pill-outline">Download ↓</a>
+          </div>
         </div>
 
         <Section title="Experience">
@@ -46,18 +47,12 @@ export default function ResumePage() {
 
         <Section title="Education">
           {education.map((e) => (
-            <div key={e.school} className="resume-row" style={rowStyle}>
-              <div className="mono" style={metaStyle}>{e.period}</div>
+            <div key={e.school} className="timeline-row">
+              <div className="mono" style={meta}>{e.period.toUpperCase()}</div>
               <div>
-                <div className="sora" style={{ fontWeight: 700, fontSize: 16 }}>{e.school}</div>
-                <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted)", margin: "6px 0 0" }}>
-                  {e.program}
-                </p>
-                {e.note && (
-                  <p className="mono" style={{ fontSize: 11.5, color: "var(--faint)", margin: "6px 0 0" }}>
-                    {e.note}
-                  </p>
-                )}
+                <div style={{ fontWeight: 600, fontSize: 17 }}>{e.school}</div>
+                <p style={{ fontSize: 14.5, lineHeight: 1.6, color: "var(--muted)", margin: "6px 0 0" }}>{e.program}</p>
+                {e.note && <p className="mono" style={{ fontSize: 11, color: "var(--faint)", margin: "8px 0 0", letterSpacing: "0.03em" }}>{e.note}</p>}
               </div>
             </div>
           ))}
@@ -70,11 +65,11 @@ export default function ResumePage() {
         </Section>
 
         <Section title="Certifications">
-          <div className="resume-row" style={{ ...rowStyle, borderBottom: 0 }}>
-            <div className="mono" style={metaStyle}>—</div>
+          <div className="timeline-row">
+            <div className="mono" style={meta}>—</div>
             <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
               {certifications.map((c) => (
-                <li key={c.name} style={{ fontSize: 14, color: "var(--muted)" }}>
+                <li key={c.name} style={{ fontSize: 14.5, color: "var(--muted)" }}>
                   <span style={{ color: "var(--ink)" }}>{c.name}</span> — {c.issuer}, {c.year}
                 </li>
               ))}
@@ -86,40 +81,31 @@ export default function ResumePage() {
   );
 }
 
-const rowStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "150px 1fr",
-  gap: 20,
-  padding: "18px 0",
-  borderBottom: "1px solid var(--line)",
-};
-const metaStyle: React.CSSProperties = { fontSize: 12, color: "var(--faint)" };
+const meta: React.CSSProperties = { fontSize: 11, letterSpacing: "0.06em", color: "var(--faint)", paddingTop: 4 };
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: 40 }}>
-      <div className="eyebrow" style={{ marginBottom: 6 }}>{title}</div>
-      <div style={{ borderTop: "1px solid var(--line)" }}>{children}</div>
+    <div style={{ marginBottom: "clamp(32px, 5vw, 56px)" }}>
+      <div className="eyebrow" style={{ marginBottom: 4 }}>{title}</div>
+      <div>{children}</div>
     </div>
   );
 }
 
 function Row({ role: r, withPoints }: { role: Role; withPoints?: boolean }) {
   return (
-    <div className="resume-row" style={rowStyle}>
-      <div className="mono" style={metaStyle}>{r.period}</div>
+    <div className="timeline-row">
+      <div className="mono" style={meta}>
+        {r.period.toUpperCase()}
+        {r.location && <span style={{ display: "block", marginTop: 4 }}>{r.location.toUpperCase()}</span>}
+      </div>
       <div>
-        <div className="sora" style={{ fontWeight: 700, fontSize: 16 }}>
+        <div style={{ fontWeight: 600, fontSize: 17 }}>
           {r.title} · {r.company}
         </div>
-        {r.location && (
-          <div className="mono" style={{ fontSize: 11, color: "var(--faint)", marginTop: 2 }}>{r.location}</div>
-        )}
-        {r.summary && (
-          <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--muted)", margin: "8px 0 0" }}>{r.summary}</p>
-        )}
+        {r.summary && <p style={{ fontSize: 14.5, lineHeight: 1.6, color: "var(--muted)", margin: "8px 0 0", maxWidth: 640 }}>{r.summary}</p>}
         {withPoints && r.points && (
-          <ul style={{ margin: "8px 0 0", paddingLeft: 16, fontSize: 13.5, lineHeight: 1.65, color: "var(--muted-2)" }}>
+          <ul style={{ margin: "10px 0 0", paddingLeft: 16, fontSize: 14, lineHeight: 1.65, color: "var(--muted-2)", maxWidth: 640 }}>
             {r.points.map((p, i) => <li key={i}>{p}</li>)}
           </ul>
         )}

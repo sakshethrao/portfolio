@@ -1,15 +1,32 @@
 import type { Metadata, Viewport } from "next";
-import { Sora, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import {
+  Bricolage_Grotesque,
+  Instrument_Serif,
+  JetBrains_Mono,
+  Plus_Jakarta_Sans,
+} from "next/font/google";
 import "./globals.css";
 import { AccentProvider } from "@/components/AccentProvider";
-import { Nav } from "@/components/Nav";
+import { SmoothScroll } from "@/components/SmoothScroll";
+import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/Footer";
 import { site } from "@/content/site";
 
-const sora = Sora({
+// display + body: variable, with optical size so 12px labels and 160px
+// headlines are drawn from the same family without looking like the same cut
+const display = Bricolage_Grotesque({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-sora",
+  axes: ["opsz", "wdth"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+// one italic serif, for a single emphasised word per heading
+const serif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-serif",
   display: "swap",
 });
 
@@ -38,21 +55,12 @@ export const metadata: Metadata = {
   },
   description:
     "Saksheth Rao builds products, startups and AI tools. Founder of QuantumSight. A running index of things shipped, things in progress, and things built out of curiosity.",
-  keywords: [
-    "Saksheth Rao",
-    "QuantumSight",
-    "founder",
-    "product",
-    "AI",
-    "computer vision",
-    "portfolio",
-  ],
+  keywords: ["Saksheth Rao", "QuantumSight", "founder", "product", "AI", "computer vision", "portfolio"],
   authors: [{ name: site.name }],
   openGraph: {
     type: "website",
     title: `${site.name} — I like building things`,
-    description:
-      "Products, startups, AI. Founder of QuantumSight. A builder's portfolio.",
+    description: "Products, startups, AI. Founder of QuantumSight. A builder's portfolio.",
     url,
     siteName: site.name,
   },
@@ -69,21 +77,19 @@ export const viewport: Viewport = {
   colorScheme: "light",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sora.variable} ${mono.variable} ${jakarta.variable}`}>
+    <html lang="en" className={`${display.variable} ${serif.variable} ${mono.variable} ${jakarta.variable}`}>
       <body>
         <AccentProvider>
-          <a href="#main" className="skip mono">
-            Skip to content
-          </a>
-          <Nav />
-          <main id="main">{children}</main>
-          <Footer />
+          <SmoothScroll>
+            <a href="#main" className="skip mono">
+              Skip to content
+            </a>
+            <Nav />
+            <main id="main">{children}</main>
+            <Footer />
+          </SmoothScroll>
         </AccentProvider>
       </body>
     </html>

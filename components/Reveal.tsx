@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import type { ReactNode } from "react";
+import { createElement, type ReactNode } from "react";
 
 /**
  * Restrained scroll-in. One gesture, used everywhere, so the whole site moves
@@ -26,12 +26,7 @@ export function Reveal({
   const Tag = motion[as] as typeof motion.div;
 
   if (reduce) {
-    const Plain = as as keyof React.JSX.IntrinsicElements;
-    return (
-      <Plain className={className} style={style}>
-        {children}
-      </Plain>
-    );
+    return createElement(as as string, { className, style }, children);
   }
 
   return (
