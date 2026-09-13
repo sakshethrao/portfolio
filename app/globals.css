@@ -453,6 +453,14 @@ button {
   }
 }
 
+/* studio hover captions: narrower on phones so they stay on screen */
+@media (max-width: 700px) {
+  .studio-cap {
+    width: 168px !important;
+    font-size: 12px !important;
+  }
+}
+
 /* studio detection label that follows the cursor */
 @keyframes studio-label-in {
   from {

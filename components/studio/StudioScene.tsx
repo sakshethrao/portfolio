@@ -30,7 +30,7 @@ const LANDSCAPE: Layout = {
     cctv: { pos: [-1.75, 0, -0.55], top: 0.95, foot: 0.26, dx: 0.35 },
     aibox: { pos: [-1.05, 0, -1.0], rot: [0, 0.18, 0], top: 0.2, foot: 0.4 },
     laptop: { pos: [0.25, 0, -0.35], rot: [0, -0.06, 0], top: 0.95, foot: 0.82 },
-    phone: { pos: [1.35, 0, -0.15], rot: [0, 0.32, 0], top: 0.12, foot: 0.44, dx: -0.3 },
+    phone: { pos: [1.6, 0, 0.1], rot: [0, 0.32, 0], top: 0.12, foot: 0.44, dx: -0.3 },
     camera: { pos: [1.95, 0, 0.75], rot: [0, -0.55, 0], top: 0.45, foot: 0.36, dx: -0.6 },
     pass: { pos: [-0.35, 0, 0.9], rot: [0, 0.22, 0], top: 0.1, foot: 0.44 },
     resume: { pos: [-1.6, 0, 0.75], rot: [0, -0.14, 0], top: 0.1, foot: 0.52, dx: 0.4 },
@@ -49,16 +49,16 @@ const LANDSCAPE: Layout = {
 const PORTRAIT: Layout = {
   desk: [2.8, 3.4],
   items: {
-    cctv: { pos: [-0.85, 0, -0.45], top: 0.95, foot: 0.26, dx: 0.3 },
-    aibox: { pos: [-0.75, 0, -1.2], rot: [0, 0.2, 0], top: 0.2, foot: 0.4 },
+    cctv: { pos: [-0.85, 0, -0.45], top: 0.95, foot: 0.26, dx: 0.75 },
+    aibox: { pos: [-0.75, 0, -1.2], rot: [0, 0.2, 0], top: 0.2, foot: 0.4, dx: 0.6 },
     laptop: { pos: [0.25, 0, -0.75], rot: [0, 0, 0], top: 0.95, foot: 0.8 },
-    phone: { pos: [0.95, 0, 0.0], rot: [0, 0.25, 0], top: 0.12, foot: 0.44, dx: -0.3 },
-    camera: { pos: [0.85, 0, 0.75], rot: [0, -0.5, 0], top: 0.45, foot: 0.36, dx: -0.4 },
+    phone: { pos: [0.95, 0, 0.3], rot: [0, 0.2, 0], top: 0.12, foot: 0.44, dx: -0.95 },
+    camera: { pos: [0.45, 0, 0.92], rot: [0, -0.5, 0], top: 0.45, foot: 0.36, dx: -0.6 },
     pass: { pos: [-0.05, 0, 0.35], rot: [0, 0.15, 0], top: 0.1, foot: 0.44 },
-    resume: { pos: [-0.85, 0, 0.55], rot: [0, -0.1, 0], top: 0.1, foot: 0.5, dx: 0.3 },
-    ball: { pos: [0.2, 0, 1.1], top: 0.28, foot: 0.16 },
-    paddle: { pos: [0.85, 0, 1.3], rot: [0, 1.25, 0], top: 0.08, foot: 0.4, dx: -0.3 },
-    drone: { pos: [-0.85, 0, 1.35], rot: [0, 0.4, 0], top: 0.12, foot: 0.34, dx: 0.3 },
+    resume: { pos: [-0.85, 0, 0.55], rot: [0, -0.1, 0], top: 0.1, foot: 0.5, dx: 0.7 },
+    ball: { pos: [-0.05, 0, 1.25], top: 0.28, foot: 0.16 },
+    paddle: { pos: [0.9, 0, 1.12], rot: [0, -0.7, 0], top: 0.08, foot: 0.4, dx: -0.95 },
+    drone: { pos: [-0.85, 0, 1.35], rot: [0, 0.4, 0], top: 0.12, foot: 0.34, dx: 0.8 },
   },
   decor: { mug: [1.0, 0, -0.9], pencil: [-0.4, 0, 0.9], plant: [1.05, 0, -1.4] },
   rig: {
@@ -175,6 +175,7 @@ function Item({
         style={{ pointerEvents: "none", opacity: hover && visibleCaptions ? 1 : 0, transition: "opacity .25s cubic-bezier(.22,1,.36,1)", transform: `translateY(${hover ? 0 : 6}px)` }}
       >
         <div
+          className="studio-cap"
           style={{
             background: "#fff",
             border: "1px solid rgba(18,18,18,0.18)",
