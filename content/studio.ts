@@ -3,7 +3,7 @@
  * shows `label` + `line`, click goes to `href`. Keys match the objects in
  * components/studio/objects — the wording here is the only thing to edit.
  */
-export type StudioObjectKey = "cctv" | "aibox" | "phone" | "laptop" | "camera" | "pass" | "resume" | "ball";
+export type StudioObjectKey = "cctv" | "aibox" | "phone" | "laptop" | "camera" | "pass" | "resume" | "ball" | "paddle" | "drone";
 
 export const studioObjects: { key: StudioObjectKey; label: string; line: string; href: string }[] = [
   { key: "cctv", label: "QuantumSight", line: "Making existing CCTV cameras understand what they see. Founder, 2025 — now.", href: "/quantumsight" },
@@ -14,6 +14,8 @@ export const studioObjects: { key: StudioObjectKey; label: string; line: string;
   { key: "pass", label: "Travel", line: "Loosely ordered, lightly edited.", href: "/gallery" },
   { key: "resume", label: "Résumé", line: "The one page you can print.", href: "/resume" },
   { key: "ball", label: "Off hours", line: "Travel, cricket, a camera.", href: "/#experience" },
+  { key: "paddle", label: "Off hours", line: "Pickleball, when it isn't cricket.", href: "/#experience" },
+  { key: "drone", label: "From above", line: "Places I've pointed a camera at — sometimes from the air.", href: "/gallery" },
 ];
 
 export const studioHint = "SCROLL — THE DESK ↓";

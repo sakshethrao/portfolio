@@ -178,9 +178,15 @@ function rng(seed: number) {
 }
 
 export function useWoodTexture() {
-  return useMemo(
-    () =>
-      makeTexture(1024, 1024, (ctx, w, h) => {
+  return useMemo(() => {
+    const t = makeWood();
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    return t;
+  }, []);
+}
+
+function makeWood() {
+  return makeTexture(1024, 1024, (ctx, w, h) => {
         const rand = rng(7);
         ctx.fillStyle = "#cdb08a";
         ctx.fillRect(0, 0, w, h);
@@ -213,6 +219,40 @@ export function useWoodTexture() {
           ctx.fillStyle = g;
           ctx.fillRect(0, y - 90, w, 180);
         }
+      });
+}
+
+/** a pickleball paddle face: teal, a white diagonal, a magenta band, a small mark */
+export function usePaddleFace() {
+  return useMemo(
+    () =>
+      makeTexture(512, 512, (ctx, w, h) => {
+        ctx.fillStyle = "#1c7c8f";
+        ctx.fillRect(0, 0, w, h);
+        ctx.save();
+        ctx.translate(w / 2, h / 2);
+        ctx.rotate(-0.6);
+        ctx.fillStyle = "#f4f2ec";
+        ctx.fillRect(-400, -70, 800, 90);
+        ctx.fillStyle = "#e0417d";
+        ctx.fillRect(-400, 30, 800, 34);
+        ctx.restore();
+        // honeycomb hint
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        ctx.lineWidth = 1;
+        for (let y = 0; y < h; y += 22) for (let x = (y / 22) % 2 ? 11 : 0; x < w; x += 22) {
+          ctx.beginPath();
+          ctx.arc(x, y, 9, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.fillStyle = "#111";
+        ctx.beginPath();
+        ctx.arc(w / 2, h * 0.7, 34, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 30px system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("SR", w / 2, h * 0.7 + 11);
       }),
     [],
   );

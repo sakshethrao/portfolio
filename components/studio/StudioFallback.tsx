@@ -10,7 +10,7 @@ import { studioObjects } from "@/content/studio";
 export function StudioFallback() {
   const s = { fill: "none", stroke: "#121212", strokeWidth: 1.2, vectorEffect: "non-scaling-stroke" as const };
   const spots: Record<string, [number, number]> = {
-    cctv: [14, 30], aibox: [26, 44], laptop: [50, 44], phone: [70, 52], camera: [84, 66], pass: [42, 72], resume: [20, 72], ball: [62, 76],
+    cctv: [14, 30], aibox: [26, 44], laptop: [50, 44], phone: [70, 52], camera: [84, 66], pass: [42, 72], resume: [20, 72], ball: [62, 76], paddle: [78, 86], drone: [10, 88],
   };
   return (
     <div style={{ position: "relative", width: "100%", maxWidth: 1100, margin: "0 auto" }}>

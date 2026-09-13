@@ -7,38 +7,71 @@ import * as THREE from "three";
 import { studioObjects, type StudioObjectKey } from "@/content/studio";
 import { ItemCtx, Box, Cyl, useWoodTexture } from "./objects/primitives";
 import { CctvCamera } from "./objects/CctvCamera";
-import { AiBox, Phone, Laptop, Camera35, BoardingPass, ResumeSheet, CricketBall, Mug, Pencil, Plant } from "./objects/Things";
+import { AiBox, AIBOX_PORT, Phone, Laptop, Camera35, BoardingPass, ResumeSheet, CricketBall, Paddle, Drone, Mug, Pencil, Plant } from "./objects/Things";
 
 export type StudioProgress = { current: number };
 
-/* ---------------------------------------------------------------------------
-   Layout of the desk (world units; desk is 6 × 3.6, centred at the origin)
-   --------------------------------------------------------------------------- */
-/* dx nudges the caption sideways so it stays inside the stage near the edges */
-const LAYOUT: Record<StudioObjectKey, { pos: [number, number, number]; rot?: [number, number, number]; top: number; foot: number; dx?: number }> = {
-  cctv: { pos: [-1.75, 0, -0.55], top: 0.95, foot: 0.26, dx: 0.35 },
-  aibox: { pos: [-1.05, 0, -1.0], rot: [0, 0.18, 0], top: 0.2, foot: 0.4 },
-  laptop: { pos: [0.25, 0, -0.35], rot: [0, -0.06, 0], top: 0.95, foot: 0.82 },
-  phone: { pos: [1.35, 0, -0.15], rot: [0, 0.32, 0], top: 0.12, foot: 0.44, dx: -0.3 },
-  camera: { pos: [1.95, 0, 0.75], rot: [0, -0.55, 0], top: 0.45, foot: 0.36, dx: -0.6 },
-  pass: { pos: [-0.35, 0, 0.9], rot: [0, 0.22, 0], top: 0.1, foot: 0.44 },
-  resume: { pos: [-1.6, 0, 0.75], rot: [0, -0.14, 0], top: 0.1, foot: 0.52, dx: 0.4 },
-  ball: { pos: [0.95, 0, 0.95], top: 0.28, foot: 0.16 },
+type V3 = [number, number, number];
+type Slot = { pos: V3; rot?: V3; top: number; foot: number; dx?: number };
+type Layout = {
+  desk: [number, number]; // width × depth
+  items: Record<StudioObjectKey, Slot>;
+  decor: { mug: V3; pencil: V3; plant: V3 };
+  rig: { hero: { pos: V3; look: V3 }; desk: { pos: V3; look: V3 }; fov: number };
 };
 
-/* camera keyframes: hero (close on the CCTV camera) → desk (whole scene) */
-const RIG = {
-  landscape: {
+/* ---------------------------------------------------------------------------
+   Two desks: the full one for landscape screens, a tighter one for portrait.
+   dx nudges a caption sideways so it stays inside the stage near the edges.
+   --------------------------------------------------------------------------- */
+const LANDSCAPE: Layout = {
+  desk: [6.2, 3.7],
+  items: {
+    cctv: { pos: [-1.75, 0, -0.55], top: 0.95, foot: 0.26, dx: 0.35 },
+    aibox: { pos: [-1.05, 0, -1.0], rot: [0, 0.18, 0], top: 0.2, foot: 0.4 },
+    laptop: { pos: [0.25, 0, -0.35], rot: [0, -0.06, 0], top: 0.95, foot: 0.82 },
+    phone: { pos: [1.35, 0, -0.15], rot: [0, 0.32, 0], top: 0.12, foot: 0.44, dx: -0.3 },
+    camera: { pos: [1.95, 0, 0.75], rot: [0, -0.55, 0], top: 0.45, foot: 0.36, dx: -0.6 },
+    pass: { pos: [-0.35, 0, 0.9], rot: [0, 0.22, 0], top: 0.1, foot: 0.44 },
+    resume: { pos: [-1.6, 0, 0.75], rot: [0, -0.14, 0], top: 0.1, foot: 0.52, dx: 0.4 },
+    ball: { pos: [0.7, 0, 1.15], top: 0.28, foot: 0.16 },
+    paddle: { pos: [1.35, 0, 1.2], rot: [0, 1.15, 0], top: 0.08, foot: 0.4, dx: -0.3 },
+    drone: { pos: [-2.5, 0, -1.2], rot: [0, 0.5, 0], top: 0.12, foot: 0.34, dx: 0.5 },
+  },
+  decor: { mug: [1.2, 0, -0.95], pencil: [-0.95, 0, 0.35], plant: [2.45, 0, -1.05] },
+  rig: {
     hero: { pos: [-2.95, 1.0, 1.85], look: [-2.35, 0.62, -0.5] },
     desk: { pos: [0.1, 4.4, 4.3], look: [0, 0.05, -0.15] },
     fov: 30,
   },
-  portrait: {
-    hero: { pos: [-2.7, 0.6, 2.2], look: [-1.75, 0.95, -0.55] },
-    desk: { pos: [0.05, 6.2, 5.4], look: [0, 0.05, -0.1] },
-    fov: 36,
+};
+
+const PORTRAIT: Layout = {
+  desk: [2.8, 3.4],
+  items: {
+    cctv: { pos: [-0.85, 0, -0.45], top: 0.95, foot: 0.26, dx: 0.3 },
+    aibox: { pos: [-0.75, 0, -1.2], rot: [0, 0.2, 0], top: 0.2, foot: 0.4 },
+    laptop: { pos: [0.25, 0, -0.75], rot: [0, 0, 0], top: 0.95, foot: 0.8 },
+    phone: { pos: [0.95, 0, 0.0], rot: [0, 0.25, 0], top: 0.12, foot: 0.44, dx: -0.3 },
+    camera: { pos: [0.85, 0, 0.75], rot: [0, -0.5, 0], top: 0.45, foot: 0.36, dx: -0.4 },
+    pass: { pos: [-0.05, 0, 0.35], rot: [0, 0.15, 0], top: 0.1, foot: 0.44 },
+    resume: { pos: [-0.85, 0, 0.55], rot: [0, -0.1, 0], top: 0.1, foot: 0.5, dx: 0.3 },
+    ball: { pos: [0.2, 0, 1.1], top: 0.28, foot: 0.16 },
+    paddle: { pos: [0.85, 0, 1.3], rot: [0, 1.25, 0], top: 0.08, foot: 0.4, dx: -0.3 },
+    drone: { pos: [-0.85, 0, 1.35], rot: [0, 0.4, 0], top: 0.12, foot: 0.34, dx: 0.3 },
+  },
+  decor: { mug: [1.0, 0, -0.9], pencil: [-0.4, 0, 0.9], plant: [1.05, 0, -1.4] },
+  rig: {
+    hero: { pos: [-2.35, 1.15, 2.75], look: [-0.9, 1.45, -0.45] },
+    desk: { pos: [0.0, 6.0, 4.3], look: [0, 0.05, -0.05], },
+    fov: 42,
   },
 };
+
+function usePortrait() {
+  const { size } = useThree();
+  return size.width < size.height * 1.05;
+}
 
 function smoothstep(a: number, b: number, x: number) {
   const t = THREE.MathUtils.clamp((x - a) / (b - a), 0, 1);
@@ -48,8 +81,8 @@ function smoothstep(a: number, b: number, x: number) {
 /* ---------------------------------------------------------------------------
    Camera rig
    --------------------------------------------------------------------------- */
-function Rig({ progress, reduce }: { progress: StudioProgress; reduce: boolean }) {
-  const { camera, size, invalidate } = useThree();
+function Rig({ progress, reduce, layout }: { progress: StudioProgress; reduce: boolean; layout: Layout }) {
+  const { camera, invalidate } = useThree();
   const look = useMemo(() => new THREE.Vector3(), []);
   const a = useMemo(() => new THREE.Vector3(), []);
   const b = useMemo(() => new THREE.Vector3(), []);
@@ -57,8 +90,7 @@ function Rig({ progress, reduce }: { progress: StudioProgress; reduce: boolean }
   const lb = useMemo(() => new THREE.Vector3(), []);
 
   useFrame(() => {
-    const portrait = size.width < size.height * 1.05;
-    const r = portrait ? RIG.portrait : RIG.landscape;
+    const r = layout.rig;
     const cam = camera as THREE.PerspectiveCamera;
     if (cam.fov !== r.fov) {
       cam.fov = r.fov;
@@ -80,11 +112,12 @@ function Rig({ progress, reduce }: { progress: StudioProgress; reduce: boolean }
 }
 
 /* ---------------------------------------------------------------------------
-   An object on the desk: hover lifts it and turns its outline to the accent,
-   a caption appears; click navigates.
+   An object on the desk: hover lifts it, draws an accent ring beneath it and
+   shows a caption; click navigates.
    --------------------------------------------------------------------------- */
 function Item({
   id,
+  slot,
   accent,
   hovered,
   setHovered,
@@ -93,6 +126,7 @@ function Item({
   visibleCaptions,
 }: {
   id: StudioObjectKey;
+  slot: Slot;
   accent: string;
   hovered: StudioObjectKey | null;
   setHovered: (k: StudioObjectKey | null) => void;
@@ -103,7 +137,7 @@ function Item({
   const lift = useRef<THREE.Group>(null);
   const hover = hovered === id;
   const meta = studioObjects.find((o) => o.key === id)!;
-  const L = LAYOUT[id];
+  const L = slot;
 
   useFrame((_, dt) => {
     if (!lift.current) return;
@@ -122,7 +156,6 @@ function Item({
 
   return (
     <group position={L.pos} rotation={L.rot}>
-      {/* selection ring on the desk */}
       <mesh position={[0, 0.004, 0]} rotation={[-Math.PI / 2, 0, 0]} visible={hover}>
         <ringGeometry args={[L.foot, L.foot + 0.018, 72]} />
         <meshBasicMaterial color={accent} transparent opacity={0.9} depthWrite={false} toneMapped={false} />
@@ -131,7 +164,7 @@ function Item({
         <ItemCtx.Provider value={{ hover, accent }}>{children}</ItemCtx.Provider>
         {/* invisible catch volume so thin objects are easy to hover */}
         <mesh position={[0, L.top / 2, 0]} visible={false}>
-          <boxGeometry args={[0.8, Math.max(L.top, 0.25), 0.7]} />
+          <boxGeometry args={[Math.max(0.6, L.foot * 1.6), Math.max(L.top, 0.25), Math.max(0.5, L.foot * 1.4)]} />
           <meshBasicMaterial />
         </mesh>
       </group>
@@ -165,31 +198,28 @@ function Item({
 /* ---------------------------------------------------------------------------
    The desk
    --------------------------------------------------------------------------- */
-/** an oak desk with a slim steel frame, plus the things that just live on it */
-function Desk() {
+/** an oak desk on a slim steel frame, plus the things that just live on it */
+function Desk({ layout }: { layout: Layout }) {
   const wood = useWoodTexture();
+  const [w, d] = layout.desk;
+  const lx = w / 2 - 0.2;
+  const lz = d / 2 - 0.25;
   return (
     <ItemCtx.Provider value={{ hover: false, accent: "#000" }}>
       <group>
-        <Box args={[6.2, 0.09, 3.7]} radius={0.02} position={[0, -0.045, 0]} map={wood} color="#f1e6d6" roughness={0.55} clearcoat={0.08} />
-        {/* frame: front + back rails and four legs, dark steel */}
-        {[-2.9, 2.9].map((x) =>
-          [-1.6, 1.6].map((z) => <Cyl key={`${x}${z}`} r={0.03} h={1.7} position={[x, -0.94, z]} color="#2a2c30" roughness={0.45} metalness={0.7} segments={16} />),
+        {/* plain box, not rounded: the rounded geometry maps the grain in
+            world units and clamps past the first metre — half a desk of wood */}
+        <Box args={[w, 0.09, d]} radius={0} position={[0, -0.045, 0]} map={wood} color="#f1e6d6" roughness={0.55} clearcoat={0.08} />
+        {[-lx, lx].map((x) =>
+          [-lz, lz].map((z) => <Cyl key={`${x}${z}`} r={0.03} h={1.7} position={[x, -0.94, z]} color="#2a2c30" roughness={0.45} metalness={0.7} segments={16} />),
         )}
-        <Box args={[5.9, 0.05, 0.05]} radius={0.01} position={[0, -0.115, 1.6]} color="#2a2c30" roughness={0.45} metalness={0.7} shadow={false} />
-        <Box args={[5.9, 0.05, 0.05]} radius={0.01} position={[0, -0.115, -1.6]} color="#2a2c30" roughness={0.45} metalness={0.7} shadow={false} />
-        <ContactShadows position={[0, 0.004, 0]} opacity={0.35} scale={7.5} blur={2} far={1.2} resolution={512} frames={1} color="#3a2a18" />
+        <Box args={[w - 0.3, 0.05, 0.05]} radius={0.01} position={[0, -0.115, lz]} color="#2a2c30" roughness={0.45} metalness={0.7} shadow={false} />
+        <Box args={[w - 0.3, 0.05, 0.05]} radius={0.01} position={[0, -0.115, -lz]} color="#2a2c30" roughness={0.45} metalness={0.7} shadow={false} />
+        <ContactShadows position={[0, 0.004, 0]} opacity={0.35} scale={Math.max(w, d) * 1.2} blur={2} far={1.2} resolution={512} frames={1} color="#3a2a18" />
 
-        {/* décor */}
-        <group position={[1.2, 0, -0.95]}>
-          <Mug />
-        </group>
-        <group position={[-0.95, 0, 0.35]}>
-          <Pencil />
-        </group>
-        <group position={[2.45, 0, -1.05]}>
-          <Plant />
-        </group>
+        <group position={layout.decor.mug}><Mug /></group>
+        <group position={layout.decor.pencil}><Pencil /></group>
+        <group position={layout.decor.plant}><Plant /></group>
       </group>
     </ItemCtx.Provider>
   );
@@ -227,9 +257,63 @@ function Lights() {
   );
 }
 
+/** where the camera's cable should end: the box's port, in the camera's space */
+function cableTarget(layout: Layout): V3 {
+  const box = layout.items.aibox;
+  const cam = layout.items.cctv;
+  const ry = box.rot?.[1] ?? 0;
+  const [px, py, pz] = AIBOX_PORT;
+  const wx = box.pos[0] + px * Math.cos(ry) + pz * Math.sin(ry);
+  const wz = box.pos[2] - px * Math.sin(ry) + pz * Math.cos(ry);
+  return [wx - cam.pos[0], py, wz - cam.pos[2]];
+}
+
 /* ---------------------------------------------------------------------------
    Scene
    --------------------------------------------------------------------------- */
+function Contents({
+  progress,
+  accent,
+  reduce,
+  hovered,
+  setHovered,
+  onSelect,
+  captions,
+}: {
+  progress: StudioProgress;
+  accent: string;
+  reduce: boolean;
+  hovered: StudioObjectKey | null;
+  setHovered: (k: StudioObjectKey | null) => void;
+  onSelect: (k: StudioObjectKey) => void;
+  captions: boolean;
+}) {
+  const portrait = usePortrait();
+  const layout = portrait ? PORTRAIT : LANDSCAPE;
+  const cable = useMemo(() => cableTarget(layout), [layout]);
+  const common = { accent, hovered, setHovered, onSelect, visibleCaptions: captions };
+  const I = layout.items;
+
+  return (
+    <>
+      <Lights />
+      <Rig progress={progress} reduce={reduce} layout={layout} />
+      <Desk layout={layout} />
+
+      <Item id="cctv" slot={I.cctv} {...common}><CctvCamera track={!reduce} accent={accent} cableTo={cable} /></Item>
+      <Item id="aibox" slot={I.aibox} {...common}><AiBox accent={accent} /></Item>
+      <Item id="laptop" slot={I.laptop} {...common}><Laptop /></Item>
+      <Item id="phone" slot={I.phone} {...common}><Phone /></Item>
+      <Item id="camera" slot={I.camera} {...common}><Camera35 /></Item>
+      <Item id="pass" slot={I.pass} {...common}><BoardingPass /></Item>
+      <Item id="resume" slot={I.resume} {...common}><ResumeSheet /></Item>
+      <Item id="ball" slot={I.ball} {...common}><CricketBall /></Item>
+      <Item id="paddle" slot={I.paddle} {...common}><Paddle /></Item>
+      <Item id="drone" slot={I.drone} {...common}><Drone /></Item>
+    </>
+  );
+}
+
 export default function StudioScene({
   progress,
   accent,
@@ -275,8 +359,6 @@ export default function StudioScene({
     return () => cancelAnimationFrame(raf);
   }, [progress, reduce]);
 
-  const common = { accent, hovered, setHovered, onSelect, visibleCaptions: captions };
-
   return (
     <Canvas
       frameloop={active ? "always" : "never"}
@@ -289,18 +371,7 @@ export default function StudioScene({
       onPointerMissed={() => setHovered(null)}
     >
       <Suspense fallback={null}>
-        <Lights />
-        <Rig progress={progress} reduce={reduce} />
-        <Desk />
-
-        <Item id="cctv" {...common}><CctvCamera track={!reduce} accent={accent} /></Item>
-        <Item id="aibox" {...common}><AiBox accent={accent} /></Item>
-        <Item id="laptop" {...common}><Laptop /></Item>
-        <Item id="phone" {...common}><Phone /></Item>
-        <Item id="camera" {...common}><Camera35 /></Item>
-        <Item id="pass" {...common}><BoardingPass /></Item>
-        <Item id="resume" {...common}><ResumeSheet /></Item>
-        <Item id="ball" {...common}><CricketBall /></Item>
+        <Contents progress={progress} accent={accent} reduce={reduce} hovered={hovered} setHovered={setHovered} onSelect={onSelect} captions={captions} />
       </Suspense>
     </Canvas>
   );

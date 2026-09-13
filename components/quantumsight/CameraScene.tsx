@@ -48,7 +48,8 @@ export default function CameraScene({ accent }: { accent: string }) {
         <Slab />
         <ItemCtx.Provider value={{ hover: false, accent }}>
           <group position={[-0.45, 0, 0]}>
-            <CctvCamera track={!reduce} accent={accent} />
+            {/* cable ends at the box's port: box at (0.55, 0, 0.15) rotated 0.3 */}
+            <CctvCamera track={!reduce} accent={accent} cableTo={[0.55 + 0.205 * Math.sin(0.3) + 0.45, 0.07, 0.15 + 0.205 * Math.cos(0.3)]} />
           </group>
           <group position={[0.55, 0, 0.15]} rotation={[0, 0.3, 0]}>
             <AiBox accent={accent} />
@@ -64,7 +65,7 @@ function Slab() {
   const wood = useWoodTexture();
   return (
     <ItemCtx.Provider value={{ hover: false, accent: "#000" }}>
-      <Box args={[2.6, 0.09, 1.8]} radius={0.02} position={[0.05, -0.045, 0]} map={wood} color="#f1e6d6" roughness={0.55} clearcoat={0.08} />
+      <Box args={[2.6, 0.09, 1.8]} radius={0} position={[0.05, -0.045, 0]} map={wood} color="#f1e6d6" roughness={0.55} clearcoat={0.08} />
     </ItemCtx.Provider>
   );
 }

@@ -28,7 +28,25 @@ const STEEL = "#8e9196";
  * a cable gland and a cable that runs down to the desk. The head yaws and
  * pitches to follow the visitor's pointer; left alone it slowly sweeps.
  */
-export function CctvCamera({ track = true, accent = "#ff3b30" }: { track?: boolean; accent?: string }) {
+export function CctvCamera({
+  track = true,
+  accent = "#ff3b30",
+  cableTo = [0.9, 0.012, -0.5],
+}: {
+  track?: boolean;
+  accent?: string;
+  /** where the desk cable ends (the box's port), in the camera's own space */
+  cableTo?: [number, number, number];
+}) {
+  const p0: [number, number, number] = [0.12, 0.012, -0.42];
+  const [tx, ty, tz] = cableTo;
+  const cable: [number, number, number][] = [
+    p0,
+    [p0[0] + (tx - p0[0]) * 0.3, 0.012, p0[2] + (tz - p0[2]) * 0.15 - 0.1],
+    [p0[0] + (tx - p0[0]) * 0.75, 0.014, tz + 0.16],
+    [tx, ty, tz + 0.04],
+    [tx, ty, tz],
+  ];
   const head = useRef<THREE.Group>(null);
   const { camera } = useThree();
   const cur = useRef({ yaw: 0, pitch: 0 });
@@ -98,8 +116,8 @@ export function CctvCamera({ track = true, accent = "#ff3b30" }: { track?: boole
         <Cyl r={0.03} h={0.04} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.06, -0.29]} color="#2a2c30" roughness={0.6} />
         <Tube points={[[0, 0.06, -0.31], [0, 0.0, -0.42], [0.05, -0.25, -0.48], [0.12, -0.55, -0.42]]} r={0.011} color="#17181a" roughness={0.55} />
       </group>
-      {/* cable continuing along the desk */}
-      <Tube points={[[0.12, 0.012, -0.42], [0.3, 0.012, -0.6], [0.6, 0.012, -0.62], [0.9, 0.012, -0.5]]} r={0.011} color="#17181a" roughness={0.55} />
+      {/* cable along the desk, into the box */}
+      <Tube points={cable} r={0.011} color="#17181a" roughness={0.55} />
     </group>
   );
 }
