@@ -36,7 +36,7 @@ const LANDSCAPE: Layout = {
     resume: { pos: [-1.6, 0, 0.75], rot: [0, -0.14, 0], top: 0.1, foot: 0.52, dx: 0.4 },
     ball: { pos: [0.7, 0, 1.15], top: 0.28, foot: 0.16 },
     paddle: { pos: [1.35, 0, 1.2], rot: [0, 1.15, 0], top: 0.08, foot: 0.4, dx: -0.3 },
-    drone: { pos: [-2.5, 0, -1.2], rot: [0, 0.5, 0], top: 0.12, foot: 0.34, dx: 0.5 },
+    drone: { pos: [-2.35, 0, -1.4], rot: [0, 0.5, 0], top: 0.12, foot: 0.34, dx: 0.5 },
   },
   decor: { mug: [1.2, 0, -0.95], pencil: [-0.95, 0, 0.35], plant: [2.45, 0, -1.05] },
   rig: {

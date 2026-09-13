@@ -222,39 +222,60 @@ function makeWood() {
       });
 }
 
-/** a pickleball paddle face: teal, a white diagonal, a magenta band, a small mark */
-export function usePaddleFace() {
+/** a pickleball: yellow with a grid of holes (equirectangular, for a sphere) */
+export function usePickleballTexture() {
   return useMemo(
     () =>
-      makeTexture(512, 512, (ctx, w, h) => {
-        ctx.fillStyle = "#1c7c8f";
+      makeTexture(512, 256, (ctx, w, h) => {
+        ctx.fillStyle = "#e6b84c";
         ctx.fillRect(0, 0, w, h);
-        ctx.save();
-        ctx.translate(w / 2, h / 2);
-        ctx.rotate(-0.6);
-        ctx.fillStyle = "#f4f2ec";
-        ctx.fillRect(-400, -70, 800, 90);
-        ctx.fillStyle = "#e0417d";
-        ctx.fillRect(-400, 30, 800, 34);
-        ctx.restore();
-        // honeycomb hint
-        ctx.strokeStyle = "rgba(255,255,255,0.08)";
-        ctx.lineWidth = 1;
-        for (let y = 0; y < h; y += 22) for (let x = (y / 22) % 2 ? 11 : 0; x < w; x += 22) {
-          ctx.beginPath();
-          ctx.arc(x, y, 9, 0, Math.PI * 2);
-          ctx.stroke();
+        for (let y = 24; y < h; y += 44) {
+          for (let x = (y / 44) % 2 ? 26 : 0; x < w; x += 52) {
+            ctx.fillStyle = "#b8862e";
+            ctx.beginPath();
+            ctx.arc(x, y, 11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#8f6620";
+            ctx.beginPath();
+            ctx.arc(x, y, 7, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
-        ctx.fillStyle = "#111";
-        ctx.beginPath();
-        ctx.arc(w / 2, h * 0.7, 34, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "#fff";
-        ctx.font = "bold 30px system-ui, sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText("SR", w / 2, h * 0.7 + 11);
       }),
     [],
+  );
+}
+
+/** a flat plate with rounded corners, extruded — paddle faces and the like */
+export function RoundedPlate({
+  w,
+  d,
+  t,
+  r,
+  position,
+  ...surf
+}: { w: number; d: number; t: number; r: number; position?: [number, number, number] } & SurfaceProps) {
+  const geom = useMemo(() => {
+    const s = new THREE.Shape();
+    const x = -w / 2;
+    const y = -d / 2;
+    s.moveTo(x + r, y);
+    s.lineTo(x + w - r, y);
+    s.quadraticCurveTo(x + w, y, x + w, y + r);
+    s.lineTo(x + w, y + d - r);
+    s.quadraticCurveTo(x + w, y + d, x + w - r, y + d);
+    s.lineTo(x + r, y + d);
+    s.quadraticCurveTo(x, y + d, x, y + d - r);
+    s.lineTo(x, y + r);
+    s.quadraticCurveTo(x, y, x + r, y);
+    const g = new THREE.ExtrudeGeometry(s, { depth: t, bevelEnabled: true, bevelThickness: t * 0.15, bevelSize: t * 0.15, bevelSegments: 2, curveSegments: 16 });
+    g.rotateX(-Math.PI / 2); // lie flat: shape x→x, shape y→-z, depth→+y
+    return g;
+  }, [w, d, t, r]);
+  return (
+    <mesh geometry={geom} position={position} castShadow receiveShadow>
+      <Surface {...surf} />
+    </mesh>
   );
 }
 

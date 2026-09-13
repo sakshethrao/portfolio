@@ -1,7 +1,7 @@
 "use client";
 
 import { Instances, Instance } from "@react-three/drei";
-import { Box, Cyl, Plane, Ball, Torus, Tube, Surface, useLaptopScreen, usePhoneScreen, useBoardingPass, useResumeSheet, useLabel, usePaddleFace } from "./primitives";
+import { Box, Cyl, Plane, Ball, Torus, Tube, Surface, RoundedPlate, useLaptopScreen, usePhoneScreen, useBoardingPass, useResumeSheet, useLabel, usePickleballTexture } from "./primitives";
 
 /** the box's ethernet port, in the box's own space — the camera cable ends here */
 export const AIBOX_PORT: [number, number, number] = [0, 0.07, 0.205];
@@ -164,75 +164,95 @@ export function CricketBall() {
   );
 }
 
-/* ---------- Pickleball paddle, lying flat ---------- */
+/* ---------- Pickleball paddle + ball, lying flat ---------- */
 export function Paddle() {
-  const face = usePaddleFace();
+  const ballTex = usePickleballTexture();
+  const navy = "#1c2340";
+  const rust = "#a8412a";
   return (
     <group>
-      <group scale={[1, 1, 1.12]}>
-        {/* core + faces */}
-        <Cyl r={0.19} h={0.016} position={[0, 0.008, 0]} color="#e9e7e2" roughness={0.6} segments={64} />
-        <mesh position={[0, 0.0165, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <circleGeometry args={[0.186, 64]} />
-          <Surface map={face} roughness={0.55} clearcoat={0.2} />
-        </mesh>
-        {/* edge guard */}
-        <Torus r={0.19} tube={0.009} position={[0, 0.008, 0]} rotation={[Math.PI / 2, 0, 0]} color="#1a1a1a" roughness={0.6} />
-      </group>
-      {/* throat + handle + grip */}
-      <Box args={[0.09, 0.016, 0.08]} radius={0.004} position={[0, 0.008, 0.235]} color="#1a1a1a" roughness={0.6} />
-      <Box args={[0.036, 0.024, 0.2]} radius={0.006} position={[0, 0.012, 0.36]} color="#222" roughness={0.6} />
-      <Cyl r={0.022} h={0.19} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.02, 0.375]} color="#2b2b2e" roughness={0.95} segments={24} />
-      {[0.3, 0.34, 0.38, 0.42].map((z) => (
-        <Torus key={z} r={0.0225} tube={0.0025} position={[0, 0.02, z]} color="#3c3c40" roughness={0.9} />
+      {/* face: a rust guard plate with the navy face on top, so the guard shows as a rim */}
+      <RoundedPlate w={0.34} d={0.44} t={0.014} r={0.1} position={[0, 0, 0]} color={rust} roughness={0.55} clearcoat={0.2} />
+      <RoundedPlate w={0.315} d={0.415} t={0.008} r={0.09} position={[0, 0.014, 0]} color={navy} roughness={0.5} clearcoat={0.35} />
+      {/* throat, narrowing into the handle */}
+      <Box args={[0.11, 0.014, 0.07]} radius={0.004} position={[0, 0.007, 0.245]} color={rust} roughness={0.55} />
+      <Box args={[0.06, 0.02, 0.06]} radius={0.004} position={[0, 0.01, 0.29]} color={navy} roughness={0.6} />
+      {/* handle: grey grip with dark wraps and a navy end cap */}
+      <Cyl r={0.022} h={0.2} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.022, 0.41]} color="#6b7280" roughness={0.9} segments={24} />
+      {[0.34, 0.375, 0.41, 0.445].map((z) => (
+        <Torus key={z} r={0.0225} tube={0.004} position={[0, 0.022, z]} color="#2d3350" roughness={0.9} />
       ))}
-      <Cyl r={0.026} h={0.012} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.02, 0.475]} color="#e0417d" roughness={0.5} segments={24} />
+      <Cyl r={0.03} h={0.03} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.026, 0.525]} color={navy} roughness={0.6} segments={24} />
+      {/* the ball, beside the face */}
+      <mesh position={[0.28, 0.037, 0.12]} castShadow receiveShadow>
+        <sphereGeometry args={[0.037, 32, 24]} />
+        <Surface map={ballTex} roughness={0.6} clearcoat={0.2} />
+      </mesh>
     </group>
   );
 }
 
-/* ---------- A small folding drone ---------- */
+/* ---------- A folding drone, Mavic-style ---------- */
 export function Drone() {
-  const arms: { a: number; x: number; z: number }[] = [
-    { a: Math.PI / 4, x: 1, z: -1 },
-    { a: -Math.PI / 4, x: -1, z: -1 },
-    { a: -Math.PI / 4, x: 1, z: 1 },
-    { a: Math.PI / 4, x: -1, z: 1 },
-  ];
-  const grey = "#d6d7d9";
+  const shell = "#b8bcc2";
+  const shellDark = "#8f949b";
   const dark = "#2b2c2f";
+  // arms sweep out from the body corners: front pair forward, rear pair back
+  const arms: { from: [number, number]; to: [number, number] }[] = [
+    { from: [-0.055, -0.1], to: [-0.2, -0.21] },
+    { from: [0.055, -0.1], to: [0.2, -0.21] },
+    { from: [-0.055, 0.1], to: [-0.21, 0.19] },
+    { from: [0.055, 0.1], to: [0.21, 0.19] },
+  ];
   return (
-    <group position={[0, 0.035, 0]}>
-      {/* legs */}
-      {[[-0.06, -0.08], [0.06, -0.08], [-0.06, 0.08], [0.06, 0.08]].map(([x, z]) => (
-        <Cyl key={`${x}${z}`} r={0.006} h={0.035} position={[x, -0.018, z]} color={dark} roughness={0.7} segments={10} shadow={false} />
+    <group position={[0, 0.03, 0]}>
+      {/* landing feet */}
+      {[[-0.05, -0.12], [0.05, -0.12], [-0.05, 0.12], [0.05, 0.12]].map(([x, z]) => (
+        <Cyl key={`${x}${z}`} r={0.006} h={0.03} position={[x, -0.015, z]} color={dark} roughness={0.7} segments={10} shadow={false} />
       ))}
-      {/* body */}
-      <Box args={[0.17, 0.05, 0.24]} radius={0.012} position={[0, 0.02, 0]} color={grey} roughness={0.45} clearcoat={0.3} />
-      <Box args={[0.13, 0.03, 0.2]} radius={0.008} position={[0, -0.005, 0]} color={dark} roughness={0.6} />
-      <Box args={[0.1, 0.012, 0.09]} radius={0.004} position={[0, 0.05, -0.02]} color="#bfc1c4" roughness={0.4} metalness={0.3} />
-      {/* rear vents + battery */}
-      <Box args={[0.11, 0.028, 0.02]} radius={0.003} position={[0, 0.02, 0.125]} color="#3a3b3e" roughness={0.6} shadow={false} />
-      {/* gimbal camera at the front */}
-      <Box args={[0.05, 0.03, 0.03]} radius={0.004} position={[0, 0.005, -0.125]} color={dark} roughness={0.5} />
-      <Ball r={0.02} position={[0, 0.0, -0.145]} color="#1f2023" roughness={0.4} />
-      <Cyl r={0.009} h={0.012} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.0, -0.163]} color="#0a1626" roughness={0.03} clearcoat={1} envMapIntensity={2} segments={20} shadow={false} />
-      {/* front LEDs */}
-      <Ball r={0.006} position={[-0.055, 0.02, -0.122]} color="#fff" emissive="#ffffff" emissiveIntensity={1.5} />
-      <Ball r={0.006} position={[0.055, 0.02, -0.122]} color="#22c55e" emissive="#22c55e" emissiveIntensity={2} />
-      {/* arms, motors, props */}
-      {arms.map(({ a, x, z }, i) => (
-        <group key={i} position={[x * 0.075, 0.02, z * 0.1]} rotation={[0, a, 0]}>
-          <Box args={[0.02, 0.014, 0.17]} radius={0.004} position={[0, 0, z * -0.07]} color={dark} roughness={0.6} />
-          <group position={[0, 0.012, z * -0.15]}>
-            <Cyl r={0.016} h={0.02} color="#3a3b3e" roughness={0.5} metalness={0.4} segments={24} />
-            <Cyl r={0.005} h={0.01} position={[0, 0.015, 0]} color="#8a8c90" metalness={0.8} roughness={0.3} segments={12} shadow={false} />
-            <Box args={[0.14, 0.002, 0.012]} radius={0} position={[0, 0.018, 0]} rotation={[0, i * 0.7, 0]} color="#2a2a2c" roughness={0.6} transparent opacity={0.9} shadow={false} />
-            <Box args={[0.14, 0.002, 0.012]} radius={0} position={[0, 0.019, 0]} rotation={[0, i * 0.7 + Math.PI / 2, 0]} color="#2a2a2c" roughness={0.6} transparent opacity={0.9} shadow={false} />
-            <Ball r={0.006} position={[0.062, 0.018, 0]} color="#f28c28" roughness={0.6} />
+      {/* body: long, tapered shell */}
+      <Box args={[0.14, 0.05, 0.3]} radius={0.014} position={[0, 0.02, 0.01]} color={shell} roughness={0.42} clearcoat={0.35} />
+      <Box args={[0.11, 0.046, 0.1]} radius={0.012} position={[0, 0.018, -0.17]} color={shell} roughness={0.42} clearcoat={0.35} />
+      <Box args={[0.15, 0.028, 0.22]} radius={0.008} position={[0, 0.0, 0.02]} color={shellDark} roughness={0.55} />
+      {/* top ridge + sensor */}
+      <Box args={[0.06, 0.008, 0.2]} radius={0.003} position={[0, 0.047, 0.0]} color="#c9ccd1" roughness={0.4} shadow={false} />
+      <Cyl r={0.009} h={0.004} position={[0, 0.052, -0.02]} color={dark} roughness={0.4} segments={16} shadow={false} />
+      {/* side vents */}
+      {[-1, 1].map((sx) => (
+        <Box key={sx} args={[0.006, 0.02, 0.1]} radius={0} position={[sx * 0.071, 0.02, 0.04]} color={dark} roughness={0.7} shadow={false} />
+      ))}
+      {/* rear: battery + LED */}
+      <Box args={[0.11, 0.032, 0.02]} radius={0.004} position={[0, 0.02, 0.165]} color={dark} roughness={0.6} shadow={false} />
+      <Ball r={0.005} position={[0, 0.02, 0.177]} color="#22c55e" emissive="#22c55e" emissiveIntensity={2} />
+      {/* gimbal camera under the nose */}
+      <Box args={[0.05, 0.03, 0.03]} radius={0.004} position={[0, -0.01, -0.2]} color={dark} roughness={0.5} />
+      <Ball r={0.02} position={[0, -0.012, -0.222]} color="#1f2023" roughness={0.4} />
+      <Cyl r={0.009} h={0.012} rotation={[Math.PI / 2, 0, 0]} position={[0, -0.012, -0.24]} color="#0a1626" roughness={0.03} clearcoat={1} envMapIntensity={2} segments={20} shadow={false} />
+      {/* front obstacle sensors */}
+      <Box args={[0.012, 0.012, 0.004]} radius={0} position={[-0.03, 0.02, -0.222]} color="#0a0d12" roughness={0.1} clearcoat={1} shadow={false} />
+      <Box args={[0.012, 0.012, 0.004]} radius={0} position={[0.03, 0.02, -0.222]} color="#0a0d12" roughness={0.1} clearcoat={1} shadow={false} />
+      {/* arms, motors, two-blade props */}
+      {arms.map(({ from, to }, i) => {
+        const dx = to[0] - from[0];
+        const dz = to[1] - from[1];
+        const len = Math.hypot(dx, dz);
+        const ang = Math.atan2(dx, dz);
+        return (
+          <group key={i}>
+            <group position={[(from[0] + to[0]) / 2, 0.018, (from[1] + to[1]) / 2]} rotation={[0, ang, 0]}>
+              <Box args={[0.022, 0.016, len]} radius={0.004} color={shellDark} roughness={0.5} />
+            </group>
+            <group position={[to[0], 0.028, to[1]]}>
+              <Cyl r={0.017} h={0.022} color={dark} roughness={0.5} metalness={0.4} segments={24} />
+              <Cyl r={0.006} h={0.008} position={[0, 0.015, 0]} color="#8a8c90" metalness={0.8} roughness={0.3} segments={12} shadow={false} />
+              <group position={[0, 0.02, 0]} rotation={[0, 0.5 + i * 0.9, 0]}>
+                <Box args={[0.19, 0.002, 0.016]} radius={0} color="#3a3b3e" roughness={0.6} shadow={false} />
+                <Box args={[0.05, 0.003, 0.016]} radius={0} color={dark} roughness={0.6} shadow={false} />
+              </group>
+            </group>
           </group>
-        </group>
-      ))}
+        );
+      })}
     </group>
   );
 }
