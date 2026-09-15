@@ -2,19 +2,22 @@ import type { CSSProperties, ReactNode } from "react";
 
 /**
  * A browser-window mockup for web-app demos — the desktop equivalent of
- * DeviceFrame. Traffic-light dots, an address pill, a scrollable viewport.
- * A persistent chrome bar (not part of the scrollable content) keeps the
- * frame legible no matter what's scrolled into view underneath.
+ * DeviceFrame. Traffic-light dots, an address pill, and a viewport that grows
+ * with its content.
+ *
+ * `minHeight` is a floor, never a cap: a fixed height turns the viewport into
+ * a nested scroller, which swallows the wheel when the cursor is over it and
+ * strands the reader mid-page. The demo is meant to be read straight down.
  */
 export function BrowserFrame({
   children,
   url = "app.parchi.in",
-  height = 420,
+  minHeight = 420,
   style,
 }: {
   children: ReactNode;
   url?: string;
-  height?: number;
+  minHeight?: number;
   style?: CSSProperties;
 }) {
   return (
@@ -69,11 +72,8 @@ export function BrowserFrame({
         <span style={{ width: 44, flex: "none" }} aria-hidden />
       </div>
 
-      {/* viewport */}
-      {/* the wheel is handed to this viewport only while it actually overflows */}
-      <div data-lenis-prevent style={{ height, overflowY: "auto", overflowX: "hidden", position: "relative", overscrollBehavior: "contain" }}>
-        {children}
-      </div>
+      {/* viewport — grows to fit, so it never becomes a wheel trap */}
+      <div style={{ minHeight, overflowX: "hidden", position: "relative" }}>{children}</div>
     </div>
   );
 }

@@ -48,10 +48,12 @@ export function ParchiDemo() {
   }, [step]);
 
   return (
-    <BrowserFrame url="app.parchi.in/upload" height={430}>
+    <BrowserFrame url="app.parchi.in/upload" minHeight={430}>
       <div style={{ minHeight: "100%", background: c.bg, fontFamily: "-apple-system, system-ui, sans-serif", position: "relative" }}>
         {/* tab strip */}
-        <div style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", gap: 4, padding: "10px 14px 0", borderBottom: `1px solid ${c.border}`, background: c.card }}>
+        {/* static, not sticky: with nothing scrolling inside the frame, a
+            sticky strip would latch onto the page viewport instead */}
+        <div style={{ position: "relative", zIndex: 2, display: "flex", gap: 4, padding: "10px 14px 0", borderBottom: `1px solid ${c.border}`, background: c.card }}>
           {(["upload", "dashboard"] as const).map((t) => {
             const active = step === "dashboard" ? t === "dashboard" : t === "upload";
             return (
