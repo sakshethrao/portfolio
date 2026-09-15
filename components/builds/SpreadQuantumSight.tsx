@@ -10,7 +10,7 @@ import { ProjectStage } from "./ProjectStage";
 export function SpreadQuantumSight({ project, index }: { project: Project; index: number }) {
   const cs = project.caseStudy;
   return (
-    <section id={`build-${project.slug}`} data-build={project.slug} style={{ background: "var(--ink-2)", color: "#fff" }}>
+    <section id={`build-${project.slug}`} data-build={project.slug} data-nav="light" style={{ background: "var(--ink-2)", color: "#fff" }}>
       <div className="wrap spread" style={{ borderTopColor: "rgba(255,255,255,0.08)" }}>
         <div className="spread-cols">
           <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>

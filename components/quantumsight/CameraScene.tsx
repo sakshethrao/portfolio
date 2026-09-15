@@ -5,6 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import { ContactShadows, Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
 import { ItemCtx, Box, useWoodTexture } from "@/components/studio/objects/primitives";
+import { DemandFrames } from "@/components/studio/Frames";
 import { CctvCamera } from "@/components/studio/objects/CctvCamera";
 import { AiBox } from "@/components/studio/objects/Things";
 
@@ -28,7 +29,7 @@ export default function CameraScene({ accent }: { accent: string }) {
   return (
     <div ref={host} style={{ position: "relative", width: "100%", aspectRatio: "5 / 4", maxHeight: 520 }} aria-hidden>
       <Canvas
-        frameloop={active ? "always" : "never"}
+        frameloop={active ? "demand" : "never"}
         shadows="soft"
         dpr={[1, 1.5]}
         gl={{ alpha: true, antialias: true, powerPreference: "low-power", toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.15 }}
@@ -36,6 +37,7 @@ export default function CameraScene({ accent }: { accent: string }) {
         onCreated={({ camera }) => camera.lookAt(-0.15, 0.42, 0)}
         style={{ position: "absolute", inset: 0 }}
       >
+        <DemandFrames />
         <ambientLight intensity={0.35} />
         <hemisphereLight args={["#ffffff", "#b9a58a", 0.5]} />
         <directionalLight position={[3, 6, 4]} intensity={2.3} color="#fff4e6" castShadow shadow-mapSize={[1024, 1024]} shadow-bias={-0.0004} shadow-normalBias={0.02} shadow-camera-left={-2} shadow-camera-right={2} shadow-camera-top={2} shadow-camera-bottom={-2} />

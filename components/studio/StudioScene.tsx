@@ -6,6 +6,7 @@ import { ContactShadows, Environment, Html, Lightformer } from "@react-three/dre
 import * as THREE from "three";
 import { studioObjects, type StudioObjectKey } from "@/content/studio";
 import { ItemCtx, Box, Cyl, useWoodTexture } from "./objects/primitives";
+import { DemandFrames } from "./Frames";
 import { CctvCamera } from "./objects/CctvCamera";
 import { AiBox, AIBOX_PORT, Phone, Laptop, Camera35, BoardingPass, ResumeSheet, CricketBall, Paddle, Drone, Mug, Pencil, Plant } from "./objects/Things";
 
@@ -82,7 +83,7 @@ function smoothstep(a: number, b: number, x: number) {
    Camera rig
    --------------------------------------------------------------------------- */
 function Rig({ progress, reduce, layout }: { progress: StudioProgress; reduce: boolean; layout: Layout }) {
-  const { camera, invalidate } = useThree();
+  const { camera } = useThree();
   const look = useMemo(() => new THREE.Vector3(), []);
   const a = useMemo(() => new THREE.Vector3(), []);
   const b = useMemo(() => new THREE.Vector3(), []);
@@ -106,7 +107,8 @@ function Rig({ progress, reduce, layout }: { progress: StudioProgress; reduce: b
     camera.position.y += Math.sin(t * Math.PI) * 0.5; // a slight arc, like a crane
     look.lerpVectors(la, lb, t);
     camera.lookAt(look);
-    invalidate();
+    // no invalidate() here — the pose is a pure function of scroll progress,
+    // and DemandFrames already asks for a frame whenever that changes
   });
   return null;
 }
@@ -138,12 +140,14 @@ function Item({
   const hover = hovered === id;
   const meta = studioObjects.find((o) => o.key === id)!;
   const L = slot;
+  const invalidate = useThree((s) => s.invalidate);
 
   useFrame((_, dt) => {
     if (!lift.current) return;
     const ty = hover ? 0.07 : 0;
     const k = 1 - Math.pow(0.0005, dt);
     lift.current.position.y += (ty - lift.current.position.y) * k;
+    if (Math.abs(ty - lift.current.position.y) > 1e-4) invalidate(); // still rising
   });
 
   const over = (e: ThreeEvent<PointerEvent>) => {
@@ -229,17 +233,30 @@ function Desk({ layout }: { layout: Layout }) {
 /** studio lighting: a warm key from the window side, a cool fill, and a soft
  *  overhead panel — the environment gives the metal and glass something to reflect */
 function Lights() {
+  const key = useRef<THREE.DirectionalLight>(null);
+  // the desk never moves — bake the shadow map once instead of re-rendering
+  // the whole depth pass on every frame
+  useEffect(() => {
+    const l = key.current;
+    if (!l) return;
+    l.shadow.needsUpdate = true;
+    const t = setTimeout(() => {
+      l.shadow.autoUpdate = false;
+    }, 250);
+    return () => clearTimeout(t);
+  }, []);
   return (
     <>
       <ambientLight intensity={0.35} />
       <hemisphereLight args={["#ffffff", "#b9a58a", 0.5]} />
       <directionalLight
+        ref={key}
         position={[3.5, 6.5, 4]}
         intensity={2.3}
         color="#fff4e6"
         castShadow
-        shadow-mapSize={[2048, 2048]}
-        shadow-bias={-0.0004}
+        shadow-mapSize={[1024, 1024]}
+        shadow-bias={-0.0006}
         shadow-normalBias={0.02}
         shadow-camera-left={-4.5}
         shadow-camera-right={4.5}
@@ -362,7 +379,7 @@ export default function StudioScene({
 
   return (
     <Canvas
-      frameloop={active ? "always" : "never"}
+      frameloop={active ? "demand" : "never"}
       shadows="soft"
       dpr={[1, 1.5]}
       gl={{ alpha: true, antialias: true, powerPreference: "low-power", toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.15 }}
@@ -372,6 +389,7 @@ export default function StudioScene({
       onPointerMissed={() => setHovered(null)}
     >
       <Suspense fallback={null}>
+        <DemandFrames watch={`${hovered}|${captions}|${accent}`} />
         <Contents progress={progress} accent={accent} reduce={reduce} hovered={hovered} setHovered={setHovered} onSelect={onSelect} captions={captions} />
       </Suspense>
     </Canvas>

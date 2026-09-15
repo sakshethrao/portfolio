@@ -1,7 +1,6 @@
 import { publicProjects } from "@/content/projects";
 import { Reveal } from "@/components/Reveal";
 import { Emph } from "./ProjectStage";
-import { MiniIndex } from "./MiniIndex";
 import { SpreadQuantumSight } from "./SpreadQuantumSight";
 import { SpreadDevice } from "./SpreadDevice";
 import { SpreadBrowser } from "./SpreadBrowser";
@@ -19,8 +18,6 @@ export function Builds() {
 
   return (
     <section id="builds" data-section="builds" style={{ position: "relative" }}>
-      <MiniIndex items={publicProjects.map((p) => ({ slug: p.slug, title: p.title }))} />
-
       <div className="wrap" style={{ paddingTop: "clamp(56px, 9vw, 128px)", paddingBottom: "clamp(28px, 4vw, 56px)" }}>
         <Reveal>
           <div className="grid-12" style={{ alignItems: "end", rowGap: 18 }}>

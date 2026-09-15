@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import type { Project } from "@/lib/types";
 import { ProjectPhone } from "@/components/work/ProjectPhone";
 import { ProjectStage } from "./ProjectStage";
@@ -14,8 +14,9 @@ import { ProjectStage } from "./ProjectStage";
 export function SpreadDevice({ project, index, detail = false }: { project: Project; index: number; detail?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "center center"] });
-  const p = useSpring(scrollYProgress, { stiffness: 90, damping: 24, mass: 0.6 });
+  // read the raw progress: Lenis already smooths the scroll, and springing on
+  // top of it compounds into lag and an overshoot wobble
+  const { scrollYProgress: p } = useScroll({ target: ref, offset: ["start end", "center center"] });
   const rotateY = useTransform(p, [0, 1], [-30, 0]);
   const rotateX = useTransform(p, [0, 1], [8, 0]);
   const scale = useTransform(p, [0, 1], [0.92, 1]);

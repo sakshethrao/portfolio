@@ -1,37 +1,50 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { subscribeScroll } from "./scroll";
+import { scroll, subscribeScroll } from "./scroll";
+
+type Band = { top: number; bottom: number; value: string };
 
 /**
- * Which `[data-<attr>]` element currently crosses the viewport's middle band.
- * Driven by the scroll store (not IntersectionObserver) so it's deterministic
- * with smooth scrolling and in backgrounded tabs.
+ * Which `[data-<attr>]` element covers a probe line in the viewport.
+ *
+ * Positions are measured once (and again on resize / when the document
+ * changes height), then compared numerically against the scroll store — so
+ * scrolling costs arithmetic, not a forced layout per tick.
+ *
+ * `probe` is a fraction of viewport height (0.5 = the middle) or, when > 1,
+ * a distance in px from the top of the viewport.
  */
-export function useActiveSection(attr: string, deps: unknown[] = []): string | null {
+export function useActiveSection(attr: string, probe = 0.5, deps: unknown[] = []): string | null {
   const [active, setActive] = useState<string | null>(null);
 
   useEffect(() => {
-    let els: HTMLElement[] = [];
+    let bands: Band[] = [];
     let last = 0;
     let trailing: ReturnType<typeof setTimeout> | null = null;
-    const collect = () => {
-      els = Array.from(document.querySelectorAll<HTMLElement>(`[data-${attr}]`));
-    };
-    const check = () => {
-      const mid = window.innerHeight / 2;
-      let found: string | null = null;
-      for (const el of els) {
+
+    const measure = () => {
+      const y = window.scrollY;
+      bands = Array.from(document.querySelectorAll<HTMLElement>(`[data-${attr}]`)).map((el) => {
         const r = el.getBoundingClientRect();
-        if (r.top <= mid && r.bottom > mid) {
-          found = el.getAttribute(`data-${attr}`);
+        return { top: r.top + y, bottom: r.bottom + y, value: el.getAttribute(`data-${attr}`) ?? "" };
+      });
+    };
+
+    const check = () => {
+      const line = scroll.y + (probe > 1 ? probe : window.innerHeight * probe);
+      let found: string | null = null;
+      for (const b of bands) {
+        if (b.top <= line && b.bottom > line) {
+          found = b.value;
           break;
         }
       }
       setActive((a) => (a === found ? a : found));
     };
-    // ~20Hz while scrolling + one trailing check. Plain timers, not rAF, so it
-    // keeps working in background tabs and under smooth-scroll libraries.
+
+    // ~20Hz while scrolling plus a trailing settle. Plain timers, not rAF, so
+    // this keeps working in backgrounded tabs and under smooth-scroll libraries.
     const schedule = () => {
       const now = performance.now();
       if (now - last > 50) {
@@ -41,18 +54,25 @@ export function useActiveSection(attr: string, deps: unknown[] = []): string | n
       if (trailing) clearTimeout(trailing);
       trailing = setTimeout(check, 80);
     };
-    collect();
+
+    const remeasure = () => {
+      measure();
+      check();
+    };
+
+    measure();
     check();
     const unsub = subscribeScroll(schedule);
-    window.addEventListener("resize", schedule);
-    // content can mount after us (dynamic imports); re-collect shortly after
-    const t = setTimeout(() => {
-      collect();
-      check();
-    }, 600);
+    window.addEventListener("resize", remeasure);
+    // content can mount or reflow after us (fonts, dynamic imports, images)
+    const ro = new ResizeObserver(remeasure);
+    ro.observe(document.body);
+    const t = setTimeout(remeasure, 600);
+
     return () => {
       unsub();
-      window.removeEventListener("resize", schedule);
+      window.removeEventListener("resize", remeasure);
+      ro.disconnect();
       clearTimeout(t);
       if (trailing) clearTimeout(trailing);
     };
@@ -60,38 +80,4 @@ export function useActiveSection(attr: string, deps: unknown[] = []): string | n
   }, deps);
 
   return active;
-}
-
-/** true while any `[data-<attr>]` element overlaps the viewport (with a margin) */
-export function useSectionVisible(id: string, margin = 0.2): boolean {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    let last = 0;
-    let trailing: ReturnType<typeof setTimeout> | null = null;
-    const check = () => {
-      const el = document.getElementById(id);
-      if (!el) return setVisible(false);
-      const r = el.getBoundingClientRect();
-      const m = window.innerHeight * margin;
-      setVisible(r.top < window.innerHeight - m && r.bottom > m);
-    };
-    const schedule = () => {
-      const now = performance.now();
-      if (now - last > 50) {
-        last = now;
-        check();
-      }
-      if (trailing) clearTimeout(trailing);
-      trailing = setTimeout(check, 80);
-    };
-    check();
-    const unsub = subscribeScroll(schedule);
-    window.addEventListener("resize", schedule);
-    return () => {
-      unsub();
-      window.removeEventListener("resize", schedule);
-      if (trailing) clearTimeout(trailing);
-    };
-  }, [id, margin]);
-  return visible;
 }

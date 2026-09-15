@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 
 /**
@@ -19,8 +20,21 @@ export function DetectionViz({
   const green = "#4ade80";
   const amber = "#ffb020";
 
+  // five looping animations live in here — idle them when nobody's looking
+  const ref = useRef<HTMLDivElement>(null);
+  const [onScreen, setOnScreen] = useState(true);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setOnScreen(e.isIntersecting), { rootMargin: "200px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
     <div
+      ref={ref}
+      className={onScreen ? undefined : "anim-paused"}
       style={{
         background: "#0d0f10",
         borderRadius: 16,

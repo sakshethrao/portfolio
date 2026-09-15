@@ -60,7 +60,7 @@ export default function QuantumSightPage() {
       </section>
 
       {/* the real product */}
-      <section style={{ background: "var(--ink-2)", color: "#fff" }}>
+      <section data-nav="light" style={{ background: "var(--ink-2)", color: "#fff" }}>
         <div className="wrap" style={{ padding: "clamp(56px, 8vw, 100px) var(--pad)" }}>
           <Reveal>
             <div className="grid-12" style={{ rowGap: 16, marginBottom: 36, alignItems: "end" }}>
@@ -142,7 +142,7 @@ export default function QuantumSightPage() {
       </section>
 
       {/* CTA — a full-bleed ink band */}
-      <section style={{ background: "var(--ink)", color: "#fff" }}>
+      <section data-nav="light" style={{ background: "var(--ink)", color: "#fff" }}>
         <div className="wrap" style={{ padding: "clamp(56px, 9vw, 120px) var(--pad)" }}>
           <Reveal>
             <h2 className="display" style={{ fontWeight: 500, fontSize: "clamp(34px, 6vw, 92px)", margin: 0, maxWidth: 900 }}>

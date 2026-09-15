@@ -10,8 +10,9 @@ import { IndexOverlay } from "./IndexOverlay";
 
 /**
  * Minimal chrome. No bar: a wordmark, the current section (ticks as you
- * scroll), and an Index button. Drawn with `mix-blend-mode: difference` so it
- * stays legible over the dark QuantumSight spread without a background.
+ * scroll), and an Index button. It inverts to white over dark sections —
+ * by swapping a colour, not by blending, which would re-composite the whole
+ * strip against the page on every scroll frame.
  */
 export function Nav() {
   const [open, setOpen] = useState(false);
@@ -19,7 +20,11 @@ export function Nav() {
   const reduce = useReducedMotion();
 
   // which [data-section] is crossing the middle of the viewport
-  const section = useActiveSection("section", [pathname]);
+  const section = useActiveSection("section", 0.5, [pathname]);
+  // ...and whether a dark band sits under the bar itself
+  const onDark = useActiveSection("nav", 30, [pathname]) === "light" && !open;
+  const fg = onDark ? "#ffffff" : "var(--ink)";
+  const rule = onDark ? "rgba(255,255,255,0.55)" : "var(--line-strong)";
 
   useEffect(() => {
     document.documentElement.classList.toggle("lenis-stopped", open);
@@ -48,8 +53,8 @@ export function Nav() {
           inset: "0 0 auto 0",
           zIndex: 120,
           pointerEvents: "none",
-          mixBlendMode: open ? "normal" : "difference",
-          color: "#fff",
+          color: fg,
+          transition: "color 0.25s var(--ease)",
         }}
       >
         <nav
@@ -90,7 +95,7 @@ export function Nav() {
           </div>
 
           <div style={{ justifySelf: "end", display: "flex", gap: 22, alignItems: "center", pointerEvents: "auto" }}>
-            <a href={`mailto:${site.email}`} className="mono nav-email link-underline" style={{ fontSize: 11.5, letterSpacing: "0.04em", backgroundImage: "linear-gradient(#fff,#fff)" }}>
+            <a href={`mailto:${site.email}`} className="mono nav-email link-underline" style={{ fontSize: 11.5, letterSpacing: "0.04em", backgroundImage: `linear-gradient(${fg},${fg})` }}>
               EMAIL
             </a>
             <button
@@ -100,13 +105,14 @@ export function Nav() {
               className="mono"
               style={{
                 background: "transparent",
-                border: "1px solid rgba(255,255,255,0.6)",
+                border: `1px solid ${rule}`,
                 borderRadius: 99,
                 padding: "7px 14px",
                 fontSize: 11.5,
                 letterSpacing: "0.06em",
                 cursor: "pointer",
                 color: "inherit",
+                transition: "border-color 0.25s var(--ease)",
               }}
             >
               {open ? "CLOSE" : "INDEX"}

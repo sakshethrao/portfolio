@@ -32,7 +32,8 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     }
 
     const lenis = new Lenis({
-      lerp: 0.1,
+      // tracks the wheel closely; lower values read as lag on a heavy page
+      lerp: 0.135,
       wheelMultiplier: 1,
       touchMultiplier: 1.4,
       // let inner scrollers (the phone / browser demos) scroll themselves

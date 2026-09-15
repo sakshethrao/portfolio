@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import type { Photo } from "@/lib/types";
 
 /**
@@ -154,8 +154,9 @@ function Strip({ photos, onOpen }: { photos: Photo[]; onOpen: (i: number) => voi
     };
   }, [photos.length]);
 
-  const { scrollYProgress } = useScroll({ target: wrap, offset: ["start start", "end end"] });
-  const p = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.5 });
+  // raw progress — Lenis already eases the scroll; a spring on top of it only
+  // adds lag and overshoot
+  const { scrollYProgress: p } = useScroll({ target: wrap, offset: ["start start", "end end"] });
   const x = useTransform(p, [0, 1], [0, -travel]);
   const xSlow = useTransform(p, [0, 1], [0, -travel * 0.9]);
   const counter = useTransform(p, (v) => `${String(Math.min(photos.length, Math.max(1, Math.round(v * (photos.length - 1)) + 1))).padStart(2, "0")} / ${String(photos.length).padStart(2, "0")}`);

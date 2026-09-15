@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { photos, galleryIntro } from "@/content/gallery";
 import { Reveal } from "./Reveal";
+import { PauseOffscreen } from "./PauseOffscreen";
 
 /** a slow drift of photos, edge to edge — the door into the journal */
 export function Journal() {
@@ -27,7 +28,7 @@ export function Journal() {
         </Reveal>
       </div>
 
-      <div className="journal-drift" style={{ display: "flex", gap: 18, width: "max-content", animation: "journal-drift 60s linear infinite" }}>
+      <PauseOffscreen className="journal-drift" style={{ display: "flex", gap: 18, width: "max-content", animation: "journal-drift 60s linear infinite" }}>
         {strip.map((p, i) => {
           const h = 240;
           const w = Math.round((h * (p.width ?? 4)) / (p.height ?? 3));
@@ -48,7 +49,7 @@ export function Journal() {
             </figure>
           );
         })}
-      </div>
+      </PauseOffscreen>
 
       <style>{`
         @keyframes journal-drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }

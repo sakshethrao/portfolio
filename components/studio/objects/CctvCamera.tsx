@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { scroll } from "@/lib/scroll";
 import { Box, Cyl, Ball, Tube } from "./primitives";
 
 /** shared pointer, normalised device coords; -2 = no pointer yet */
@@ -48,12 +49,12 @@ export function CctvCamera({
     [tx, ty, tz],
   ];
   const head = useRef<THREE.Group>(null);
-  const { camera } = useThree();
+  const { camera, invalidate } = useThree();
   const cur = useRef({ yaw: 0, pitch: 0 });
   const v = new THREE.Vector3();
   const wp = new THREE.Vector3();
 
-  useFrame((state, dt) => {
+  useFrame((_state, dt) => {
     if (!head.current) return;
     let yaw = 0;
     let pitch = 0.05;
@@ -64,9 +65,10 @@ export function CctvCamera({
       yaw = Math.atan2(v.x, v.z);
       pitch = Math.atan2(v.y, Math.hypot(v.x, v.z));
     } else {
-      const t = state.clock.elapsedTime;
-      yaw = Math.sin(t * 0.35) * 0.6;
-      pitch = -0.08 + Math.sin(t * 0.9) * 0.04;
+      // idle: drift with the scroll rather than with a clock, so a still page
+      // needs no frames at all (and a touch device still gets some life)
+      yaw = Math.sin(scroll.y * 0.0016) * 0.4;
+      pitch = -0.06;
     }
     yaw = THREE.MathUtils.clamp(yaw, -1.25, 1.25);
     pitch = THREE.MathUtils.clamp(pitch, -0.55, 0.65);
@@ -74,6 +76,8 @@ export function CctvCamera({
     cur.current.yaw += (yaw - cur.current.yaw) * k * 0.6;
     cur.current.pitch += (pitch - cur.current.pitch) * k * 0.6;
     head.current.rotation.set(-cur.current.pitch, cur.current.yaw, 0, "YXZ");
+    // keep frames coming only while the head is still catching up
+    if (Math.abs(yaw - cur.current.yaw) > 2e-4 || Math.abs(pitch - cur.current.pitch) > 2e-4) invalidate();
   });
 
   return (
