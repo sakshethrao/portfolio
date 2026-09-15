@@ -70,7 +70,8 @@ export function BrowserFrame({
       </div>
 
       {/* viewport */}
-      <div style={{ height, overflowY: "auto", overflowX: "hidden", position: "relative" }}>
+      {/* the wheel is handed to this viewport only while it actually overflows */}
+      <div data-lenis-prevent style={{ height, overflowY: "auto", overflowX: "hidden", position: "relative", overscrollBehavior: "contain" }}>
         {children}
       </div>
     </div>

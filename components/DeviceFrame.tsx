@@ -98,7 +98,9 @@ export function DeviceFrame({
             overflow: "hidden",
           }}
         >
-          <div style={{ height: "100%", overflowY: "auto" }}>{children}</div>
+          <div data-lenis-prevent style={{ height: "100%", overflowY: "auto", overscrollBehavior: "contain" }}>
+            {children}
+          </div>
         </div>
 
         {/* bezel ring — drawn above the scrollable content so the frame edge

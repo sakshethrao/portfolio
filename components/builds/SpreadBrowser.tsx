@@ -14,7 +14,7 @@ export function SpreadBrowser({ project, index, detail = false }: { project: Pro
           </div>
 
           {project.slug === "parchi" && (
-            <div style={{ gridColumn: "1 / -1", minWidth: 0 }} data-lenis-prevent>
+            <div style={{ gridColumn: "1 / -1", minWidth: 0 }}>
               <ParchiDemo />
               <span className="mono" style={{ display: "block", marginTop: 10, fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.06em" }}>
                 LIVE DEMO — DROP THE RECEIPT, THEN CHECK THE DASHBOARD
@@ -23,7 +23,7 @@ export function SpreadBrowser({ project, index, detail = false }: { project: Pro
           )}
 
           {project.slug === "influencer-payment-os" && (
-            <div style={{ gridColumn: "1 / -1", minWidth: 0 }} data-lenis-prevent>
+            <div style={{ gridColumn: "1 / -1", minWidth: 0 }}>
               <MakeFlow />
               <span className="mono" style={{ display: "block", marginTop: 10, fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.06em" }}>
                 LIVE DEMO — HIT RUN ONCE, WATCH IT MOVE THROUGH THE SCENARIO

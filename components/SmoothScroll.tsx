@@ -36,8 +36,19 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       lerp: 0.135,
       wheelMultiplier: 1,
       touchMultiplier: 1.4,
-      // let inner scrollers (the phone / browser demos) scroll themselves
-      prevent: (node) => node.hasAttribute("data-lenis-prevent") || !!node.closest("[data-lenis-prevent]"),
+      // Yield the wheel to an inner scroller (the phone / browser demos) only
+      // while it genuinely has somewhere to scroll. Marking a region that
+      // doesn't overflow turns it into a dead zone: Lenis stops smoothing,
+      // native scroll takes over, and the handoff reads as a glitch.
+      prevent: (node) => {
+        const el = node.hasAttribute?.("data-lenis-prevent")
+          ? node
+          : (node.closest?.("[data-lenis-prevent]") as HTMLElement | null);
+        if (!el) return false;
+        const oy = getComputedStyle(el).overflowY;
+        if (oy !== "auto" && oy !== "scroll") return false;
+        return el.scrollHeight - el.clientHeight > 24;
+      },
     });
     lenis.on("scroll", (e: { scroll: number }) => setScroll(e.scroll));
     setScroll(window.scrollY);
