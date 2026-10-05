@@ -64,7 +64,7 @@ export function FilmStrip({ photos }: { photos: Photo[] }) {
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-label={photos[open].place}
+            aria-label={photos[open].place || `Travel photograph ${open + 1}`}
             onClick={close}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -75,7 +75,7 @@ export function FilmStrip({ photos }: { photos: Photo[] }) {
             <motion.div layoutId={`photo-${open}`} onClick={(e) => e.stopPropagation()} style={{ position: "relative", maxWidth: 1200, width: "100%" }}>
               <Image
                 src={photos[open].src}
-                alt={photos[open].place}
+                alt={photos[open].place || `Travel photograph ${open + 1}`}
                 width={photos[open].width ?? 1600}
                 height={photos[open].height ?? 1000}
                 sizes="92vw"
@@ -115,17 +115,17 @@ function Cell({ p, i, onOpen, base, offset }: { p: Photo; i: number; onOpen: (i:
       <motion.button
         layoutId={`photo-${i}`}
         onClick={() => !empty && onOpen(i)}
-        aria-label={empty ? "Photo coming soon" : `View ${p.place}`}
+        aria-label={empty ? "Photo coming soon" : p.place ? `View ${p.place}` : `View photograph ${i + 1}`}
         style={{ display: "block", width: w, height: h, border: 0, padding: 0, margin: 0, cursor: empty ? "default" : "zoom-in", background: "var(--paper-3)", position: "relative", overflow: "hidden" }}
       >
         {empty ? (
           <span className="mono" style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", fontSize: 10, letterSpacing: "0.12em", color: "var(--faint)" }}>PHOTO</span>
         ) : (
-          <Image src={p.src} alt={p.place} fill sizes={`${w}px`} style={{ objectFit: "cover" }} className="gallery-img" />
+          <Image src={p.src} alt={p.place || `Travel photograph ${i + 1}`} fill sizes={`${w}px`} style={{ objectFit: "cover" }} className="gallery-img" />
         )}
       </motion.button>
       <figcaption className="mono" style={{ fontSize: 10.5, color: "var(--faint)", marginTop: 10, letterSpacing: "0.05em", display: "flex", justifyContent: "space-between", gap: 12 }}>
-        <span>{[p.location, p.date].filter(Boolean).join(" · ") || "—"}</span>
+        <span>{[p.location, p.date].filter(Boolean).join(" · ")}</span>
         <span>{String(i + 1).padStart(2, "0")}</span>
       </figcaption>
     </figure>
@@ -204,17 +204,17 @@ function StackCell({ p, i, onOpen }: { p: Photo; i: number; onOpen: (i: number) 
       <motion.button
         layoutId={`photo-${i}`}
         onClick={() => !empty && onOpen(i)}
-        aria-label={empty ? "Photo coming soon" : `View ${p.place}`}
+        aria-label={empty ? "Photo coming soon" : p.place ? `View ${p.place}` : `View photograph ${i + 1}`}
         style={{ display: "block", width: "100%", aspectRatio: `${p.width ?? 4} / ${p.height ?? 3}`, border: 0, padding: 0, margin: 0, cursor: empty ? "default" : "zoom-in", background: "var(--paper-3)", position: "relative", overflow: "hidden" }}
       >
         {empty ? (
           <span className="mono" style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", fontSize: 10, letterSpacing: "0.12em", color: "var(--faint)" }}>PHOTO</span>
         ) : (
-          <Image src={p.src} alt={p.place} fill sizes="100vw" style={{ objectFit: "cover" }} className="gallery-img" />
+          <Image src={p.src} alt={p.place || `Travel photograph ${i + 1}`} fill sizes="100vw" style={{ objectFit: "cover" }} className="gallery-img" />
         )}
       </motion.button>
       <figcaption className="mono" style={{ fontSize: 10.5, color: "var(--faint)", marginTop: 10, letterSpacing: "0.05em", display: "flex", justifyContent: "space-between" }}>
-        <span>{[p.location, p.date].filter(Boolean).join(" · ") || "—"}</span>
+        <span>{[p.location, p.date].filter(Boolean).join(" · ")}</span>
         <span>{String(i + 1).padStart(2, "0")}</span>
       </figcaption>
     </figure>

@@ -8,3 +8,6 @@ next-env.d.ts
 handoff
 
 UI Mockups for Marco.fyi-handoff.zip
+
+# local masters for the travel gallery (optimised copies live in public/gallery)
+.gallery-originals/

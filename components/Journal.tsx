@@ -36,7 +36,17 @@ export function Journal() {
             <figure key={i} style={{ margin: 0, flex: "none", width: w, marginTop: i % 3 === 1 ? 26 : 0 }} aria-hidden={i >= list.length}>
               <div style={{ position: "relative", width: w, height: h, background: "var(--paper-3)", overflow: "hidden" }}>
                 {p.src ? (
-                  <Image src={p.src} alt={p.place} fill sizes="400px" style={{ objectFit: "cover" }} />
+                  <Image
+                    src={p.src}
+                    alt={p.place || `Travel photograph ${(i % list.length) + 1}`}
+                    fill
+                    sizes="400px"
+                    style={{ objectFit: "cover" }}
+                    /* the strip drifts sideways under its own animation, so a
+                       lazy frame can arrive as a grey box mid-glide; the six
+                       originals load up front and the clones hit cache */
+                    loading={i < list.length ? "eager" : "lazy"}
+                  />
                 ) : (
                   <span className="mono" style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", fontSize: 10, letterSpacing: "0.1em", color: "var(--faint)" }}>PHOTO</span>
                 )}
