@@ -31,6 +31,12 @@ export const site = {
   /** footer build-credit line, mirrors the mockup */
   builtWith: "BUILT WITH CLAUDE CODE · NEXT.JS · TAILWIND · VERCEL",
 
+  /** Google Analytics 4 measurement ID. Public by design — it ships in the
+   *  page source of every GA site. Blank disables analytics entirely. */
+  analytics: {
+    ga: "G-SNBS0C87D4",
+  },
+
   resume: {
     file: "/saksheth-rao-cv.pdf",
     updated: "2026",

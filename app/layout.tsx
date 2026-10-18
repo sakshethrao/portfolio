@@ -10,6 +10,7 @@ import { AccentProvider } from "@/components/AccentProvider";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/Footer";
+import { Analytics } from "@/components/Analytics";
 import { site } from "@/content/site";
 
 // display + body: variable, with optical size so 12px labels and 160px
@@ -91,6 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Footer />
           </SmoothScroll>
         </AccentProvider>
+        <Analytics />
       </body>
     </html>
   );
