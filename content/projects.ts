@@ -8,6 +8,23 @@ import type { Project } from "@/lib/types";
 
 export const projects: Project[] = [
   {
+    slug: "twocents",
+    title: "TwoCents",
+    tagline: "LinkedIn comments in your voice — it drafts, you approve, it posts on schedule.",
+    status: "LIVE",
+    category: "AI · Chrome extension",
+    period: "2026",
+    layout: "browser",
+    featured: true,
+    tech: ["Next.js", "Chrome Extension", "Claude API", "Supabase", "LinkedIn API"],
+    liveUrl: "https://2cents.live",
+    caseStudy: {
+      problem: "Commenting is how you get noticed on LinkedIn, and writing something worth reading under every post is a job nobody has time for.",
+      approach: "An extension reads the posts you scroll past, Claude drafts a comment in your voice, and you approve it in a side panel — nothing posts without you. Approved comments go out at your own time slots.",
+      outcome: "Live at 2cents.live. Extension 0.3.2 — drafting, approval, scheduling and billing all running.",
+    },
+  },
+  {
     slug: "quantumsight",
     title: "QuantumSight",
     tagline: "Making existing CCTV cameras understand what they see.",
