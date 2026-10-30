@@ -47,4 +47,4 @@ export const photos: Photo[] = [
 ];
 
 export const galleryIntro =
-  "Places I've pointed a camera at. Loosely ordered, lightly edited — the photos should do the talking.";
+  "Photos from trips, weekends and random places I found interesting. Some were planned. Most weren't.";

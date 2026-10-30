@@ -11,7 +11,7 @@ export const roles: Role[] = [
     title: "Founder",
     period: "2025 — now",
     location: "Remote",
-    summary: "Building computer vision that makes existing CCTV understand what it sees.",
+    summary: "Working on AI that helps businesses get more out of the CCTV cameras they already have.",
   },
   {
     company: "KPMG",
@@ -19,7 +19,7 @@ export const roles: Role[] = [
     period: "2022 — 2026",
     location: "Gurugram",
     summary:
-      "Risk advisory and strategy across automotive, telecom and quick-commerce. Promoted from Analyst to Consultant in three years.",
+      "Almost four years with clients across telecom, automotive and quick commerce — working out how a business actually ran, finding the gaps and figuring out how to close them. Joined as an Analyst, left as a Consultant.",
     points: [
       "Flagged $8M in revenue leakage from unreported licensing liabilities; closed access-control gaps across 10 systems, mitigating ₹1Cr+ in risk.",
       "Worked on Blinkit's post-acquisition integration — access controls and DPDP data-privacy remediation.",
@@ -32,7 +32,7 @@ export const roles: Role[] = [
     period: "2020 — 2022",
     location: "Pune",
     summary:
-      "Co-founded a commission-based D2C marketplace for Made-in-India streetwear.",
+      "Started a streetwear marketplace in college. Worked on everything from finding brands and running ads to customers and day-to-day operations.",
     points: [
       "Onboarded 18 brands through 250+ founder conversations; grew to 1,000+ customers at a sub-₹250 CAC with a team of 9.",
       "~3–4× ROAS and a 20–25% repeat rate across 25+ campaigns and launches.",
@@ -92,14 +92,14 @@ export const certifications = [
 
 /** short list rendered near About */
 export const about = {
-  lead: "KPMG taught me how large companies work — and break. Nicho taught me how to build one. Everything since has been a version of building.",
+  lead: "I started with a clothing business, moved into consulting, and now I build products. Different industries, but it's always been the same thing: figuring out how something works.",
   body: [
-    "Right now that's QuantumSight, a handful of smaller apps, and a PG program in Technology & Business Management at Masters' Union.",
-    "Before consulting I studied Computer & Communication Engineering at Manipal. Off the clock: travel, cricket, a camera.",
+    "I don't think I've ever stuck to just one thing. I like trying new tools, taking things apart to see how they work, and building things before I fully know how. A lot of what's on this site started that way.",
+    "Outside work I play a lot of cricket, a fair bit of pickleball, and travel when I can. I take a lot of photos too, some of which are actually decent.",
   ],
   /** small tag rows */
-  works: ["Product", "Strategy", "Startups", "AI", "Building"],
-  offHours: ["Travel", "Cricket", "Photography", "Tinkering"],
+  works: ["Products", "AI", "Startups", "Growth", "Operations"],
+  offHours: ["Cricket", "Pickleball", "Travel", "Photography"],
   /** de-emphasised toolkit line, not a logo wall */
   toolkit: [
     "GTM & ops",

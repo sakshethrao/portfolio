@@ -8,7 +8,7 @@ import { ProjectStage } from "./ProjectStage";
 const EMPHASIS: Record<string, string> = {
   twocents: "your voice",
   parchi: "logs itself",
-  "influencer-payment-os": "lifecycle",
+  "influencer-payment-os": "chasing",
 };
 
 /** a build whose spread borrows the product's own ground, the way Nurture does */

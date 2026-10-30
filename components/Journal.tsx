@@ -22,7 +22,7 @@ export function Journal() {
             </div>
             <div style={{ gridColumn: "1 / span 12" }} className="journal-note">
               <p style={{ fontSize: 15, lineHeight: 1.5, color: "var(--muted)", margin: "0 0 14px", maxWidth: 320 }}>{galleryIntro}</p>
-              <Link href="/gallery" className="mono link-underline" style={{ fontSize: 11.5, letterSpacing: "0.05em" }}>OPEN THE JOURNAL →</Link>
+              <Link href="/gallery" className="mono link-underline" style={{ fontSize: 11.5, letterSpacing: "0.05em" }}>SEE THE PHOTOS →</Link>
             </div>
           </div>
         </Reveal>

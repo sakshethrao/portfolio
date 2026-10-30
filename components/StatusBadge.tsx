@@ -3,6 +3,7 @@ import type { ProjectStatus } from "@/lib/types";
 const COLORS: Record<ProjectStatus, string> = {
   LIVE: "var(--status-live)",
   BUILDING: "var(--accent)",
+  DEMO: "var(--muted-2)",
   EXPERIMENT: "var(--status-exp)",
   ARCHIVED: "var(--faint)",
 };

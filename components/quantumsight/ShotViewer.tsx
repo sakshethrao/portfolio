@@ -39,6 +39,9 @@ export function ShotViewer({ shots }: { shots: Shot[] }) {
         <Image key={s.src} src={s.src} alt={s.caption} width={s.w} height={s.h} sizes="(max-width: 1100px) 100vw, 1100px" priority={i === 0} style={{ width: "100%", height: "auto", display: "block" }} />
         <div className="shot-dock" style={{ position: "absolute", left: 14, bottom: 14, width: "min(38%, 300px)" }}>
           <DetectionViz compact />
+          <span className="mono" style={{ display: "block", marginTop: 6, fontSize: 9.5, letterSpacing: "0.08em", color: "rgba(255,255,255,0.45)" }}>
+            ILLUSTRATION — NOT CAMERA OUTPUT
+          </span>
         </div>
       </div>
 

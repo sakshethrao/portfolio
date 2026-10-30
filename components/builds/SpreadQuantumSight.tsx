@@ -14,7 +14,7 @@ export function SpreadQuantumSight({ project, index }: { project: Project; index
       <div className="wrap spread" style={{ borderTopColor: "rgba(255,255,255,0.08)" }}>
         <div className="spread-cols">
           <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-            <ProjectStage project={project} index={index} dark emphasis="understand" />
+            <ProjectStage project={project} index={index} dark emphasis="a lot more" />
 
             {cs?.notes?.[0] && (
               <div className="mono" style={{ fontSize: 11.5, lineHeight: 1.8, letterSpacing: "0.03em", color: "rgba(255,255,255,0.5)", borderTop: "1px solid rgba(255,255,255,0.12)", paddingTop: 16, maxWidth: 520 }}>

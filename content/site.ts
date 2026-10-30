@@ -6,20 +6,12 @@
 export const site = {
   name: "Saksheth Rao",
   role: "Strategy · Operations · Building",
-  /** shown under the hero headline — keep to one line */
+  /** shown under the hero headline — two short sentences, plain speech */
   intro:
-    "Consulting, a streetwear marketplace, now computer vision — plus a lot of small apps in between.",
+    "I started a streetwear marketplace in college, spent four years at KPMG, and now I'm working on QuantumSight and a few smaller products. I get curious about things and usually end up trying to build them.",
   location: "Gurugram, India",
   /** blinking status line in the hero */
-  nowBuilding: "CURRENTLY BUILDING QUANTUMSIGHT — GURUGRAM / REMOTE",
-  /** rotating "currently thinking about —" ticker */
-  thoughts: [
-    "computer vision at the edge",
-    "a Supabase schema I keep rewriting",
-    "whether Claude Code counts as a co-founder",
-    "the next small app",
-  ],
-
+  nowBuilding: "Currently building QuantumSight. Based in Gurugram.",
   email: "saksheth.rao@gmail.com",
 
   socials: {
@@ -29,7 +21,7 @@ export const site = {
   },
 
   /** footer build-credit line, mirrors the mockup */
-  builtWith: "BUILT WITH CLAUDE CODE · NEXT.JS · TAILWIND · VERCEL",
+  builtWith: "Made with Next.js and Claude Code.",
 
   /** Google Analytics 4 measurement ID. Public by design — it ships in the
    *  page source of every GA site. Blank disables analytics entirely. */

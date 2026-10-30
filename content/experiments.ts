@@ -21,4 +21,4 @@ export const experiments: Experiment[] = [
 ];
 
 export const labIntro =
-  "Things built because I was curious. Not everything needs to become a startup.";
+  "A home for smaller ideas, experiments and things I built just to see if they'd work.";

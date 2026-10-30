@@ -3,80 +3,81 @@ import type { Project } from "@/lib/types";
 /**
  * The Work index. Order here = order on the page.
  * Add a build by appending an object — the grid and detail pages pick it up.
- * Keep taglines to one line; keep case-study fields to a sentence.
+ * Keep taglines to one line; keep case-study fields to a sentence or two,
+ * written the way you'd say it out loud.
  */
 
 export const projects: Project[] = [
   {
     slug: "twocents",
     title: "TwoCents",
-    tagline: "LinkedIn comments in your voice — it drafts, you approve, it posts on schedule.",
+    tagline: "It drafts LinkedIn comments in your voice, so commenting takes a minute instead of ten.",
     status: "LIVE",
-    category: "AI · Chrome extension",
+    category: "Chrome extension",
     period: "2026",
     layout: "browser",
     featured: true,
     tech: ["Next.js", "Chrome Extension", "Claude API", "Supabase", "LinkedIn API"],
     liveUrl: "https://2cents.live",
     caseStudy: {
-      problem: "Commenting is how you get noticed on LinkedIn, and writing something worth reading under every post is a job nobody has time for.",
-      approach: "An extension reads the posts you scroll past, Claude drafts a comment in your voice, and you approve it in a side panel — nothing posts without you. Approved comments go out at your own time slots.",
-      outcome: "Live at 2cents.live. Extension 0.3.2 — drafting, approval, scheduling and billing all running.",
+      problem:
+        "It's easy to scroll past a post you have something to say about and just hit Like. Turning the thought into a decent comment takes longer than it should.",
+      approach:
+        "A Chrome extension reads the posts you scroll past and suggests a reply based on the post and how you normally write. You can make it shorter, change the tone, add your own take, or rewrite it entirely. Nothing posts until you approve it.",
+      outcome:
+        "Live at 2cents.live. Seven comments are free, and I'm still working on making the suggestions sound more like the person using them.",
     },
   },
   {
     slug: "quantumsight",
     title: "QuantumSight",
-    tagline: "Making existing CCTV cameras understand what they see.",
+    tagline: "Your CCTV cameras could be doing a lot more than recording.",
     status: "BUILDING",
-    category: "AI · Computer Vision",
+    category: "Computer vision",
     period: "2025 — now",
     layout: "feature",
     featured: true,
     tech: ["YOLOv8", "Edge Inference", "Python", "React"],
     image: "/quantumsight/analysis.jpg",
     caseStudy: {
-      problem: "Buildings already have cameras — but nothing that understands what's in frame.",
-      approach: "An edge box on top of existing CCTV that turns raw footage into events a security team can act on.",
-      outcome: "Working prototype against live camera feeds; first pilot conversations underway.",
+      problem:
+        "Most buildings already have cameras everywhere. Someone still has to watch them, or go through the footage after something has already happened.",
+      approach:
+        "We connect AI to the cameras that are already installed. Instead of only recording, they can flag the things someone needs to look at — a fire, someone in a restricted area, a safety incident.",
+      outcome: "A working prototype running against live camera feeds, and we're running early pilots now.",
       stages: [
         { label: "Concept", state: "done" },
-        { label: "Prototype", state: "current" },
-        { label: "Pilot", state: "todo" },
+        { label: "Prototype", state: "done" },
+        { label: "Pilot", state: "current" },
         { label: "Scale", state: "todo" },
       ],
-      notes: [
-        "Existing CCTV → QS AI Box (edge) → cloud inference → alerts dashboard.",
-      ],
+      notes: ["Existing CCTV → QS AI Box (edge) → cloud inference → alerts dashboard."],
     },
   },
   {
     slug: "nurture",
-    // TODO(Saksheth): live URL + whether to show the GitHub link.
     title: "Nurture",
-    tagline: "A marketplace matching parents with verified nannies.",
+    tagline: "An app for parents to find a nanny they can actually trust.",
     status: "LIVE",
     category: "Marketplace app",
     period: "2025",
     layout: "device",
     featured: true,
     tech: ["Next.js", "Supabase", "Claude Code"],
-    // liveUrl: "https://...",
-    // githubUrl: "https://github.com/sakshethrao/Nurture",
     caseStudy: {
-      problem: "Hiring a nanny in India runs on word of mouth — no easy way to check verification before someone's in your home.",
-      approach: "A full app for both sides: AI-ranked matches with Aadhaar / police checks up front, plus free certification courses for nannies.",
+      problem:
+        "Finding someone you trust with your child usually starts with asking friends, family and apartment groups, and there's no easy way to check anyone before they're in your home.",
+      approach:
+        "An app for both sides. Parents say what they need and compare profiles; nannies put up their experience and find work. Verification sits at the front of it, and there are free training courses for nannies.",
       outcome: "The preview on this page is the real interface, running screen for screen.",
-      notes: [
-        "Next.js + Supabase. Warm, verification-forward design — calm, not clinical.",
-      ],
+      notes: ["Next.js and Supabase. Warm rather than clinical — it's a decision people are nervous about."],
     },
   },
   {
     slug: "parchi",
     title: "Parchi",
-    tagline: "The kirana counter's UPI ledger — screenshot a payment and it logs itself.",
-    status: "LIVE",
+    tagline: "A simpler way for a shop to track UPI payments — screenshot it and it logs itself.",
+    status: "DEMO",
     category: "Retail · UPI ledger",
     period: "2025",
     layout: "browser",
@@ -84,30 +85,36 @@ export const projects: Project[] = [
     tech: ["Next.js", "Supabase", "Tesseract OCR", "Recharts"],
     githubUrl: "https://github.com/sakshethrao/QR-payment-dashboard",
     caseStudy: {
-      problem: "Small shops track UPI payments from memory or paper chits — easy to lose, hard to reconcile at day's end.",
-      approach: "Drop in a payment screenshot — OCR reads the amount, UPI ID, bank and reference number, flags anything uncertain for a quick check, and logs it against a customer.",
-      outcome: "Revenue by day, week and month, pending reviews, and per-customer history — a digital parchi book.",
+      problem:
+        "Small shops take payments all day and keep track of them on memory or paper chits. It gets messy fast, and reconciling at closing time is worse.",
+      approach:
+        "Drop in a payment screenshot and OCR reads the amount, UPI ID, bank and reference number, flags anything it isn't sure about for a quick check, and files it against a customer.",
+      outcome:
+        "A working demo — screenshot processing, revenue by day and week, a pending-review queue and per-customer history. Nobody is running a shop on it yet.",
     },
   },
   {
     slug: "influencer-payment-os",
     title: "Influencer Payment OS",
-    tagline: "Automates the influencer-campaign payment lifecycle — invoices, reminders, escalations.",
+    tagline: "Because chasing influencer payments gets old very quickly.",
     status: "EXPERIMENT",
     category: "Automation · Make.com",
     period: "2026",
     layout: "browser",
     tech: ["Make.com", "Google Sheets", "Gmail", "Google Docs"],
     caseStudy: {
-      problem: "Influencer agencies chase payments by memory and spreadsheets — approvals, invoices and reminders, all manual.",
-      approach: "Two Make.com scenarios treat a Google Sheet as the database: one raises and emails invoices, the other tracks every campaign's payment clock and fires the right reminder — 7-day, 3-day, due-today, overdue, critical escalation, paid — logging every action.",
-      outcome: "An academic/demo build on seeded data. A verified run sends 9 reminder emails and generates 2 invoices end to end, exactly as replayed here.",
+      problem:
+        "Running the campaign is one thing. Getting everyone paid, and remembering who still owes what, is another — and it's usually done by hand.",
+      approach:
+        "Two Make.com automations over a Google Sheet. One raises and emails invoices. The other watches every payment date and sends the right reminder — upcoming, due, overdue, escalation — and logs what it did.",
+      outcome:
+        "An experiment on sample campaign data. A test run generated two invoices and sent nine reminder emails, which is what the demo here replays.",
     },
   },
   {
     slug: "nicho",
     title: "Nicho",
-    tagline: "A D2C marketplace for Indian streetwear. 18 brands, 1,000+ customers.",
+    tagline: "A streetwear marketplace I started in college, and my first real attempt at a business.",
     status: "ARCHIVED",
     category: "D2C marketplace",
     period: "2020 — 2022",
@@ -119,9 +126,12 @@ export const projects: Project[] = [
       { value: "₹10L+", label: "GMV" },
     ],
     caseStudy: {
-      problem: "India's best independent streetwear labels were scattered and hard to buy from in one place.",
-      approach: "Co-founded a commission-based marketplace, ran it with a team of 9, onboarded 18 brands through 250+ founder conversations.",
-      outcome: "₹10L+ GMV, 1,000+ customers at a sub-₹250 CAC, ~3–4× ROAS before we moved on.",
+      problem:
+        "India had a lot of good independent streetwear labels and no easy place to find them or buy from them in one go.",
+      approach:
+        "Co-founded a commission-based marketplace and ran it with a team of nine. I worked across brand partnerships, ads, customers and operations — pretty much everything that needed doing.",
+      outcome:
+        "₹10L+ in GMV and 1,000+ customers at a sub-₹250 CAC, at roughly 3–4× ROAS. We closed it in 2022. It was the first thing I built where people spent their own money, which taught me more than the rest of it put together.",
     },
   },
 
@@ -131,10 +141,10 @@ export const projects: Project[] = [
     slug: "kebab-case-id",
     title: "Project name",
     tagline: "One line on what it is.",
-    status: "LIVE",             // LIVE | BUILDING | EXPERIMENT | ARCHIVED
+    status: "LIVE",             // LIVE | BUILDING | DEMO | EXPERIMENT | ARCHIVED
     category: "Web app",
     period: "2025",
-    layout: "panel",           // feature | device | panel | terminal | compact
+    layout: "panel",           // feature | device | browser | panel | terminal | compact
     tech: ["React", "Supabase"],
     liveUrl: "https://...",
     githubUrl: "https://github.com/...",

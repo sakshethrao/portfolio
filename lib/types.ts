@@ -1,4 +1,4 @@
-export type ProjectStatus = "LIVE" | "BUILDING" | "EXPERIMENT" | "ARCHIVED";
+export type ProjectStatus = "LIVE" | "BUILDING" | "DEMO" | "EXPERIMENT" | "ARCHIVED";
 
 /**
  * How a project renders in the Work index. The grid is deliberately not uniform —

@@ -15,10 +15,10 @@ export const metadata: Metadata = {
 };
 
 const PIPELINE = [
-  { n: "01", label: "Existing CCTV", note: "RTSP in. No new hardware on the camera." },
-  { n: "02", label: "QS AI Box", note: "Edge inference on the local feed." },
-  { n: "03", label: "Cloud", note: "Heavier models for the events that need a second look." },
-  { n: "04", label: "Alerts", note: "Events a security team can act on — not 40 live tiles." },
+  { n: "01", label: "Existing CCTV", note: "We connect to the CCTV system that is already installed." },
+  { n: "02", label: "QS AI Box", note: "A small box on site runs the models on the video locally." },
+  { n: "03", label: "Cloud", note: "Anything that needs a second look gets checked further." },
+  { n: "04", label: "Alerts", note: "Someone gets told when it matters, instead of watching 40 tiles." },
 ];
 
 const SHOTS: Shot[] = [
@@ -37,10 +37,10 @@ export default function QuantumSightPage() {
         eyebrow="The Company"
         title={
           <>
-            Making existing cameras <span className="serif-i" style={{ fontSize: "1.1em" }}>intelligent</span>.
+            Your cameras could be doing <span className="serif-i" style={{ fontSize: "1.1em" }}>a lot more</span>.
           </>
         }
-        lead="Buildings already have the cameras. QuantumSight is the layer that understands what they see."
+        lead="Most buildings already have cameras everywhere. Someone still has to watch them, or go through the footage after something has already happened."
         aside={<CameraStage />}
       />
 
@@ -146,9 +146,9 @@ export default function QuantumSightPage() {
         <div className="wrap" style={{ padding: "clamp(56px, 9vw, 120px) var(--pad)" }}>
           <Reveal>
             <h2 className="display" style={{ fontWeight: 500, fontSize: "clamp(34px, 6vw, 92px)", margin: 0, maxWidth: 900 }}>
-              Cameras that could be doing <span className="serif-i" style={{ fontSize: "1.08em" }}>more</span>?
+              Think this could be <span className="serif-i" style={{ fontSize: "1.08em" }}>useful</span>?
             </h2>
-            <p style={{ fontSize: 16, lineHeight: 1.6, color: "rgba(255,255,255,0.65)", margin: "18px 0 30px", maxWidth: 400 }}>Running early pilots now.</p>
+            <p style={{ fontSize: 16, lineHeight: 1.6, color: "rgba(255,255,255,0.65)", margin: "18px 0 30px", maxWidth: 400 }}>If you manage a building with CCTV already in it, I&rsquo;d be interested in talking.</p>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
               <Magnetic>
                 <a href={`mailto:${site.email}?subject=QuantumSight pilot`} className="pill-solid" style={{ background: "#fff", color: "var(--ink)", borderColor: "#fff" }}>

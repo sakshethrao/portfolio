@@ -9,7 +9,6 @@ import { site } from "@/content/site";
 import { studioObjects, studioHint, type StudioObjectKey } from "@/content/studio";
 import { scroll, scrollTo, subscribeScroll } from "@/lib/scroll";
 import { useAccent } from "@/components/AccentProvider";
-import { Ticker } from "@/components/Ticker";
 import { Magnetic } from "@/components/Magnetic";
 import { StudioFallback } from "./StudioFallback";
 
@@ -155,15 +154,12 @@ export function Studio() {
             {site.intro}
           </p>
 
-          <div style={{ marginTop: 22, maxWidth: 520 }}>
-            <Ticker items={site.thoughts} />
-          </div>
 
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 28, alignItems: "center", pointerEvents: "auto" }}>
             <Magnetic>
-              <a href="#builds" className="pill-solid">See the work ↓</a>
+              <a href="#builds" className="pill-solid">See what I've built ↓</a>
             </Magnetic>
-            <Link href="/resume" className="pill-outline">Résumé</Link>
+            <Link href="/resume" className="pill-outline">My résumé</Link>
           </div>
         </motion.div>
 
@@ -175,7 +171,7 @@ export function Studio() {
               <span>{site.builtWith}</span>
             </motion.div>
             <motion.div className="mono wrap" style={{ position: "absolute", left: 0, right: 0, bottom: 26, display: "flex", justifyContent: "space-between", fontSize: 10.5, letterSpacing: "0.08em", color: "var(--faint)", pointerEvents: "none", opacity: deskLabelOpacity }}>
-              <span>THE DESK — HOVER ANYTHING</span>
+              <span>HOVER ANYTHING ON IT</span>
               <span>{site.location.toUpperCase()}</span>
             </motion.div>
           </>

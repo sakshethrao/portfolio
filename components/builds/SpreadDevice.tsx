@@ -28,7 +28,7 @@ export function SpreadDevice({ project, index, detail = false }: { project: Proj
     <section id={`build-${project.slug}`} data-build={project.slug} style={{ background: isNurture ? "#fbf9f1" : "var(--paper)" }}>
       <div className="wrap spread" ref={ref}>
         <div className="spread-cols flip">
-          <ProjectStage project={project} index={index} hideStory={detail} emphasis="verified" />
+          <ProjectStage project={project} index={index} hideStory={detail} emphasis="trust" />
 
           <div style={{ perspective: 1400, perspectiveOrigin: "60% 40%", display: "flex", justifyContent: "center", minWidth: 0 }}>
             <motion.div

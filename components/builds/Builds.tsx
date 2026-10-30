@@ -13,9 +13,6 @@ import { Lab } from "./Lab";
  * order, composition chosen by `layout`. Adding a build never touches this.
  */
 export function Builds() {
-  const shipped = publicProjects.filter((p) => p.status === "LIVE" || p.status === "ARCHIVED").length;
-  const building = publicProjects.filter((p) => p.status === "BUILDING").length;
-
   return (
     <section id="builds" data-section="builds" style={{ position: "relative" }}>
       <div className="wrap" style={{ paddingTop: "clamp(56px, 9vw, 128px)", paddingBottom: "clamp(28px, 4vw, 56px)" }}>
@@ -23,14 +20,14 @@ export function Builds() {
           <div className="grid-12" style={{ alignItems: "end", rowGap: 18 }}>
             <div style={{ gridColumn: "1 / span 12" }} className="builds-head">
               <div className="eyebrow" style={{ marginBottom: 18 }}>
-                Builds — {shipped} shipped{building ? `, ${building} in progress` : ""}
+                Builds
               </div>
               <h2 className="display" style={{ fontWeight: 500, fontSize: "clamp(44px, 8vw, 120px)", margin: 0 }}>
                 <Emph text="Things I’ve built." word="built" />
               </h2>
             </div>
             <p style={{ gridColumn: "1 / span 12", fontSize: 15, lineHeight: 1.5, color: "var(--muted)", margin: 0, maxWidth: 300 }} className="builds-note">
-              An index, not a grid. New rows get added; nothing gets redesigned.
+              Some are businesses, some are working apps, and some are experiments that started with a random idea.
             </p>
           </div>
         </Reveal>

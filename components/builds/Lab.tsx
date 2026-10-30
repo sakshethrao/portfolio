@@ -8,7 +8,7 @@ export function Lab() {
     <div id="lab" className="wrap" style={{ paddingTop: "clamp(40px, 6vw, 80px)", paddingBottom: "clamp(48px, 7vw, 96px)", borderTop: "1px solid var(--line)" }}>
       <div className="grid-12" style={{ rowGap: 28 }}>
         <div style={{ gridColumn: "1 / span 12" }} className="lab-head">
-          <div className="eyebrow" style={{ marginBottom: 12 }}>The Lab</div>
+          <div className="eyebrow" style={{ marginBottom: 12 }}>Other things I've tried</div>
           <p style={{ fontSize: 16, lineHeight: 1.5, color: "var(--muted)", margin: 0, maxWidth: 340 }}>{labIntro}</p>
         </div>
         <div style={{ gridColumn: "1 / span 12", display: "flex", gap: 18, flexWrap: "wrap" }} className="lab-notes">

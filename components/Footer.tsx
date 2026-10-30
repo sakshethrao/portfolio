@@ -25,7 +25,7 @@ export function Footer() {
           color: "var(--muted-2)",
         }}
       >
-        <span>© {year} {site.name.toUpperCase()} · STILL BUILDING.</span>
+        <span>© {year} {site.name}</span>
 
         <span style={{ display: "flex", gap: 22, flexWrap: "wrap", alignItems: "center" }}>
           <a href={site.socials.linkedin} target="_blank" rel="noreferrer" className="link-underline">LINKEDIN ↗</a>

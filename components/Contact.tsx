@@ -8,11 +8,11 @@ export function Contact() {
       <Reveal>
         <div className="eyebrow" style={{ marginBottom: 22 }}>Contact</div>
         <h2 className="display" style={{ fontWeight: 500, fontSize: "clamp(40px, 8vw, 128px)", margin: 0, maxWidth: 1100 }}>
-          Building something,<br />or <span className="serif-i" style={{ fontSize: "1.08em" }}>want</span> to?
+          Have something <span className="serif-i" style={{ fontSize: "1.08em" }}>interesting</span><br />in mind?
         </h2>
         <div className="grid-12" style={{ marginTop: "clamp(28px, 4vw, 48px)", rowGap: 24, alignItems: "center" }}>
           <p style={{ gridColumn: "1 / span 12", fontSize: "clamp(16px, 1.6vw, 20px)", lineHeight: 1.5, color: "var(--muted)", margin: 0, maxWidth: 440 }} className="contact-note">
-            QuantumSight pilots, a project you want a hand with, or just to compare notes — the inbox is open.
+            Could be a product idea, a QuantumSight pilot, a role you&rsquo;re hiring for, or just something you think I&rsquo;d find interesting. I&rsquo;d love to hear about it.
           </p>
           <div style={{ gridColumn: "1 / span 12", display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }} className="contact-actions">
             <Magnetic>
