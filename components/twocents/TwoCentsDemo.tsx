@@ -177,7 +177,7 @@ export function TwoCentsDemo() {
             {/* section head + tabs */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8, padding: "12px 12px 6px", fontSize: 13.5, fontWeight: 800 }}>
               <span>Worth your two cents</span>
-              <span style={{ color: c.blue, fontWeight: 700, fontSize: 11.5, whiteSpace: "nowrap" }}>3 free left</span>
+              <span style={{ color: c.blue, fontWeight: 700, fontSize: 11.5, whiteSpace: "nowrap" }}>7 free left</span>
             </div>
             <div style={{ display: "flex", gap: 6, padding: "0 12px 8px" }}>
               <Tab selected={!scheduled} count={scheduled ? 0 : 1}>Drafts</Tab>
