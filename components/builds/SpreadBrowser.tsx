@@ -20,7 +20,7 @@ const TINT: Record<string, string> = {
 const DEMOS: Record<string, { node: React.ReactNode; caption: string }> = {
   twocents: {
     node: <TwoCentsDemo />,
-    caption: "RECREATION — SEE THE DRAFT, REWRITE IT, APPROVE. THE FEED IS A STAND-IN, NOT LINKEDIN'S UI",
+    caption: "RECREATION — CLICK THE COMMENT BOX AND WATCH THE REPLY WRITE ITSELF. THE FEED IS A STAND-IN, NOT LINKEDIN'S UI",
   },
   parchi: {
     node: <ParchiDemo />,

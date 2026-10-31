@@ -11,7 +11,7 @@ export const projects: Project[] = [
   {
     slug: "twocents",
     title: "TwoCents",
-    tagline: "It drafts LinkedIn comments in your voice, so commenting takes a minute instead of ten.",
+    tagline: "A reply in your voice is already written by the time you click Comment.",
     status: "LIVE",
     category: "Chrome extension",
     period: "2026",
@@ -21,11 +21,11 @@ export const projects: Project[] = [
     liveUrl: "https://2cents.live",
     caseStudy: {
       problem:
-        "It's easy to scroll past a post you have something to say about and just hit Like. Turning the thought into a decent comment takes longer than it should.",
+        "Commenting is how people notice you on LinkedIn. Most of us write two, run out of things to say and give up — and the AI shortcuts all read like AI.",
       approach:
-        "A Chrome extension reads the posts you scroll past and suggests a reply based on the post and how you normally write. You can make it shorter, change the tone, add your own take, or rewrite it entirely. Nothing posts until you approve it.",
+        "Click into a post's comment box and the reply is already there, writing itself in while you read it. Change the tone, keep your own words, or post it. It only reads a post when you act on one, and it remembers everyone you've talked to.",
       outcome:
-        "Live at 2cents.live. Seven comments are free, and I'm still working on making the suggestions sound more like the person using them.",
+        "Live at 2cents.live, extension 0.4.5. Seven comments are free, then ₹299 a month. Claude does the drafting; Supabase, Sentry and PostHog sit behind it.",
     },
   },
   {
