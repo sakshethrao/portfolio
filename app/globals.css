@@ -12,9 +12,9 @@
   --ink-2: #0d0f10; /* the one dark spread */
   --line: rgba(18, 18, 18, 0.1);
   --line-strong: rgba(18, 18, 18, 0.18);
-  --muted: rgba(18, 18, 18, 0.6);
-  --muted-2: rgba(18, 18, 18, 0.45);
-  --faint: rgba(18, 18, 18, 0.4);
+  --muted: rgba(18, 18, 18, 0.66);
+  --muted-2: rgba(18, 18, 18, 0.6);
+  --faint: rgba(18, 18, 18, 0.58);
 
   /* set at runtime by <AccentProvider>; this is the SSR default */
   --accent: #ff3b30;
@@ -468,5 +468,91 @@ button {
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The desk's light follows the visitor's clock (html[data-tod], set before
+   first paint by the inline script in the root layout).
+   --------------------------------------------------------------------------- */
+.studio-poster-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 0.6s var(--ease), visibility 0s 0.6s;
+}
+.studio-poster-wrap[data-live="true"] {
+  opacity: 0;
+  visibility: hidden;
+}
+.studio-poster {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: auto 100%; /* same vertical field of view as the live camera */
+}
+html[data-tod="morning"] .studio-poster { background-image: url(/studio/poster-morning-land.webp); }
+html[data-tod="day"] .studio-poster { background-image: url(/studio/poster-day-land.webp); }
+html[data-tod="golden"] .studio-poster { background-image: url(/studio/poster-golden-land.webp); }
+html[data-tod="night"] .studio-poster { background-image: url(/studio/poster-night-land.webp); }
+@media (max-aspect-ratio: 1049/1000) {
+  html[data-tod="morning"] .studio-poster { background-image: url(/studio/poster-morning-port.webp); }
+  html[data-tod="day"] .studio-poster { background-image: url(/studio/poster-day-port.webp); }
+  html[data-tod="golden"] .studio-poster { background-image: url(/studio/poster-golden-port.webp); }
+  html[data-tod="night"] .studio-poster { background-image: url(/studio/poster-night-port.webp); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .studio-poster-wrap { display: none; }
+}
+
+.studio-light {
+  pointer-events: auto;
+  background: none;
+  border: 0;
+  padding: 12px 10px;
+  margin: -12px 0;
+  font-size: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: color 0.2s var(--ease);
+}
+.studio-light:hover { color: var(--ink); }
+@media (max-width: 720px) {
+  .studio-built { display: none; }
+}
+
+/* after dark the top of the page is a dark room: the stage and its type invert */
+#studio { transition: background-color 0.6s var(--ease); }
+html[data-tod="night"] #studio {
+  background: #0b0d11;
+  --ink: #f3efe7;
+  --muted: rgba(243, 239, 231, 0.7);
+  --muted-2: rgba(243, 239, 231, 0.6);
+  --faint: rgba(243, 239, 231, 0.55);
+  --line-strong: rgba(243, 239, 231, 0.3);
+  color: var(--ink);
+}
+html[data-tod="night"] #studio .pill-solid { color: #0b0d11; }
+html[data-tod="night"] #studio .pill-solid:hover { color: #fff; }
+html[data-tod="night"] #studio .studio-cap { --ink: #121212; }
+/* until React is up, the nav can't know it sits on the dark hero */
+html[data-tod="night"][data-home] .site-nav:not([data-hydrated]) { color: #fff !important; }
+
+/* small text links stay small, but on touch screens their hit area grows to a
+   comfortable ~40px without moving anything */
+@media (pointer: coarse) {
+  .link-underline,
+  footer button,
+  .site-nav a {
+    position: relative;
+  }
+  .link-underline::after,
+  footer button::after,
+  .site-nav a::after {
+    content: "";
+    position: absolute;
+    inset: -13px -6px;
   }
 }

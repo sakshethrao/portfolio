@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { site } from "@/content/site";
 import { useActiveSection } from "@/lib/useActiveSection";
+import { useMood } from "@/lib/timeOfDay";
 import { IndexOverlay } from "./IndexOverlay";
 
 /**
@@ -18,11 +19,14 @@ export function Nav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const reduce = useReducedMotion();
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
 
   // which [data-section] is crossing the middle of the viewport
   const section = useActiveSection("section", 0.5, [pathname]);
   // ...and whether a dark band sits under the bar itself
-  const onDark = useActiveSection("nav", 30, [pathname]) === "light" && !open;
+  const mood = useMood(); // at night the hero is a dark band too
+  const onDark = useActiveSection("nav", 30, [pathname, mood]) === "light" && !open;
   const fg = onDark ? "#ffffff" : "var(--ink)";
   const rule = onDark ? "rgba(255,255,255,0.55)" : "var(--line-strong)";
 
@@ -48,6 +52,8 @@ export function Nav() {
   return (
     <>
       <header
+        className="site-nav"
+        data-hydrated={hydrated || undefined}
         style={{
           position: "fixed",
           inset: "0 0 auto 0",

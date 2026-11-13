@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Component, useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
 import { site } from "@/content/site";
 import { studioObjects, studioHint, type StudioObjectKey } from "@/content/studio";
@@ -11,15 +11,37 @@ import { scroll, scrollTo, subscribeScroll } from "@/lib/scroll";
 import { useAccent } from "@/components/AccentProvider";
 import { Magnetic } from "@/components/Magnetic";
 import { StudioFallback } from "./StudioFallback";
+import { MOODS, setMood, useMood } from "@/lib/timeOfDay";
 
-const StudioScene = dynamic(() => import("./StudioScene"), { ssr: false });
+// The 3D code is big, so it starts downloading the moment this file runs,
+// not after the page has hydrated. The poster covers the wait.
+const loadScene = () => import("./StudioScene");
+if (typeof window !== "undefined") {
+  void loadScene();
+  for (const [href, as] of [["/studio/oak-diff.webp", "image"], ["/studio/oak-nor.webp", "image"], ["/studio/oak-rough.webp", "image"], ["/studio/room.hdr", "fetch"]]) {
+    const l = document.createElement("link");
+    l.rel = "preload";
+    l.as = as;
+    l.href = href;
+    l.crossOrigin = "anonymous";
+    document.head.appendChild(l);
+  }
+}
+const StudioScene = dynamic(loadScene, { ssr: false });
 
-function hasWebGL() {
-  try {
-    const c = document.createElement("canvas");
-    return !!(c.getContext("webgl2") || c.getContext("webgl"));
-  } catch {
-    return false;
+const MOOD_LABEL = { morning: "MORNING", day: "DAY", golden: "GOLDEN HOUR", night: "NIGHT" } as const;
+
+/** no WebGL (or the context died): fall back to the drawn desk */
+class SceneBoundary extends Component<{ onFail: () => void; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch() {
+    this.props.onFail();
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
   }
 }
 
@@ -35,13 +57,13 @@ export function Studio() {
   const wrap = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const progress = useRef(0);
-  const [webgl, setWebgl] = useState<boolean | null>(null);
+  const [webgl, setWebgl] = useState(true);
+  const [live, setLive] = useState(false); // the first real frame is on screen
+  const mood = useMood();
   const [active, setActive] = useState(true);
   const [hover, setHover] = useState<StudioObjectKey | null>(null);
   const mv = useMotionValue(0); // progress as a motion value, for the DOM layers
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
-
-  useEffect(() => setWebgl(hasWebGL()), []);
 
   // progress from the scroll store — no React re-renders per frame
   useEffect(() => {
@@ -96,12 +118,14 @@ export function Studio() {
     router.push(o.href);
   };
 
-  const pinned = !reduce && webgl !== false;
+  const posterOpacity = useTransform(mv, [0, 0.12], [1, 0]);
+  const pinned = !reduce && webgl;
 
   return (
     <section
       id="studio"
       data-section="studio"
+      data-nav={mood === "night" ? "light" : undefined}
       ref={wrap}
       style={{ position: "relative", height: pinned ? "260vh" : "auto" }}
       onPointerMove={(e) => hover === "cctv" && setMouse({ x: e.clientX, y: e.clientY })}
@@ -119,8 +143,18 @@ export function Studio() {
         }}
       >
         {/* 3D desk (or the drawn fallback) */}
-        {webgl === true && (
-          <StudioScene progress={progress} accent={accent} reduce={reduce} active={active} onSelect={onSelect} onHover={setHover} />
+        {webgl && (
+          <>
+            {/* the same frame as a picture, so the desk is there on first paint */}
+            <div className="studio-poster-wrap" data-live={live} aria-hidden>
+              <motion.div className="studio-poster" style={{ opacity: posterOpacity }} />
+            </div>
+            <div style={{ position: "absolute", inset: 0, opacity: live ? 1 : 0, transition: "opacity 0.6s var(--ease)" }}>
+              <SceneBoundary onFail={() => setWebgl(false)}>
+                <StudioScene progress={progress} accent={accent} reduce={reduce} active={active} onSelect={onSelect} onHover={setHover} onReady={() => setLive(true)} />
+              </SceneBoundary>
+            </div>
+          </>
         )}
 
         {/* identity */}
@@ -168,7 +202,16 @@ export function Studio() {
           <>
             <motion.div className="mono wrap" style={{ position: "absolute", left: 0, right: 0, bottom: 26, display: "flex", justifyContent: "space-between", fontSize: 10.5, letterSpacing: "0.08em", color: "var(--faint)", pointerEvents: "none", opacity: hintOpacity }}>
               <span>{studioHint}</span>
-              <span>{site.builtWith}</span>
+              <button
+                type="button"
+                className="mono studio-light"
+                onClick={() => setMood(MOODS[(MOODS.indexOf(mood) + 1) % MOODS.length])}
+                title="The desk is lit by your local time. Click to change it."
+                suppressHydrationWarning
+              >
+                LIGHT · {MOOD_LABEL[mood]} ↻
+              </button>
+              <span className="studio-built">{site.builtWith}</span>
             </motion.div>
             <motion.div className="mono wrap" style={{ position: "absolute", left: 0, right: 0, bottom: 26, display: "flex", justifyContent: "space-between", fontSize: 10.5, letterSpacing: "0.08em", color: "var(--faint)", pointerEvents: "none", opacity: deskLabelOpacity }}>
               <span>HOVER ANYTHING ON IT</span>
@@ -202,7 +245,7 @@ export function Studio() {
       </div>
 
       {/* the drawn desk when there's no WebGL */}
-      {webgl === false && (
+      {!webgl && (
         <div className="wrap" style={{ paddingTop: 24, paddingBottom: 64 }}>
           <StudioFallback />
         </div>

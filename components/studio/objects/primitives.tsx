@@ -20,7 +20,17 @@ export type SurfaceProps = {
   metalness?: number;
   /** MeshPhysical clearcoat 0–1 (glass, ceramic, leather) */
   clearcoat?: number;
+  clearcoatRoughness?: number;
   map?: THREE.Texture;
+  /** fine surface relief — see materials.ts for the shared kit */
+  normalMap?: THREE.Texture;
+  normalScale?: number;
+  roughnessMap?: THREE.Texture;
+  /** thin-film colour on coated glass (lens elements) */
+  iridescence?: number;
+  /** soft fibre sheen (felt, fabric) */
+  sheen?: number;
+  sheenColor?: string;
   /** self-lit surface (screens) — uses `map` as the emissive map */
   lit?: number;
   emissive?: string;
@@ -36,7 +46,14 @@ export function Surface({
   roughness = 0.5,
   metalness = 0,
   clearcoat,
+  clearcoatRoughness = 0.12,
   map,
+  normalMap,
+  normalScale = 1,
+  roughnessMap,
+  iridescence,
+  sheen,
+  sheenColor,
   lit,
   emissive,
   emissiveIntensity,
@@ -49,11 +66,15 @@ export function Surface({
   // accent ring appears beneath it (see StudioScene's Item)
   const em = emissive ?? (lit ? "#ffffff" : "#000000");
   const emI = emissiveIntensity ?? (lit ?? 0);
+  const ns = useMemo(() => new THREE.Vector2(normalScale, normalScale), [normalScale]);
   const common = {
     color,
     roughness,
     metalness,
     map,
+    normalMap,
+    normalScale: ns,
+    roughnessMap,
     emissive: em,
     emissiveIntensity: emI,
     emissiveMap: lit ? map : undefined,
@@ -62,8 +83,19 @@ export function Surface({
     opacity,
     side,
   };
-  if (clearcoat !== undefined) {
-    return <meshPhysicalMaterial {...common} clearcoat={clearcoat} clearcoatRoughness={0.12} />;
+  if (clearcoat !== undefined || iridescence !== undefined || sheen !== undefined) {
+    return (
+      <meshPhysicalMaterial
+        {...common}
+        clearcoat={clearcoat ?? 0}
+        clearcoatRoughness={clearcoatRoughness}
+        iridescence={iridescence ?? 0}
+        iridescenceIOR={1.6}
+        sheen={sheen ?? 0}
+        sheenRoughness={0.6}
+        sheenColor={sheenColor ?? "#ffffff"}
+      />
+    );
   }
   return <meshStandardMaterial {...common} />;
 }
@@ -175,51 +207,6 @@ function rng(seed: number) {
     s = (s * 1664525 + 1013904223) % 4294967296;
     return s / 4294967296;
   };
-}
-
-export function useWoodTexture() {
-  return useMemo(() => {
-    const t = makeWood();
-    t.wrapS = t.wrapT = THREE.RepeatWrapping;
-    return t;
-  }, []);
-}
-
-function makeWood() {
-  return makeTexture(1024, 1024, (ctx, w, h) => {
-        const rand = rng(7);
-        ctx.fillStyle = "#cdb08a";
-        ctx.fillRect(0, 0, w, h);
-        // long grain streaks with a gentle wobble
-        for (let i = 0; i < 420; i++) {
-          const y = rand() * h;
-          const dark = rand() > 0.5;
-          ctx.strokeStyle = dark ? `rgba(120,78,40,${0.05 + rand() * 0.14})` : `rgba(235,205,160,${0.05 + rand() * 0.12})`;
-          ctx.lineWidth = 0.6 + rand() * 2.4;
-          ctx.beginPath();
-          const amp = 2 + rand() * 6;
-          const freq = 0.004 + rand() * 0.008;
-          const ph = rand() * 10;
-          ctx.moveTo(0, y);
-          for (let x = 0; x <= w; x += 16) ctx.lineTo(x, y + Math.sin(x * freq + ph) * amp);
-          ctx.stroke();
-        }
-        // fine noise
-        for (let i = 0; i < 26000; i++) {
-          ctx.fillStyle = rand() > 0.5 ? "rgba(90,55,25,0.05)" : "rgba(255,235,200,0.05)";
-          ctx.fillRect(rand() * w, rand() * h, 1.5, 1.5);
-        }
-        // a couple of soft, wide colour bands (plank variation)
-        for (let i = 0; i < 5; i++) {
-          const y = rand() * h;
-          const g = ctx.createLinearGradient(0, y - 90, 0, y + 90);
-          g.addColorStop(0, "rgba(0,0,0,0)");
-          g.addColorStop(0.5, `rgba(${rand() > 0.5 ? "150,100,55" : "230,200,150"},0.10)`);
-          g.addColorStop(1, "rgba(0,0,0,0)");
-          ctx.fillStyle = g;
-          ctx.fillRect(0, y - 90, w, 180);
-        }
-      });
 }
 
 /** a pickleball: yellow with a grid of holes (equirectangular, for a sphere) */

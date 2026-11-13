@@ -1,10 +1,12 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { scroll } from "@/lib/scroll";
-import { Box, Cyl, Ball, Tube } from "./primitives";
+import { Box, Cyl, Ball, Tube, Surface } from "./primitives";
+import { turned, turnedUp } from "./geo";
+import { kit } from "../materials";
 
 /** shared pointer, normalised device coords; -2 = no pointer yet */
 export const pointer = { x: -2, y: -2, lastMove: 0 };
@@ -19,9 +21,7 @@ if (typeof window !== "undefined") {
   window.addEventListener("pointerdown", onMove, { passive: true });
 }
 
-const WHITE = "#eceae5";
-const DARK = "#1d1f22";
-const STEEL = "#8e9196";
+const WHITE = "#e2e0da";
 
 /**
  * A bullet CCTV camera on a desk mount. Off-white polycarbonate body with a
@@ -33,11 +33,14 @@ export function CctvCamera({
   track = true,
   accent = "#ff3b30",
   cableTo = [0.9, 0.012, -0.5],
+  ir = 0.45,
 }: {
   track?: boolean;
   accent?: string;
   /** where the desk cable ends (the box's port), in the camera's own space */
   cableTo?: [number, number, number];
+  /** how brightly the IR ring shows (it only really glows after dark) */
+  ir?: number;
 }) {
   const p0: [number, number, number] = [0.12, 0.012, -0.42];
   const [tx, ty, tz] = cableTo;
@@ -80,48 +83,111 @@ export function CctvCamera({
     if (Math.abs(yaw - cur.current.yaw) > 2e-4 || Math.abs(pitch - cur.current.pitch) > 2e-4) invalidate();
   });
 
+  const parts = useMemo(
+    () => ({
+      base: turnedUp([[0, 0], [0.15, 0], [0.158, 0.006], [0.158, 0.02], [0.15, 0.028], [0.06, 0.034], [0.04, 0.06], [0, 0.06]]),
+      post: turnedUp([[0.04, 0.05], [0.03, 0.09], [0.028, 0.5], [0.036, 0.53], [0, 0.53]], 32),
+      body: turned(
+        [[0, -0.25], [0.07, -0.25], [0.106, -0.238], [0.125, -0.212], [0.13, -0.175], [0.13, 0.2], [0.135, 0.204], [0.135, 0.243], [0.131, 0.247], [0.1225, 0.247], [0.1225, 0.236], [0, 0.236]],
+        72,
+      ),
+      barrel: turned([[0.05, 0.236], [0.05, 0.256], [0.047, 0.26], [0.04, 0.26], [0.04, 0.24]], 48),
+      shield: (() => {
+        const g = new THREE.CylinderGeometry(0.147, 0.147, 0.46, 48, 1, true, Math.PI - 1.8, 3.6);
+        g.rotateX(Math.PI / 2);
+        g.translate(0, 0, 0.07);
+        return g;
+      })(),
+    }),
+    [],
+  );
+  const shell = { color: WHITE, roughness: 0.46, clearcoat: 0.18, clearcoatRoughness: 0.4, normalMap: kit.grain(12), normalScale: 0.3 };
+
   return (
     <group>
-      {/* base plate, post, ball joint */}
-      <Cyl r={0.16} h={0.03} position={[0, 0.015, 0]} color={DARK} roughness={0.5} metalness={0.6} />
-      <Cyl r={0.12} h={0.012} position={[0, 0.036, 0]} color={STEEL} roughness={0.35} metalness={0.9} />
-      <Cyl r={0.032} h={0.5} position={[0, 0.29, 0]} color={STEEL} roughness={0.32} metalness={0.9} segments={32} />
-      <Ball r={0.055} position={[0, 0.56, 0]} color={DARK} roughness={0.45} metalness={0.5} />
-      {/* screws */}
-      {[0, 1, 2, 3].map((i) => (
-        <Cyl key={i} r={0.012} h={0.006} position={[Math.cos((i * Math.PI) / 2) * 0.125, 0.045, Math.sin((i * Math.PI) / 2) * 0.125]} color="#5a5d62" metalness={0.9} roughness={0.3} segments={16} shadow={false} />
-      ))}
+      {/* mount: a cast base with three screws, a post, a locking ball joint */}
+      <mesh geometry={parts.base} castShadow receiveShadow>
+        <Surface {...shell} />
+      </mesh>
+      {[0, 1, 2].map((i) => {
+        const a = (i / 3) * Math.PI * 2 + 0.5;
+        return (
+          <group key={i} position={[Math.cos(a) * 0.118, 0.03, Math.sin(a) * 0.118]}>
+            <Cyl r={0.013} h={0.006} color="#8d9096" metalness={1} roughness={0.32} segments={16} shadow={false} />
+            <Box args={[0.016, 0.002, 0.003]} radius={0} position={[0, 0.0035, 0]} rotation={[0, a * 2, 0]} color="#2a2b2e" roughness={0.6} shadow={false} />
+          </group>
+        );
+      })}
+      <mesh geometry={parts.post} castShadow receiveShadow>
+        <Surface {...shell} />
+      </mesh>
+      <Cyl r={0.05} h={0.03} position={[0, 0.54, 0]} color="#2b2d31" roughness={0.5} metalness={0.6} normalMap={kit.knurl(20, 1)} normalScale={0.6} segments={40} />
+      <Ball r={0.05} position={[0, 0.575, 0]} color="#d9d7d2" roughness={0.4} clearcoat={0.2} />
 
       {/* head */}
       <group ref={head} position={[0, 0.6, 0]}>
-        {/* bracket from the joint up to the body */}
-        <Box args={[0.05, 0.12, 0.05]} position={[0, 0.02, -0.02]} color={DARK} metalness={0.5} roughness={0.5} />
-        {/* body, axis along +z */}
-        <Cyl r={0.13} h={0.48} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.06, 0]} color={WHITE} roughness={0.38} clearcoat={0.25} />
-        {/* seam ring */}
-        <Cyl r={0.134} h={0.02} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.06, -0.08]} color="#d9d7d1" roughness={0.4} />
-        {/* sun hood */}
-        <Cyl r={0.15} h={0.16} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.075, 0.2]} color={WHITE} roughness={0.38} clearcoat={0.25} />
-        {/* faceplate + inner throat */}
-        <Cyl r={0.126} h={0.02} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.06, 0.29]} color={DARK} roughness={0.6} />
-        <Cyl r={0.118} h={0.06} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.06, 0.255]} color="#0d0e10" roughness={0.9} />
-        {/* IR LED ring */}
-        {Array.from({ length: 10 }).map((_, i) => {
-          const a = (i / 10) * Math.PI * 2;
-          return <Cyl key={i} r={0.011} h={0.006} rotation={[Math.PI / 2, 0, 0]} position={[Math.cos(a) * 0.098, 0.06 + Math.sin(a) * 0.098, 0.301]} color="#2a0b0b" emissive="#5a1010" emissiveIntensity={0.6} roughness={0.3} clearcoat={1} segments={12} shadow={false} />;
-        })}
-        {/* lens barrel + glass */}
-        <Cyl r={0.062} h={0.05} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.06, 0.31]} color="#111214" roughness={0.35} metalness={0.4} />
-        <Cyl r={0.05} h={0.01} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.06, 0.337]} color="#0a1626" roughness={0.03} metalness={0.1} clearcoat={1} envMapIntensity={2} shadow={false} />
-        <Cyl r={0.022} h={0.004} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.06, 0.343]} color="#1a2c4a" roughness={0.02} clearcoat={1} envMapIntensity={2.5} segments={24} shadow={false} />
-        {/* rec light + cable gland + cable */}
-        <Ball r={0.011} position={[0.08, 0.16, -0.12]} color={accent} emissive={accent} emissiveIntensity={2.2} roughness={0.3} />
-        <Cyl r={0.045} h={0.05} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.06, -0.255]} color={DARK} roughness={0.5} />
-        <Cyl r={0.03} h={0.04} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.06, -0.29]} color="#2a2c30" roughness={0.6} />
-        <Tube points={[[0, 0.06, -0.31], [0, 0.0, -0.42], [0.05, -0.25, -0.48], [0.12, -0.55, -0.42]]} r={0.011} color="#17181a" roughness={0.55} />
+        {/* neck from the joint to the body */}
+        <Cyl r={0.03} h={0.07} position={[0, -0.01, -0.02]} segments={24} {...shell} />
+        <group position={[0, 0.06, 0]}>
+          {/* body: one turned shell, rounded at the back, rimmed at the front */}
+          <mesh geometry={parts.body} castShadow receiveShadow>
+            <Surface {...shell} />
+          </mesh>
+          {/* part lines */}
+          {[-0.17, 0.11].map((z) => (
+            <mesh key={z} position={[0, 0, z]}>
+              <torusGeometry args={[0.1302, 0.0016, 8, 72]} />
+              <Surface color="#8f8d88" roughness={0.7} />
+            </mesh>
+          ))}
+          {/* sun shield: a half shell riding on a rail along the top */}
+          <mesh geometry={parts.shield} castShadow>
+            <Surface {...shell} side={THREE.DoubleSide} />
+          </mesh>
+          <Box args={[0.06, 0.012, 0.3]} radius={0.004} position={[0, 0.139, 0.02]} {...shell} shadow={false} />
+          <Cyl r={0.008} h={0.006} position={[0, 0.152, -0.06]} color="#8d9096" metalness={1} roughness={0.3} segments={12} shadow={false} />
+
+          {/* front: smoked glass over the IR ring and the lens */}
+          <mesh position={[0, 0, 0.2362]}>
+            <circleGeometry args={[0.1215, 64]} />
+            <Surface color="#050506" roughness={0.3} clearcoat={1} clearcoatRoughness={0.03} envMapIntensity={0.55} />
+          </mesh>
+          {Array.from({ length: 12 }).map((_, i) => {
+            const a = (i / 12) * Math.PI * 2;
+            return (
+              <mesh key={i} position={[Math.cos(a) * 0.089, Math.sin(a) * 0.089, 0.2368]}>
+                <circleGeometry args={[0.0085, 16]} />
+                <Surface color="#0e0304" emissive="#ff2a22" emissiveIntensity={ir} roughness={0.25} clearcoat={1} />
+              </mesh>
+            );
+          })}
+          <mesh position={[0.045, -0.105, 0.2368]}>
+            <circleGeometry args={[0.005, 12]} />
+            <Surface color="#20242c" roughness={0.2} clearcoat={1} />
+          </mesh>
+          {/* lens: knurled barrel, coated front element */}
+          <mesh geometry={parts.barrel} castShadow>
+            <Surface color="#141518" roughness={0.42} metalness={0.7} normalMap={kit.knurl(26, 1)} normalScale={0.5} />
+          </mesh>
+          <mesh position={[0, 0, 0.2585]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 0.32, 1]}>
+            <sphereGeometry args={[0.04, 40, 24, 0, Math.PI * 2, 0, Math.PI / 2]} />
+            <Surface color="#05080f" roughness={0.03} clearcoat={1} clearcoatRoughness={0.02} iridescence={0.9} envMapIntensity={2.2} />
+          </mesh>
+          <mesh position={[0, 0, 0.2592]}>
+            <circleGeometry args={[0.016, 24]} />
+            <Surface color="#010102" roughness={0.3} />
+          </mesh>
+
+          {/* status light */}
+          <Ball r={0.008} position={[0.082, 0.098, -0.12]} color={accent} emissive={accent} emissiveIntensity={2.4} roughness={0.3} />
+          {/* cable gland + cable */}
+          <Cyl r={0.04} h={0.045} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, -0.268]} color="#232528" roughness={0.55} metalness={0.3} normalMap={kit.knurl(16, 1)} normalScale={0.7} segments={32} />
+          <Cyl r={0.026} h={0.03} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, -0.3]} color="#17181a" roughness={0.7} segments={24} />
+          <Tube points={[[0, 0, -0.31], [0, -0.06, -0.42], [0.05, -0.31, -0.48], [0.12, -0.61, -0.42]]} r={0.0105} color="#17181a" roughness={0.6} />
+        </group>
       </group>
       {/* cable along the desk, into the box */}
-      <Tube points={cable} r={0.011} color="#17181a" roughness={0.55} />
+      <Tube points={cable} r={0.0105} color="#17181a" roughness={0.6} />
     </group>
   );
 }

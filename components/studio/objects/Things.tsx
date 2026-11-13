@@ -1,202 +1,312 @@
 "use client";
 
+import { useMemo } from "react";
 import { Instances, Instance } from "@react-three/drei";
-import { Box, Cyl, Plane, Ball, Torus, Tube, Surface, RoundedPlate, useLaptopScreen, usePhoneScreen, useBoardingPass, useResumeSheet, useLabel, usePickleballTexture } from "./primitives";
+import * as THREE from "three";
+import { Box, Cyl, Plane, Torus, Surface, useBoardingPass, usePhoneScreen, useResumeSheet, useLabel, usePickleballTexture } from "./primitives";
+import { plate, turned } from "./geo";
+import { kit } from "../materials";
+
+type V3 = [number, number, number];
 
 /** the box's ethernet port, in the box's own space — the camera cable ends here */
-export const AIBOX_PORT: [number, number, number] = [0, 0.07, 0.205];
+export const AIBOX_PORT: V3 = [0, 0.07, 0.205];
 
-const ALU = "#9a9da3";
-const DARK = "#1d1f22";
-
-/* ---------- The QS AI Box: a fanless edge box ---------- */
+/* ---------- The QS AI Box: a fanless edge computer ---------- */
 export function AiBox({ accent }: { accent: string }) {
-  const label = useLabel("QS·AI BOX", "#f2f2ef", "#222");
+  const label = useLabel("QS·AI BOX", "#1b1d20", "#c9ccd1");
+  const chassis = useMemo(() => plate(0.58, 0.4, 0.108, 0.012, 0.005), []);
+  const alu = { color: "#3a3d43", roughness: 0.5, metalness: 1, normalMap: kit.grain(12), normalScale: 0.3 } as const;
+  const face = { color: "#191b1e", roughness: 0.42, metalness: 0.9, normalMap: kit.brushed(3), normalScale: 0.35 } as const;
+  const fins = Array.from({ length: 13 }, (_, i) => -0.24 + i * 0.04);
   return (
     <group>
-      <Box args={[0.58, 0.13, 0.4]} radius={0.014} position={[0, 0.075, 0]} color="#2c2f34" roughness={0.42} metalness={0.7} />
-      {/* heatsink fins on top */}
-      {Array.from({ length: 9 }).map((_, i) => (
-        <Box key={i} args={[0.025, 0.02, 0.3]} radius={0.003} position={[-0.2 + i * 0.05, 0.15, 0]} color="#3a3d43" roughness={0.4} metalness={0.7} shadow={false} />
-      ))}
-      {/* front: power LED, USB, ethernet */}
-      <Ball r={0.011} position={[0.23, 0.075, 0.202]} color="#22c55e" emissive="#22c55e" emissiveIntensity={2.4} roughness={0.3} />
-      <Box args={[0.05, 0.02, 0.006]} radius={0} position={[-0.18, 0.075, 0.202]} color="#0b0c0e" roughness={0.8} shadow={false} />
-      <Box args={[0.05, 0.02, 0.006]} radius={0} position={[-0.11, 0.075, 0.202]} color="#0b0c0e" roughness={0.8} shadow={false} />
-      <Box args={[0.06, 0.045, 0.006]} radius={0} position={[0.0, 0.07, 0.202]} color="#0b0c0e" roughness={0.8} shadow={false} />
-      <Box args={[0.03, 0.03, 0.006]} radius={0} position={[0.11, 0.07, 0.202]} color={accent} roughness={0.5} shadow={false} />
-      {/* label */}
-      <Plane w={0.2} h={0.075} position={[-0.12, 0.011, 0.11]} rotation={[-Math.PI / 2, 0, 0]} map={label} roughness={0.9} />
-      {/* rubber feet */}
       {[[-0.24, -0.15], [0.24, -0.15], [-0.24, 0.15], [0.24, 0.15]].map(([x, z]) => (
-        <Cyl key={`${x}${z}`} r={0.018} h={0.012} position={[x, 0.006, z]} color="#111" roughness={0.95} segments={16} shadow={false} />
+        <Cyl key={`${x}${z}`} r={0.02} h={0.012} position={[x, 0.006, z]} color="#101011" roughness={0.95} segments={16} shadow={false} />
       ))}
+      <mesh geometry={chassis} position={[0, 0.012, 0]} castShadow receiveShadow>
+        <Surface {...alu} />
+      </mesh>
+      {/* heatsink: thin fins across the lid */}
+      <Instances range={fins.length} castShadow receiveShadow frustumCulled={false}>
+        <boxGeometry args={[0.012, 0.03, 0.34]} />
+        <Surface {...alu} color="#44474d" />
+        {fins.map((x) => (
+          <Instance key={x} position={[x, 0.134, 0]} />
+        ))}
+      </Instances>
+      {/* front plate, held on by four screws */}
+      <Box args={[0.565, 0.092, 0.005]} radius={0.002} position={[0, 0.066, 0.2005]} {...face} shadow={false} />
+      {[[-0.268, 0.1], [0.268, 0.1], [-0.268, 0.032], [0.268, 0.032]].map(([x, y]) => (
+        <mesh key={`${x}${y}`} position={[x, y, 0.2035]}>
+          <circleGeometry args={[0.006, 12]} />
+          <Surface color="#8d9096" roughness={0.3} metalness={1} />
+        </mesh>
+      ))}
+      {/* ethernet, with its two link lights */}
+      <Box args={[0.066, 0.052, 0.004]} radius={0.002} position={[0, 0.07, 0.2025]} color="#b9bcc1" roughness={0.35} metalness={1} shadow={false} />
+      <Box args={[0.054, 0.04, 0.004]} radius={0} position={[0, 0.068, 0.2032]} color="#050506" roughness={0.9} shadow={false} />
+      <Box args={[0.008, 0.005, 0.002]} radius={0} position={[-0.02, 0.091, 0.2046]} color="#1d7a35" emissive="#35e06a" emissiveIntensity={2.2} shadow={false} />
+      <Box args={[0.008, 0.005, 0.002]} radius={0} position={[0.02, 0.091, 0.2046]} color="#8a5a10" emissive="#ffb02e" emissiveIntensity={1.6} shadow={false} />
+      {/* two USB ports */}
+      {[-0.18, -0.105].map((x) => (
+        <group key={x} position={[x, 0.07, 0.2025]}>
+          <Box args={[0.058, 0.026, 0.004]} radius={0.002} color="#b9bcc1" roughness={0.35} metalness={1} shadow={false} />
+          <Box args={[0.05, 0.018, 0.004]} radius={0} position={[0, 0, 0.0008]} color="#050506" roughness={0.9} shadow={false} />
+          <Box args={[0.044, 0.006, 0.004]} radius={0} position={[0, -0.003, 0.0012]} color="#1f5fd0" roughness={0.5} shadow={false} />
+        </group>
+      ))}
+      {/* power light and the accent tag */}
+      <mesh position={[0.235, 0.07, 0.2035]}>
+        <circleGeometry args={[0.007, 16]} />
+        <Surface color="#0f3d1c" emissive="#35e06a" emissiveIntensity={2.6} />
+      </mesh>
+      <Box args={[0.02, 0.02, 0.003]} radius={0.002} position={[0.105, 0.07, 0.203]} color={accent} roughness={0.5} shadow={false} />
+      <Plane w={0.11} h={0.041} position={[0.165, 0.098, 0.2032]} map={label} roughness={0.6} />
     </group>
   );
 }
 
 /* ---------- Nurture on a phone, lying flat ---------- */
-export function Phone() {
+export function Phone({ glow = 0.75 }: { glow?: number }) {
   const screen = usePhoneScreen();
+  const body = useMemo(() => plate(0.33, 0.68, 0.034, 0.052, 0.006), []);
+  const glass = useMemo(() => plate(0.322, 0.672, 0.0025, 0.048, 0.0008), []);
+  const frame = { color: "#6a6c70", roughness: 0.34, metalness: 1, normalMap: kit.brushed(4), normalScale: 0.25 } as const;
   return (
     <group>
-      <Box args={[0.36, 0.036, 0.76]} radius={0.03} position={[0, 0.018, 0]} color="#1c1c1e" roughness={0.35} metalness={0.6} />
-      <Box args={[0.335, 0.004, 0.735]} radius={0.024} position={[0, 0.037, 0]} color="#050505" roughness={0.1} clearcoat={1} shadow={false} />
-      <Plane w={0.318} h={0.7} position={[0, 0.0402, 0]} rotation={[-Math.PI / 2, 0, 0]} map={screen} lit={0.55} roughness={0.15} clearcoat={1} />
-      {/* side buttons */}
-      <Box args={[0.006, 0.014, 0.06]} radius={0.002} position={[-0.183, 0.02, -0.16]} color="#2a2a2c" metalness={0.6} roughness={0.4} shadow={false} />
-      <Box args={[0.006, 0.014, 0.1]} radius={0.002} position={[0.183, 0.02, -0.1]} color="#2a2a2c" metalness={0.6} roughness={0.4} shadow={false} />
-    </group>
-  );
-}
-
-/* ---------- Laptop: the web apps ---------- */
-export function Laptop() {
-  const screen = useLaptopScreen();
-  const keys: [number, number][] = [];
-  for (let r = 0; r < 5; r++) for (let c = 0; c < 14; c++) keys.push([-0.455 + c * 0.07, -0.16 + r * 0.068]);
-  return (
-    <group>
-      {/* base */}
-      <Box args={[1.3, 0.05, 0.88]} radius={0.014} position={[0, 0.025, 0]} color={ALU} roughness={0.45} metalness={0.75} />
-      <Plane w={1.06} h={0.38} position={[0, 0.051, -0.03]} rotation={[-Math.PI / 2, 0, 0]} color="#3b3d42" roughness={0.6} metalness={0.3} />
-      <Instances range={keys.length} castShadow={false} receiveShadow>
-        <boxGeometry args={[0.058, 0.008, 0.056]} />
-        <Surface color="#202226" roughness={0.55} />
-        {keys.map(([x, z], i) => (
-          <Instance key={i} position={[x, 0.056, z]} />
-        ))}
-      </Instances>
-      <Box args={[0.7, 0.006, 0.02]} radius={0.002} position={[0, 0.056, 0.176]} color="#202226" roughness={0.55} shadow={false} />
-      {/* trackpad */}
-      <Plane w={0.42} h={0.25} position={[0, 0.052, 0.3]} rotation={[-Math.PI / 2, 0, 0]} color="#b0b3b8" roughness={0.3} metalness={0.5} />
-      {/* hinge */}
-      <Cyl r={0.026} h={1.2} rotation={[0, 0, Math.PI / 2]} position={[0, 0.045, -0.42]} color="#6b6e74" roughness={0.4} metalness={0.8} />
-      {/* lid, opened ~105° */}
-      <group position={[0, 0.05, -0.43]} rotation={[-0.3, 0, 0]}>
-        <Box args={[1.3, 0.84, 0.03]} radius={0.014} position={[0, 0.42, 0]} color={ALU} roughness={0.45} metalness={0.75} />
-        <Plane w={1.24} h={0.78} position={[0, 0.42, 0.0165]} color="#050607" roughness={0.12} clearcoat={1} />
-        <Plane w={1.19} h={0.7} position={[0, 0.4, 0.018]} map={screen} lit={0.7} roughness={0.15} clearcoat={0.6} />
-        {/* webcam */}
-        <Ball r={0.007} position={[0, 0.79, 0.018]} color="#0a0a0a" roughness={0.1} clearcoat={1} />
-      </group>
+      <mesh geometry={body} castShadow receiveShadow>
+        <Surface {...frame} />
+      </mesh>
+      <mesh geometry={glass} position={[0, 0.0335, 0]}>
+        <Surface color="#030304" roughness={0.1} clearcoat={1} clearcoatRoughness={0.03} roughnessMap={kit.smudge(1)} />
+      </mesh>
+      <Plane w={0.296} h={0.624} position={[0, 0.0364, 0]} rotation={[-Math.PI / 2, 0, 0]} map={screen} color="#151515" lit={glow * 1.1} roughness={0.14} clearcoat={1} clearcoatRoughness={0.04} />
+      {/* antenna bands and side buttons */}
+      {[-0.26, 0.26].map((z) => (
+        <Box key={z} args={[0.332, 0.03, 0.004]} radius={0} position={[0, 0.017, z]} color="#3a3b3e" roughness={0.6} shadow={false} />
+      ))}
+      <Box args={[0.005, 0.012, 0.07]} radius={0.002} position={[0.166, 0.019, -0.12]} {...frame} shadow={false} />
+      <Box args={[0.005, 0.012, 0.045]} radius={0.002} position={[-0.166, 0.019, -0.17]} {...frame} shadow={false} />
+      <Box args={[0.005, 0.012, 0.045]} radius={0.002} position={[-0.166, 0.019, -0.11]} {...frame} shadow={false} />
     </group>
   );
 }
 
 /* ---------- A rangefinder camera: photography ---------- */
 export function Camera35() {
+  const lens = useMemo(
+    () => ({
+      mount: turned([[0.112, 0.1], [0.112, 0.112], [0.1, 0.118], [0.094, 0.118]], 56),
+      barrel: turned([[0.094, 0.112], [0.094, 0.15], [0.099, 0.154], [0.099, 0.196], [0.094, 0.2], [0.094, 0.236], [0.098, 0.24], [0.098, 0.256], [0.086, 0.258], [0.078, 0.244], [0.064, 0.24]], 64),
+    }),
+    [],
+  );
+  const chrome = { color: "#cfd0cd", roughness: 0.32, metalness: 1, normalMap: kit.brushed(3), normalScale: 0.3 } as const;
+  const knurled = { color: "#1b1b1d", roughness: 0.5, metalness: 0.6, normalMap: kit.knurl(30, 2), normalScale: 0.8 } as const;
   return (
     <group>
-      {/* body: leatherette wrap between two silver plates */}
-      <Box args={[0.54, 0.3, 0.2]} radius={0.02} position={[0, 0.15, 0]} color="#1a1a1a" roughness={0.85} clearcoat={0.15} />
-      <Box args={[0.545, 0.05, 0.205]} radius={0.01} position={[0, 0.3, 0]} color="#cfd0cd" roughness={0.3} metalness={0.85} />
-      <Box args={[0.545, 0.035, 0.205]} radius={0.01} position={[0, 0.02, 0]} color="#cfd0cd" roughness={0.3} metalness={0.85} />
-      {/* lens mount + lens */}
-      <Cyl r={0.105} h={0.02} rotation={[Math.PI / 2, 0, 0]} position={[0.03, 0.15, 0.105]} color="#cfd0cd" roughness={0.3} metalness={0.85} />
-      <Cyl r={0.092} h={0.13} rotation={[Math.PI / 2, 0, 0]} position={[0.03, 0.15, 0.175]} color="#151517" roughness={0.4} metalness={0.5} />
-      <Cyl r={0.096} h={0.02} rotation={[Math.PI / 2, 0, 0]} position={[0.03, 0.15, 0.2]} color="#2a2a2c" roughness={0.5} metalness={0.4} />
-      <Cyl r={0.06} h={0.01} rotation={[Math.PI / 2, 0, 0]} position={[0.03, 0.15, 0.242]} color="#0a1626" roughness={0.03} clearcoat={1} envMapIntensity={2} shadow={false} />
-      <Cyl r={0.026} h={0.004} rotation={[Math.PI / 2, 0, 0]} position={[0.03, 0.15, 0.248]} color="#3a2a7a" roughness={0.02} clearcoat={1} envMapIntensity={2.5} segments={24} shadow={false} />
+      {/* body: leatherette wrap between two chrome plates */}
+      <Box args={[0.54, 0.24, 0.2]} radius={0.022} position={[0, 0.155, 0]} color="#17171a" roughness={0.82} normalMap={kit.leather(7)} normalScale={1.1} />
+      <Box args={[0.548, 0.055, 0.206]} radius={0.014} position={[0, 0.3, 0]} {...chrome} />
+      <Box args={[0.548, 0.04, 0.206]} radius={0.012} position={[0, 0.022, 0]} {...chrome} />
+      {/* lens */}
+      <mesh geometry={lens.mount} position={[0.03, 0.15, 0]} castShadow>
+        <Surface {...chrome} />
+      </mesh>
+      <mesh geometry={lens.barrel} position={[0.03, 0.15, 0]} castShadow receiveShadow>
+        <Surface color="#141416" roughness={0.42} metalness={0.7} />
+      </mesh>
+      <Cyl r={0.1} h={0.04} rotation={[Math.PI / 2, 0, 0]} position={[0.03, 0.15, 0.175]} segments={56} {...knurled} />
+      <Cyl r={0.0965} h={0.012} rotation={[Math.PI / 2, 0, 0]} position={[0.03, 0.15, 0.218]} segments={56} color="#b9bcc1" roughness={0.35} metalness={1} normalMap={kit.knurl(40, 1)} normalScale={0.5} shadow={false} />
+      <mesh position={[0.03, 0.15, 0.238]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 0.3, 1]}>
+        <sphereGeometry args={[0.064, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <Surface color="#05070d" roughness={0.03} clearcoat={1} clearcoatRoughness={0.02} iridescence={1} envMapIntensity={2.2} />
+      </mesh>
       {/* viewfinder + rangefinder windows */}
-      <Box args={[0.06, 0.04, 0.006]} radius={0} position={[-0.17, 0.235, 0.103]} color="#0a0d12" roughness={0.1} clearcoat={1} shadow={false} />
-      <Box args={[0.03, 0.03, 0.006]} radius={0} position={[-0.08, 0.235, 0.103]} color="#0a0d12" roughness={0.1} clearcoat={1} shadow={false} />
-      {/* top: shutter, dial, hot shoe, rewind knob */}
-      <Cyl r={0.022} h={0.02} position={[0.19, 0.335, 0.0]} color="#cfd0cd" roughness={0.3} metalness={0.85} segments={24} />
-      <Cyl r={0.012} h={0.012} position={[0.19, 0.35, 0.0]} color="#2a2a2c" roughness={0.4} segments={16} shadow={false} />
-      <Cyl r={0.035} h={0.024} position={[0.1, 0.337, -0.02]} color="#2a2a2c" roughness={0.45} metalness={0.5} segments={32} />
-      <Box args={[0.06, 0.02, 0.05]} radius={0.003} position={[-0.02, 0.335, -0.02]} color="#cfd0cd" roughness={0.3} metalness={0.85} />
-      <Cyl r={0.03} h={0.03} position={[-0.2, 0.34, -0.02]} color="#cfd0cd" roughness={0.3} metalness={0.85} segments={32} />
+      <Box args={[0.066, 0.044, 0.006]} radius={0.004} position={[-0.17, 0.262, 0.103]} color="#070a10" roughness={0.06} clearcoat={1} shadow={false} />
+      <Box args={[0.032, 0.032, 0.006]} radius={0.004} position={[-0.075, 0.262, 0.103]} color="#070a10" roughness={0.06} clearcoat={1} shadow={false} />
+      {/* top: shutter button, speed dial, hot shoe, rewind knob */}
+      <Cyl r={0.024} h={0.02} position={[0.19, 0.337, 0.0]} segments={32} {...chrome} />
+      <Cyl r={0.012} h={0.012} position={[0.19, 0.352, 0.0]} color="#8d9096" roughness={0.3} metalness={1} segments={16} shadow={false} />
+      <Cyl r={0.038} h={0.026} position={[0.09, 0.34, -0.02]} segments={40} {...chrome} normalMap={kit.knurl(34, 1)} normalScale={0.7} />
+      <Box args={[0.062, 0.016, 0.056]} radius={0.003} position={[-0.03, 0.335, -0.02]} color="#2a2b2e" roughness={0.4} metalness={0.9} />
+      <Cyl r={0.032} h={0.03} position={[-0.2, 0.342, -0.02]} segments={36} {...chrome} normalMap={kit.knurl(30, 1)} normalScale={0.7} />
       {/* red dot + strap lugs */}
-      <Cyl r={0.014} h={0.004} rotation={[Math.PI / 2, 0, 0]} position={[-0.2, 0.15, 0.101]} color="#c8102e" roughness={0.3} clearcoat={1} segments={20} shadow={false} />
-      <Torus r={0.014} tube={0.004} position={[-0.275, 0.24, 0]} rotation={[0, Math.PI / 2, 0]} color="#cfd0cd" metalness={0.85} roughness={0.3} />
-      <Torus r={0.014} tube={0.004} position={[0.275, 0.24, 0]} rotation={[0, Math.PI / 2, 0]} color="#cfd0cd" metalness={0.85} roughness={0.3} />
+      <mesh position={[-0.2, 0.19, 0.1012]}>
+        <circleGeometry args={[0.015, 24]} />
+        <Surface color="#c8102e" roughness={0.3} clearcoat={1} />
+      </mesh>
+      <Torus r={0.014} tube={0.004} position={[-0.278, 0.26, 0]} rotation={[0, Math.PI / 2, 0]} color="#cfd0cd" metalness={1} roughness={0.3} />
+      <Torus r={0.014} tube={0.004} position={[0.278, 0.26, 0]} rotation={[0, Math.PI / 2, 0]} color="#cfd0cd" metalness={1} roughness={0.3} />
     </group>
   );
 }
 
+/* ---------- paper: it never lies perfectly flat ---------- */
+function sheet(w: number, d: number, lift: (u: number, v: number) => number) {
+  const g = new THREE.PlaneGeometry(w, d, 24, 24);
+  g.rotateX(-Math.PI / 2);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) p.setY(i, 0.003 + lift(p.getX(i) / w + 0.5, p.getZ(i) / d + 0.5));
+  g.computeVertexNormals();
+  return g;
+}
+const ease = (t: number) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
+
 /* ---------- A boarding pass: travel ---------- */
 export function BoardingPass() {
   const tex = useBoardingPass();
+  // card stock that has been in a pocket: a shallow bow and a lifted stub
+  const g = useMemo(() => sheet(0.76, 0.31, (u, v) => Math.sin(u * Math.PI) * 0.006 + ease((u - 0.74) / 0.26) * 0.03 + (v - 0.5) * (u - 0.5) * 0.012), []);
   return (
-    <group>
-      <Box args={[0.76, 0.006, 0.31]} radius={0} position={[0, 0.003, 0]} color="#f4f4f1" roughness={0.9} />
-      <Plane w={0.76} h={0.31} position={[0, 0.0065, 0]} rotation={[-Math.PI / 2, 0, 0]} map={tex} roughness={0.85} />
-    </group>
+    <mesh geometry={g} castShadow receiveShadow>
+      <Surface map={tex} roughness={0.72} normalMap={kit.paper(4)} normalScale={0.5} side={THREE.DoubleSide} />
+    </mesh>
   );
 }
 
 /* ---------- One printed page: the résumé ---------- */
 export function ResumeSheet() {
   const tex = useResumeSheet();
+  // office paper: flat, with one corner curling up
+  const g = useMemo(() => sheet(0.6, 0.85, (u, v) => Math.pow(ease((u + (1 - v) - 1.45) / 0.55), 2) * 0.07 + Math.sin(v * Math.PI) * 0.002), []);
   return (
-    <group>
-      <Box args={[0.6, 0.004, 0.85]} radius={0} position={[0, 0.002, 0]} color="#f7f7f4" roughness={0.95} />
-      <Plane w={0.6} h={0.85} position={[0, 0.0045, 0]} rotation={[-Math.PI / 2, 0, 0]} map={tex} roughness={0.9} />
-    </group>
+    <mesh geometry={g} castShadow receiveShadow>
+      <Surface map={tex} roughness={0.88} normalMap={kit.paper(5)} normalScale={0.6} side={THREE.DoubleSide} />
+    </mesh>
   );
 }
 
 /* ---------- Cricket ball: off hours ---------- */
 export function CricketBall() {
-  const stitches: [number, number, number][] = [];
-  for (let i = 0; i < 36; i++) {
-    const a = (i / 36) * Math.PI * 2;
-    stitches.push([Math.cos(a) * 0.1, Math.sin(a) * 0.1, 0]);
-  }
+  const R = 0.1;
+  const rows = [-0.03, -0.018, 0.018, 0.03];
+  const stitches = useMemo(() => {
+    const out: { p: V3; a: number; s: number }[] = [];
+    for (const dz of rows) {
+      const r = Math.sqrt(R * R - dz * dz) + 0.0012;
+      for (let i = 0; i < 64; i++) {
+        const a = (i / 64) * Math.PI * 2;
+        out.push({ p: [Math.cos(a) * r, Math.sin(a) * r, dz], a, s: dz > 0 ? 1 : -1 });
+      }
+    }
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
-    <group position={[0, 0.1, 0]} rotation={[0.35, 0.5, 0.1]}>
-      <Ball r={0.1} color="#a3241c" roughness={0.42} clearcoat={0.5} />
-      {/* seam: two rows of stitches either side of the equator */}
-      {[-0.012, 0.012].map((dz) => (
-        <group key={dz} position={[0, 0, dz]}>
-          <Torus r={0.0985} tube={0.0025} color="#f1e9d8" roughness={0.8} />
-          <Instances range={stitches.length} castShadow={false}>
-            <sphereGeometry args={[0.0042, 8, 8]} />
-            <Surface color="#f1e9d8" roughness={0.8} />
-            {stitches.map((p, i) => (
-              <Instance key={i} position={[p[0] * 1.0, p[1] * 1.0, (i % 2 ? 1 : -1) * 0.004]} />
-            ))}
-          </Instances>
-        </group>
-      ))}
+    <group position={[0, R, 0]} rotation={[0.35, 0.5, 0.1]}>
+      <mesh castShadow receiveShadow>
+        <sphereGeometry args={[R, 64, 48]} />
+        <Surface color="#8e1b16" roughness={0.5} clearcoat={0.7} clearcoatRoughness={0.28} normalMap={kit.leather(5)} normalScale={0.55} roughnessMap={kit.wear(2)} />
+      </mesh>
+      {/* the seam: a raised ridge with rows of angled stitches either side */}
+      <mesh scale={[1, 1, 2.2]}>
+        <torusGeometry args={[R - 0.0005, 0.004, 10, 96]} />
+        <Surface color="#7a1612" roughness={0.6} />
+      </mesh>
+      <Instances range={stitches.length} castShadow={false} frustumCulled={false}>
+        <boxGeometry args={[0.0032, 0.0026, 0.011]} />
+        <Surface color="#ece3cf" roughness={0.85} />
+        {stitches.map((s, i) => (
+          <Instance key={i} position={s.p} rotation={[0, 0, s.a + s.s * 0.5]} />
+        ))}
+      </Instances>
     </group>
   );
 }
 
 /* ---------- Pickleball paddle + ball, lying flat ---------- */
+function usePaddleFace() {
+  return useMemo(() => {
+    const c = document.createElement("canvas");
+    c.width = 512;
+    c.height = 640;
+    const ctx = c.getContext("2d")!;
+    ctx.fillStyle = "#1a2140";
+    ctx.fillRect(0, 0, 512, 640);
+    // raw carbon weave
+    for (let y = 0; y < 640; y += 8)
+      for (let x = 0; x < 512; x += 8) {
+        ctx.fillStyle = (x / 8 + y / 8) % 2 ? "rgba(255,255,255,0.045)" : "rgba(0,0,0,0.12)";
+        ctx.fillRect(x, y, 8, 8);
+      }
+    ctx.strokeStyle = "#a8412a";
+    ctx.lineWidth = 14;
+    ctx.beginPath();
+    ctx.moveTo(90, 470);
+    ctx.lineTo(422, 250);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(240,236,226,0.9)";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(90, 500);
+    ctx.lineTo(422, 280);
+    ctx.stroke();
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 8;
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(1 / 0.315, 1 / 0.415);
+    t.offset.set(0.5, 0.5);
+    return t;
+  }, []);
+}
+
 export function Paddle() {
   const ballTex = usePickleballTexture();
+  const faceTex = usePaddleFace();
+  const guard = useMemo(() => plate(0.34, 0.44, 0.016, 0.1, 0.005, 14), []);
+  const face = useMemo(() => plate(0.315, 0.415, 0.004, 0.09, 0.001, 14), []);
   const navy = "#1c2340";
   const rust = "#a8412a";
   return (
     <group>
-      {/* face: a rust guard plate with the navy face on top, so the guard shows as a rim */}
-      <RoundedPlate w={0.34} d={0.44} t={0.014} r={0.1} position={[0, 0, 0]} color={rust} roughness={0.55} clearcoat={0.2} />
-      <RoundedPlate w={0.315} d={0.415} t={0.008} r={0.09} position={[0, 0.014, 0]} color={navy} roughness={0.5} clearcoat={0.35} />
+      <mesh geometry={guard} castShadow receiveShadow>
+        <Surface color={rust} roughness={0.6} normalMap={kit.grain(8)} normalScale={0.5} />
+      </mesh>
+      <mesh geometry={face} position={[0, 0.0135, 0]} receiveShadow>
+        <Surface map={faceTex} roughness={0.78} normalMap={kit.grain(16)} normalScale={0.9} />
+      </mesh>
       {/* throat, narrowing into the handle */}
-      <Box args={[0.11, 0.014, 0.07]} radius={0.004} position={[0, 0.007, 0.245]} color={rust} roughness={0.55} />
-      <Box args={[0.06, 0.02, 0.06]} radius={0.004} position={[0, 0.01, 0.29]} color={navy} roughness={0.6} />
-      {/* handle: grey grip with dark wraps and a navy end cap */}
-      <Cyl r={0.022} h={0.2} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.022, 0.41]} color="#6b7280" roughness={0.9} segments={24} />
-      {[0.34, 0.375, 0.41, 0.445].map((z) => (
-        <Torus key={z} r={0.0225} tube={0.004} position={[0, 0.022, z]} color="#2d3350" roughness={0.9} />
+      <Box args={[0.11, 0.016, 0.07]} radius={0.005} position={[0, 0.008, 0.245]} color={rust} roughness={0.6} />
+      <Box args={[0.06, 0.022, 0.06]} radius={0.005} position={[0, 0.011, 0.29]} color={navy} roughness={0.6} />
+      {/* handle: wrapped grip tape, perforated, with a butt cap */}
+      <Cyl r={0.023} h={0.2} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.023, 0.41]} color="#3b4150" roughness={0.92} segments={28} normalMap={kit.knurl(3, 9)} normalScale={0.9} />
+      {[0.33, 0.49].map((z) => (
+        <Torus key={z} r={0.0235} tube={0.0035} position={[0, 0.023, z]} color="#15171c" roughness={0.8} />
       ))}
-      <Cyl r={0.03} h={0.03} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.026, 0.525]} color={navy} roughness={0.6} segments={24} />
+      <Cyl r={0.031} h={0.028} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.027, 0.524]} color={navy} roughness={0.55} segments={28} />
       {/* the ball, beside the face */}
-      <mesh position={[0.28, 0.037, 0.12]} castShadow receiveShadow>
-        <sphereGeometry args={[0.037, 32, 24]} />
-        <Surface map={ballTex} roughness={0.6} clearcoat={0.2} />
+      <mesh position={[0.28, 0.037, 0.12]} rotation={[0.4, 0.3, 0]} castShadow receiveShadow>
+        <sphereGeometry args={[0.037, 40, 28]} />
+        <Surface map={ballTex} roughness={0.55} clearcoat={0.25} clearcoatRoughness={0.4} />
       </mesh>
     </group>
   );
 }
 
-/* ---------- A folding drone, Mavic-style ---------- */
+/* ---------- A folding drone ---------- */
 export function Drone() {
-  const shell = "#b8bcc2";
-  const shellDark = "#8f949b";
-  const dark = "#2b2c2f";
+  const dark = "#232427";
+  const shell = { color: "#b4b8be", roughness: 0.5, normalMap: kit.grain(14), normalScale: 0.35, clearcoat: 0.25, clearcoatRoughness: 0.5 } as const;
+  const under = { color: "#878c93", roughness: 0.6, normalMap: kit.grain(14), normalScale: 0.35 } as const;
+  const hull = useMemo(() => plate(0.14, 0.31, 0.05, 0.035, 0.012), []);
+  const blade = useMemo(() => {
+    // a real blade: wide at the root, tapering and twisting toward the tip
+    const g = new THREE.PlaneGeometry(0.095, 0.017, 8, 1);
+    g.rotateX(-Math.PI / 2);
+    g.translate(0.0475, 0, 0);
+    const p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const t = p.getX(i) / 0.095;
+      const z = p.getZ(i) * (1 - t * 0.55);
+      p.setZ(i, z);
+      p.setY(i, z * (0.5 - t * 0.35));
+    }
+    g.computeVertexNormals();
+    return g;
+  }, []);
   // arms sweep out from the body corners: front pair forward, rear pair back
   const arms: { from: [number, number]; to: [number, number] }[] = [
     { from: [-0.055, -0.1], to: [-0.2, -0.21] },
@@ -210,28 +320,36 @@ export function Drone() {
       {[[-0.05, -0.12], [0.05, -0.12], [-0.05, 0.12], [0.05, 0.12]].map(([x, z]) => (
         <Cyl key={`${x}${z}`} r={0.006} h={0.03} position={[x, -0.015, z]} color={dark} roughness={0.7} segments={10} shadow={false} />
       ))}
-      {/* body: long, tapered shell */}
-      <Box args={[0.14, 0.05, 0.3]} radius={0.014} position={[0, 0.02, 0.01]} color={shell} roughness={0.42} clearcoat={0.35} />
-      <Box args={[0.11, 0.046, 0.1]} radius={0.012} position={[0, 0.018, -0.17]} color={shell} roughness={0.42} clearcoat={0.35} />
-      <Box args={[0.15, 0.028, 0.22]} radius={0.008} position={[0, 0.0, 0.02]} color={shellDark} roughness={0.55} />
-      {/* top ridge + sensor */}
-      <Box args={[0.06, 0.008, 0.2]} radius={0.003} position={[0, 0.047, 0.0]} color="#c9ccd1" roughness={0.4} shadow={false} />
-      <Cyl r={0.009} h={0.004} position={[0, 0.052, -0.02]} color={dark} roughness={0.4} segments={16} shadow={false} />
-      {/* side vents */}
-      {[-1, 1].map((sx) => (
-        <Box key={sx} args={[0.006, 0.02, 0.1]} radius={0} position={[sx * 0.071, 0.02, 0.04]} color={dark} roughness={0.7} shadow={false} />
+      {/* body: one rounded hull with a tapered nose and a darker belly */}
+      <mesh geometry={hull} position={[0, -0.005, 0.01]} castShadow receiveShadow>
+        <Surface {...shell} />
+      </mesh>
+      <Box args={[0.11, 0.044, 0.1]} radius={0.016} position={[0, 0.018, -0.17]} {...shell} />
+      <Box args={[0.15, 0.026, 0.22]} radius={0.01} position={[0, -0.002, 0.02]} {...under} />
+      {/* top: battery seam, power button with four charge lights */}
+      <Box args={[0.1, 0.004, 0.16]} radius={0.002} position={[0, 0.0455, 0.07]} color="#a3a8ae" roughness={0.5} shadow={false} />
+      <Cyl r={0.011} h={0.004} position={[0, 0.048, 0.02]} color={dark} roughness={0.4} segments={20} shadow={false} />
+      {[0, 1, 2, 3].map((i) => (
+        <Box key={i} args={[0.006, 0.002, 0.003]} radius={0} position={[-0.015 + i * 0.01, 0.0478, 0.045]} color="#0f3d1c" emissive="#35e06a" emissiveIntensity={i < 3 ? 2 : 0} shadow={false} />
       ))}
-      {/* rear: battery + LED */}
-      <Box args={[0.11, 0.032, 0.02]} radius={0.004} position={[0, 0.02, 0.165]} color={dark} roughness={0.6} shadow={false} />
-      <Ball r={0.005} position={[0, 0.02, 0.177]} color="#22c55e" emissive="#22c55e" emissiveIntensity={2} />
-      {/* gimbal camera under the nose */}
-      <Box args={[0.05, 0.03, 0.03]} radius={0.004} position={[0, -0.01, -0.2]} color={dark} roughness={0.5} />
-      <Ball r={0.02} position={[0, -0.012, -0.222]} color="#1f2023" roughness={0.4} />
-      <Cyl r={0.009} h={0.012} rotation={[Math.PI / 2, 0, 0]} position={[0, -0.012, -0.24]} color="#0a1626" roughness={0.03} clearcoat={1} envMapIntensity={2} segments={20} shadow={false} />
+      {/* side vents */}
+      {[-1, 1].map((sx) =>
+        [0, 1, 2, 3].map((i) => <Box key={`${sx}${i}`} args={[0.004, 0.012, 0.014]} radius={0} position={[sx * 0.0705, 0.02, 0.0 + i * 0.022]} color="#0c0c0d" roughness={0.8} shadow={false} />),
+      )}
+      {/* gimbal camera under the nose: yoke, roll arm, camera body, lens */}
+      <Box args={[0.05, 0.012, 0.03]} radius={0.004} position={[0, 0.004, -0.2]} color={dark} roughness={0.5} />
+      <Box args={[0.008, 0.03, 0.024]} radius={0.003} position={[0.026, -0.012, -0.212]} color={dark} roughness={0.5} shadow={false} />
+      <Box args={[0.04, 0.03, 0.03]} radius={0.007} position={[0, -0.014, -0.218]} color="#1b1c1f" roughness={0.45} normalMap={kit.grain(10)} normalScale={0.3} />
+      <Cyl r={0.012} h={0.01} rotation={[Math.PI / 2, 0, 0]} position={[0, -0.014, -0.237]} color="#141416" roughness={0.4} metalness={0.7} segments={24} shadow={false} />
+      <mesh position={[0, -0.014, -0.2425]} rotation={[0, Math.PI, 0]}>
+        <circleGeometry args={[0.009, 24]} />
+        <Surface color="#05070d" roughness={0.03} clearcoat={1} iridescence={1} envMapIntensity={2.2} />
+      </mesh>
       {/* front obstacle sensors */}
-      <Box args={[0.012, 0.012, 0.004]} radius={0} position={[-0.03, 0.02, -0.222]} color="#0a0d12" roughness={0.1} clearcoat={1} shadow={false} />
-      <Box args={[0.012, 0.012, 0.004]} radius={0} position={[0.03, 0.02, -0.222]} color="#0a0d12" roughness={0.1} clearcoat={1} shadow={false} />
-      {/* arms, motors, two-blade props */}
+      {[-0.03, 0.03].map((x) => (
+        <Box key={x} args={[0.014, 0.012, 0.004]} radius={0.003} position={[x, 0.022, -0.2205]} color="#070a10" roughness={0.08} clearcoat={1} shadow={false} />
+      ))}
+      {/* arms, motors, folding props */}
       {arms.map(({ from, to }, i) => {
         const dx = to[0] - from[0];
         const dz = to[1] - from[1];
@@ -240,68 +358,22 @@ export function Drone() {
         return (
           <group key={i}>
             <group position={[(from[0] + to[0]) / 2, 0.018, (from[1] + to[1]) / 2]} rotation={[0, ang, 0]}>
-              <Box args={[0.022, 0.016, len]} radius={0.004} color={shellDark} roughness={0.5} />
+              <Box args={[0.024, 0.016, len]} radius={0.006} {...under} />
             </group>
             <group position={[to[0], 0.028, to[1]]}>
-              <Cyl r={0.017} h={0.022} color={dark} roughness={0.5} metalness={0.4} segments={24} />
-              <Cyl r={0.006} h={0.008} position={[0, 0.015, 0]} color="#8a8c90" metalness={0.8} roughness={0.3} segments={12} shadow={false} />
-              <group position={[0, 0.02, 0]} rotation={[0, 0.5 + i * 0.9, 0]}>
-                <Box args={[0.19, 0.002, 0.016]} radius={0} color="#3a3b3e" roughness={0.6} shadow={false} />
-                <Box args={[0.05, 0.003, 0.016]} radius={0} color={dark} roughness={0.6} shadow={false} />
+              <Cyl r={0.018} h={0.022} color="#2a2b2e" roughness={0.45} metalness={0.8} segments={28} normalMap={kit.brushed(2)} normalScale={0.4} />
+              <Cyl r={0.007} h={0.008} position={[0, 0.015, 0]} color="#9a9da2" metalness={1} roughness={0.3} segments={14} shadow={false} />
+              <group position={[0, 0.0205, 0]} rotation={[0, 0.5 + i * 0.9, 0]}>
+                {[0, Math.PI].map((r) => (
+                  <mesh key={r} geometry={blade} rotation={[0, r, 0]} castShadow>
+                    <Surface color="#2c2d30" roughness={0.42} clearcoat={0.4} clearcoatRoughness={0.4} side={THREE.DoubleSide} />
+                  </mesh>
+                ))}
               </group>
             </group>
           </group>
         );
       })}
-    </group>
-  );
-}
-
-/* ---------- Décor (not hotspots): mug, pencil, plant ---------- */
-export function Mug() {
-  return (
-    <group>
-      <Cyl r={0.1} rTop={0.105} h={0.24} position={[0, 0.12, 0]} color="#2f6f5e" roughness={0.25} clearcoat={0.9} />
-      <Cyl r={0.092} h={0.01} position={[0, 0.236, 0]} color="#3b2314" roughness={0.3} clearcoat={0.8} shadow={false} />
-      <Torus r={0.06} tube={0.016} position={[0.115, 0.13, 0]} rotation={[0, 0, 0]} color="#2f6f5e" roughness={0.25} clearcoat={0.9} />
-    </group>
-  );
-}
-
-export function Pencil() {
-  return (
-    <group rotation={[0, 0.9, Math.PI / 2]} position={[0, 0.013, 0]}>
-      <Cyl r={0.013} h={0.5} segments={6} color="#f2c230" roughness={0.5} clearcoat={0.3} />
-      <Cyl r={0.013} rTop={0.004} h={0.05} position={[0, 0.275, 0]} color="#d9b382" roughness={0.9} segments={16} />
-      <Cyl r={0.004} rTop={0.0005} h={0.012} position={[0, 0.306, 0]} color="#2b2b2b" roughness={0.6} segments={12} shadow={false} />
-      <Cyl r={0.0135} h={0.03} position={[0, -0.265, 0]} color="#b8bcc2" roughness={0.3} metalness={0.9} segments={16} />
-      <Cyl r={0.012} h={0.03} position={[0, -0.295, 0]} color="#e58f8f" roughness={0.8} segments={16} />
-    </group>
-  );
-}
-
-export function Plant() {
-  const leaves: { p: [number, number, number]; s: [number, number, number]; r: [number, number, number]; c: string }[] = [
-    { p: [0.0, 0.42, 0.0], s: [0.07, 0.16, 0.035], r: [0, 0, 0], c: "#3f8f4a" },
-    { p: [0.1, 0.36, 0.04], s: [0.06, 0.14, 0.035], r: [0.1, 0.3, -0.7], c: "#2f7a3a" },
-    { p: [-0.09, 0.34, -0.03], s: [0.06, 0.15, 0.035], r: [-0.1, -0.4, 0.75], c: "#47994f" },
-    { p: [0.03, 0.33, -0.1], s: [0.06, 0.13, 0.035], r: [0.8, 0, 0.1], c: "#2f7a3a" },
-    { p: [-0.03, 0.31, 0.1], s: [0.06, 0.13, 0.035], r: [-0.8, 0, -0.1], c: "#3f8f4a" },
-  ];
-  return (
-    <group>
-      <Cyl r={0.09} rTop={0.115} h={0.2} position={[0, 0.1, 0]} color="#c4683f" roughness={0.75} />
-      <Cyl r={0.118} rTop={0.122} h={0.03} position={[0, 0.2, 0]} color="#c4683f" roughness={0.75} />
-      <Cyl r={0.1} h={0.01} position={[0, 0.205, 0]} color="#3b2a1e" roughness={1} shadow={false} />
-      {leaves.map((l, i) => (
-        <group key={i}>
-          <Tube points={[[0, 0.2, 0], [l.p[0] * 0.5, 0.28, l.p[2] * 0.5], [l.p[0], l.p[1] - 0.08, l.p[2]]]} r={0.006} color="#3d6b3a" roughness={0.8} />
-          <mesh position={l.p} rotation={l.r} scale={l.s} castShadow>
-            <sphereGeometry args={[1, 24, 16]} />
-            <Surface color={l.c} roughness={0.6} clearcoat={0.3} />
-          </mesh>
-        </group>
-      ))}
     </group>
   );
 }

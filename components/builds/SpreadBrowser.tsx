@@ -24,11 +24,11 @@ const DEMOS: Record<string, { node: React.ReactNode; caption: string }> = {
   },
   parchi: {
     node: <ParchiDemo />,
-    caption: "LIVE DEMO — DROP THE RECEIPT, THEN CHECK THE DASHBOARD",
+    caption: "INTERACTIVE DEMO — DROP THE RECEIPT, THEN CHECK THE DASHBOARD",
   },
   "influencer-payment-os": {
     node: <MakeFlow />,
-    caption: "LIVE DEMO — HIT RUN ONCE, WATCH IT MOVE THROUGH THE SCENARIO",
+    caption: "INTERACTIVE DEMO — HIT RUN ONCE, WATCH IT MOVE THROUGH THE SCENARIO",
   },
 };
 

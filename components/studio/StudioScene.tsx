@@ -1,14 +1,20 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
-import { ContactShadows, Environment, Html, Lightformer } from "@react-three/drei";
+import { Canvas, advance, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
+import { ContactShadows, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { studioObjects, type StudioObjectKey } from "@/content/studio";
-import { ItemCtx, Box, Cyl, useWoodTexture } from "./objects/primitives";
+import { useMood, setMood, type Mood } from "@/lib/timeOfDay";
+import { ItemCtx } from "./objects/primitives";
+import { Lighting, LIGHT } from "./lighting";
+import { useOak } from "./materials";
+import { DeskTop, Mat, Lamp, lampLight } from "./objects/Desk";
+import { Laptop } from "./objects/Laptop";
 import { DemandFrames } from "./Frames";
 import { CctvCamera } from "./objects/CctvCamera";
-import { AiBox, AIBOX_PORT, Phone, Laptop, Camera35, BoardingPass, ResumeSheet, CricketBall, Paddle, Drone, Mug, Pencil, Plant } from "./objects/Things";
+import { AiBox, AIBOX_PORT, Phone, Camera35, BoardingPass, ResumeSheet, CricketBall, Paddle, Drone } from "./objects/Things";
+import { Mug, Pencil, Plant, Headphones, Can } from "./objects/Decor";
 
 export type StudioProgress = { current: number };
 
@@ -17,7 +23,7 @@ type Slot = { pos: V3; rot?: V3; top: number; foot: number; dx?: number };
 type Layout = {
   desk: [number, number]; // width × depth
   items: Record<StudioObjectKey, Slot>;
-  decor: { mug: V3; pencil: V3; plant: V3 };
+  decor: { mug: V3; pencil: V3; plant: V3; mat: { pos: V3; size: [number, number] }; lamp: { pos: V3; ry: number; aim?: V3 }; can: V3; headphones?: { pos: V3; ry: number } };
   rig: { hero: { pos: V3; look: V3 }; desk: { pos: V3; look: V3 }; fov: number };
 };
 
@@ -30,8 +36,8 @@ const LANDSCAPE: Layout = {
   items: {
     cctv: { pos: [-1.75, 0, -0.55], top: 0.95, foot: 0.26, dx: 0.35 },
     aibox: { pos: [-1.05, 0, -1.0], rot: [0, 0.18, 0], top: 0.2, foot: 0.4 },
-    laptop: { pos: [0.25, 0, -0.35], rot: [0, -0.06, 0], top: 0.95, foot: 0.82 },
-    phone: { pos: [1.6, 0, 0.1], rot: [0, 0.32, 0], top: 0.12, foot: 0.44, dx: -0.3 },
+    laptop: { pos: [0.25, 0.014, -0.35], rot: [0, -0.06, 0], top: 0.95, foot: 0.82 },
+    phone: { pos: [1.6, 0.014, 0.1], rot: [0, 0.32, 0], top: 0.12, foot: 0.44, dx: -0.3 },
     camera: { pos: [1.95, 0, 0.75], rot: [0, -0.55, 0], top: 0.45, foot: 0.36, dx: -0.6 },
     pass: { pos: [-0.35, 0, 0.9], rot: [0, 0.22, 0], top: 0.1, foot: 0.44 },
     resume: { pos: [-1.6, 0, 0.75], rot: [0, -0.14, 0], top: 0.1, foot: 0.52, dx: 0.4 },
@@ -39,7 +45,15 @@ const LANDSCAPE: Layout = {
     paddle: { pos: [1.35, 0, 1.2], rot: [0, 1.15, 0], top: 0.08, foot: 0.4, dx: -0.3 },
     drone: { pos: [-2.35, 0, -1.4], rot: [0, 0.5, 0], top: 0.12, foot: 0.34, dx: 0.5 },
   },
-  decor: { mug: [1.2, 0, -0.95], pencil: [-0.95, 0, 0.35], plant: [2.45, 0, -1.05] },
+  decor: {
+    mug: [-0.8, 0, -0.2],
+    can: [2.55, 0, -0.62],
+    headphones: { pos: [2.6, 0, 0.12], ry: 0.5 },
+    pencil: [-0.95, 0, 0.35],
+    plant: [2.5, 0, -1.2],
+    mat: { pos: [0.85, 0, -0.2], size: [2.7, 1.5] },
+    lamp: { pos: [1.2, 0, -1.3], ry: -Math.PI / 2, aim: [0.55, 0, -0.15] },
+  },
   rig: {
     hero: { pos: [-2.95, 1.0, 1.85], look: [-2.35, 0.62, -0.5] },
     desk: { pos: [0.1, 4.4, 4.3], look: [0, 0.05, -0.15] },
@@ -52,7 +66,7 @@ const PORTRAIT: Layout = {
   items: {
     cctv: { pos: [-0.85, 0, -0.45], top: 0.95, foot: 0.26, dx: 0.75 },
     aibox: { pos: [-0.75, 0, -1.2], rot: [0, 0.2, 0], top: 0.2, foot: 0.4, dx: 0.6 },
-    laptop: { pos: [0.25, 0, -0.75], rot: [0, 0, 0], top: 0.95, foot: 0.8 },
+    laptop: { pos: [0.25, 0.014, -0.75], rot: [0, 0, 0], top: 0.95, foot: 0.8 },
     phone: { pos: [0.95, 0, 0.3], rot: [0, 0.2, 0], top: 0.12, foot: 0.44, dx: -0.95 },
     camera: { pos: [0.45, 0, 0.92], rot: [0, -0.5, 0], top: 0.45, foot: 0.36, dx: -0.6 },
     pass: { pos: [-0.05, 0, 0.35], rot: [0, 0.15, 0], top: 0.1, foot: 0.44 },
@@ -61,7 +75,14 @@ const PORTRAIT: Layout = {
     paddle: { pos: [0.9, 0, 1.12], rot: [0, -0.7, 0], top: 0.08, foot: 0.4, dx: -0.95 },
     drone: { pos: [-0.85, 0, 1.35], rot: [0, 0.4, 0], top: 0.12, foot: 0.34, dx: 0.8 },
   },
-  decor: { mug: [1.0, 0, -0.9], pencil: [-0.4, 0, 0.9], plant: [1.05, 0, -1.4] },
+  decor: {
+    mug: [-1.1, 0, -0.02],
+    can: [1.2, 0, -0.33],
+    pencil: [-0.4, 0, 0.9],
+    plant: [1.08, 0, -1.4],
+    mat: { pos: [0.22, 0, -0.72], size: [1.62, 1.2] },
+    lamp: { pos: [1.18, 0, -0.85], ry: -Math.PI / 2, aim: [0.45, 0, -0.25] },
+  },
   rig: {
     hero: { pos: [-2.35, 1.15, 2.75], look: [-0.9, 1.45, -0.45] },
     desk: { pos: [0.0, 6.0, 4.3], look: [0, 0.05, -0.05], },
@@ -201,78 +222,115 @@ function Item({
 }
 
 /* ---------------------------------------------------------------------------
-   The desk
+   The desk and the things that just live on it
    --------------------------------------------------------------------------- */
-/** an oak desk on a slim steel frame, plus the things that just live on it */
-function Desk({ layout }: { layout: Layout }) {
-  const wood = useWoodTexture();
+function Desk({ layout, mood }: { layout: Layout; mood: Mood }) {
   const [w, d] = layout.desk;
-  const lx = w / 2 - 0.2;
-  const lz = d / 2 - 0.25;
+  const D = layout.decor;
   return (
     <ItemCtx.Provider value={{ hover: false, accent: "#000" }}>
       <group>
-        {/* plain box, not rounded: the rounded geometry maps the grain in
-            world units and clamps past the first metre — half a desk of wood */}
-        <Box args={[w, 0.09, d]} radius={0} position={[0, -0.045, 0]} map={wood} color="#f1e6d6" roughness={0.55} clearcoat={0.08} />
-        {[-lx, lx].map((x) =>
-          [-lz, lz].map((z) => <Cyl key={`${x}${z}`} r={0.03} h={1.7} position={[x, -0.94, z]} color="#2a2c30" roughness={0.45} metalness={0.7} segments={16} />),
-        )}
-        <Box args={[w - 0.3, 0.05, 0.05]} radius={0.01} position={[0, -0.115, lz]} color="#2a2c30" roughness={0.45} metalness={0.7} shadow={false} />
-        <Box args={[w - 0.3, 0.05, 0.05]} radius={0.01} position={[0, -0.115, -lz]} color="#2a2c30" roughness={0.45} metalness={0.7} shadow={false} />
-        <ContactShadows position={[0, 0.004, 0]} opacity={0.35} scale={Math.max(w, d) * 1.2} blur={2} far={1.2} resolution={512} frames={1} color="#3a2a18" />
-
-        <group position={layout.decor.mug}><Mug /></group>
-        <group position={layout.decor.pencil}><Pencil /></group>
-        <group position={layout.decor.plant}><Plant /></group>
+        <DeskTop w={w} d={d} />
+        <Mat size={D.mat.size} position={D.mat.pos} />
+        <ContactShadows position={[0, 0.016, 0]} opacity={0.6} scale={Math.max(w, d) * 1.2} blur={1.6} far={0.9} resolution={1024} frames={1} color="#2a1c10" />
+        <group position={D.lamp.pos} rotation={[0, D.lamp.ry, 0]}><Lamp on={LIGHT[mood].lamp} /></group>
+        <group position={D.mug}><Mug /></group>
+        <group position={D.pencil}><Pencil /></group>
+        <group position={D.plant}><Plant /></group>
+        <group position={D.can} rotation={[0, 2.2, 0]}><Can /></group>
+        {D.headphones && <group position={D.headphones.pos} rotation={[0, D.headphones.ry, 0]}><Headphones /></group>}
       </group>
     </ItemCtx.Provider>
   );
 }
 
-/** studio lighting: a warm key from the window side, a cool fill, and a soft
- *  overhead panel — the environment gives the metal and glass something to reflect */
-function Lights() {
-  const key = useRef<THREE.DirectionalLight>(null);
-  // the desk never moves — bake the shadow map once instead of re-rendering
-  // the whole depth pass on every frame
+/* ---------------------------------------------------------------------------
+   Start-up: compile every shader off the main thread first, then let the
+   first frame through and tell the page the desk is live.
+   --------------------------------------------------------------------------- */
+function Ready({ onCompiled, onReady }: { onCompiled: () => void; onReady: () => void }) {
+  const { gl, scene, camera, invalidate } = useThree();
+  const armed = useRef(false);
+  const done = useRef(false);
+  const frames = useRef(0);
+
   useEffect(() => {
-    const l = key.current;
-    if (!l) return;
-    l.shadow.needsUpdate = true;
-    const t = setTimeout(() => {
-      l.shadow.autoUpdate = false;
-    }, 250);
-    return () => clearTimeout(t);
+    let alive = true;
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const fire = () => {
+      if (!alive || done.current) return;
+      done.current = true;
+      performance.mark("studio:live");
+      onReady();
+    };
+    performance.mark("studio:mounted");
+    const go = () => {
+      if (!alive) return;
+      performance.mark("studio:compiled");
+      armed.current = true;
+      onCompiled();
+      invalidate();
+      t = setTimeout(fire, 900); // a hidden tab never gets a frame; don't wait on one
+    };
+    gl.compileAsync(scene, camera).then(go, go);
+    return () => {
+      alive = false;
+      if (t) clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  return (
-    <>
-      <ambientLight intensity={0.35} />
-      <hemisphereLight args={["#ffffff", "#b9a58a", 0.5]} />
-      <directionalLight
-        ref={key}
-        position={[3.5, 6.5, 4]}
-        intensity={2.3}
-        color="#fff4e6"
-        castShadow
-        shadow-mapSize={[1024, 1024]}
-        shadow-bias={-0.0006}
-        shadow-normalBias={0.02}
-        shadow-camera-left={-4.5}
-        shadow-camera-right={4.5}
-        shadow-camera-top={4.5}
-        shadow-camera-bottom={-4.5}
-        shadow-camera-near={1}
-        shadow-camera-far={20}
-      />
-      <directionalLight position={[-4, 3, -2]} intensity={0.6} color="#dfe8ff" />
-      <Environment resolution={128} frames={1}>
-        <Lightformer intensity={2.5} rotation-x={Math.PI / 2} position={[0, 5, -1]} scale={[10, 5, 1]} />
-        <Lightformer intensity={1.2} rotation-y={Math.PI / 2} position={[-6, 2, 1]} scale={[3, 5, 1]} color="#ffe9d6" />
-        <Lightformer intensity={1.6} rotation-y={-Math.PI / 2} position={[6, 3, 0]} scale={[4, 4, 1]} color="#dbe8ff" />
-      </Environment>
-    </>
-  );
+
+  useFrame(() => {
+    if (!armed.current || done.current) return;
+    if (++frames.current >= 2) {
+      done.current = true;
+      performance.mark("studio:live");
+      onReady();
+    } else invalidate();
+  });
+  return null;
+}
+
+/* ---------------------------------------------------------------------------
+   Dev only (?shot=1): render the scene at a set size and mood and hand the
+   frame to scripts/shot.mjs. This is how the hero posters are made.
+   --------------------------------------------------------------------------- */
+type ShotOpts = { name: string; w?: number; h?: number; p?: number; mood?: Mood; bg?: string; frames?: number; poster?: boolean };
+function ShotHook({ progress }: { progress: StudioProgress }) {
+  const get = useThree((s) => s.get);
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production" || !new URLSearchParams(location.search).has("shot")) return;
+    const w = window as unknown as { __shot?: (o: ShotOpts) => Promise<unknown>; __glInfo?: () => unknown };
+    w.__glInfo = () => {
+      const { gl } = get();
+      return { calls: gl.info.render.calls, triangles: gl.info.render.triangles, programs: gl.info.programs?.length, textures: gl.info.memory.textures, geometries: gl.info.memory.geometries };
+    };
+    w.__shot = async ({ name, w: W = 1600, h: H = 800, p = 0, mood, bg, frames = 8, poster }) => {
+      if (mood) setMood(mood);
+      for (let i = 0; i < frames; i++) {
+        await new Promise((r) => setTimeout(r, 70));
+        // the canvas keeps snapping back to its container, so insist
+        const s = get();
+        if (s.size.width !== W || s.size.height !== H || s.viewport.dpr !== 1) {
+          s.setDpr(1);
+          s.setSize(W, H);
+        }
+        progress.current = p;
+        advance(performance.now());
+      }
+      progress.current = p;
+      advance(performance.now());
+      const blob = await new Promise<Blob | null>((r) => get().gl.domElement.toBlob(r, "image/png"));
+      if (!blob) return { ok: false, why: "no frame" };
+      const res = await fetch(`http://localhost:4599/save?name=${encodeURIComponent(name)}${bg ? `&bg=${encodeURIComponent(bg)}` : ""}${poster ? "&poster=1" : ""}`, { method: "POST", body: blob });
+      return res.json();
+    };
+    return () => {
+      delete w.__shot;
+      delete w.__glInfo;
+    };
+  }, [get, progress]);
+  return null;
 }
 
 /** where the camera's cable should end: the box's port, in the camera's space */
@@ -297,6 +355,7 @@ function Contents({
   setHovered,
   onSelect,
   captions,
+  mood,
 }: {
   progress: StudioProgress;
   accent: string;
@@ -305,23 +364,29 @@ function Contents({
   setHovered: (k: StudioObjectKey | null) => void;
   onSelect: (k: StudioObjectKey) => void;
   captions: boolean;
+  mood: Mood;
 }) {
   const portrait = usePortrait();
   const layout = portrait ? PORTRAIT : LANDSCAPE;
   const cable = useMemo(() => cableTarget(layout), [layout]);
+  const lamp = useMemo(() => {
+    const l = lampLight(layout.decor.lamp.pos, layout.decor.lamp.ry);
+    return layout.decor.lamp.aim ? { at: l.at, to: layout.decor.lamp.aim } : l;
+  }, [layout]);
   const common = { accent, hovered, setHovered, onSelect, visibleCaptions: captions };
   const I = layout.items;
+  const L = LIGHT[mood];
 
   return (
     <>
-      <Lights />
+      <Lighting mood={mood} area={Math.max(...layout.desk) * 0.78} lamp={lamp} />
       <Rig progress={progress} reduce={reduce} layout={layout} />
-      <Desk layout={layout} />
+      <Desk layout={layout} mood={mood} />
 
-      <Item id="cctv" slot={I.cctv} {...common}><CctvCamera track={!reduce} accent={accent} cableTo={cable} /></Item>
+      <Item id="cctv" slot={I.cctv} {...common}><CctvCamera track={!reduce} accent={accent} cableTo={cable} ir={mood === "night" ? 2.2 : 0.06} /></Item>
       <Item id="aibox" slot={I.aibox} {...common}><AiBox accent={accent} /></Item>
-      <Item id="laptop" slot={I.laptop} {...common}><Laptop /></Item>
-      <Item id="phone" slot={I.phone} {...common}><Phone /></Item>
+      <Item id="laptop" slot={I.laptop} {...common}><Laptop glow={L.glow} /></Item>
+      <Item id="phone" slot={I.phone} {...common}><Phone glow={L.glow} /></Item>
       <Item id="camera" slot={I.camera} {...common}><Camera35 /></Item>
       <Item id="pass" slot={I.pass} {...common}><BoardingPass /></Item>
       <Item id="resume" slot={I.resume} {...common}><ResumeSheet /></Item>
@@ -332,6 +397,12 @@ function Contents({
   );
 }
 
+// start fetching the oak and the room as soon as this chunk runs
+if (typeof window !== "undefined") {
+  useOak.preload();
+  Lighting.preload();
+}
+
 export default function StudioScene({
   progress,
   accent,
@@ -339,6 +410,7 @@ export default function StudioScene({
   active,
   onSelect,
   onHover,
+  onReady,
 }: {
   progress: StudioProgress;
   accent: string;
@@ -347,7 +419,11 @@ export default function StudioScene({
   active: boolean;
   onSelect: (key: StudioObjectKey) => void;
   onHover: (key: StudioObjectKey | null) => void;
+  /** the first live frame is on screen */
+  onReady: () => void;
 }) {
+  const mood = useMood();
+  const [compiled, setCompiled] = useState(false);
   const [hovered, setHoveredState] = useState<StudioObjectKey | null>(null);
   const setHovered = (k: StudioObjectKey | null) => {
     setHoveredState(k);
@@ -379,18 +455,22 @@ export default function StudioScene({
 
   return (
     <Canvas
-      frameloop={active ? "demand" : "never"}
-      shadows="soft"
-      dpr={[1, 1.5]}
-      gl={{ alpha: true, antialias: true, powerPreference: "low-power", toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.15 }}
+      // nothing is drawn until the shaders are compiled, so start-up never
+      // blocks the page on a synchronous compile
+      frameloop={compiled && active ? "demand" : "never"}
+      shadows
+      dpr={[1, 1.75]}
+      gl={{ alpha: true, antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1 }}
       camera={{ fov: 30, near: 0.1, far: 40, position: [-2.9, 0.75, 1.9] }}
       style={{ position: "absolute", inset: 0 }}
       aria-hidden
       onPointerMissed={() => setHovered(null)}
     >
       <Suspense fallback={null}>
-        <DemandFrames watch={`${hovered}|${captions}|${accent}`} />
-        <Contents progress={progress} accent={accent} reduce={reduce} hovered={hovered} setHovered={setHovered} onSelect={onSelect} captions={captions} />
+        <DemandFrames watch={`${hovered}|${captions}|${accent}|${mood}`} />
+        <Contents progress={progress} accent={accent} reduce={reduce} hovered={hovered} setHovered={setHovered} onSelect={onSelect} captions={captions} mood={mood} />
+        <ShotHook progress={progress} />
+        <Ready onCompiled={() => setCompiled(true)} onReady={onReady} />
       </Suspense>
     </Canvas>
   );

@@ -12,6 +12,7 @@ import { Nav } from "@/components/nav/Nav";
 import { Footer } from "@/components/Footer";
 import { Analytics } from "@/components/Analytics";
 import { site } from "@/content/site";
+import { TOD_SCRIPT } from "@/lib/timeOfDay";
 
 // display + body: variable, with optical size so 12px labels and 160px
 // headlines are drawn from the same family without looking like the same cut
@@ -80,7 +81,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${serif.variable} ${mono.variable} ${jakarta.variable}`}>
+    <html lang="en" className={`${display.variable} ${serif.variable} ${mono.variable} ${jakarta.variable}`} suppressHydrationWarning>
+      <head>
+        {/* picks the desk's light (and its poster) from the visitor's clock, before first paint */}
+        <script dangerouslySetInnerHTML={{ __html: TOD_SCRIPT }} />
+      </head>
       <body>
         <AccentProvider>
           <SmoothScroll>
