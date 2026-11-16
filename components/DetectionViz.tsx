@@ -565,10 +565,20 @@ export function DetectionViz({ cam = "CAM 04 · FLOOR 2", compact = false }: { c
         raf = 0;
       }
     };
-    const io = new IntersectionObserver(([e]) => {
-      visible = e.isIntersecting;
-      run();
-    });
+    // arriving at the panel is the cue: the fire starts the moment it is in view,
+    // not wherever a loop that ran off-screen happens to be
+    const io = new IntersectionObserver(
+      ([e]) => {
+        const now = e.isIntersecting;
+        if (now && !visible) {
+          reset();
+          t = IGNITE - 0.2;
+        }
+        visible = now;
+        run();
+      },
+      { threshold: 0.4 },
+    );
     io.observe(host);
     const ro = new ResizeObserver(() => {
       size();
