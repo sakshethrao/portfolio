@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { scroll } from "@/lib/scroll";
-import { Box, Cyl, Ball, Tube, Surface } from "./primitives";
+import { Box, Cyl, Ball, Surface } from "./primitives";
 import { turned, turnedUp } from "./geo";
 import { kit } from "../materials";
 
@@ -42,16 +42,40 @@ export function CctvCamera({
   /** how brightly the IR ring shows (it only really glows after dark) */
   ir?: number;
 }) {
-  const p0: [number, number, number] = [0.12, 0.012, -0.42];
   const [tx, ty, tz] = cableTo;
-  const cable: [number, number, number][] = [
-    p0,
-    [p0[0] + (tx - p0[0]) * 0.3, 0.012, p0[2] + (tz - p0[2]) * 0.15 - 0.1],
-    [p0[0] + (tx - p0[0]) * 0.75, 0.014, tz + 0.16],
-    [tx, ty, tz + 0.04],
-    [tx, ty, tz],
-  ];
   const head = useRef<THREE.Group>(null);
+  const cableMesh = useRef<THREE.Mesh>(null);
+  const drawn = useRef({ yaw: 9, pitch: 9 });
+  // One cable, gland to port. Its top end rides on the head, so it is laid
+  // again whenever the head turns; the run along the desk into the box stays put.
+  const layCable = useMemo(() => {
+    const e = new THREE.Euler();
+    const a = new THREE.Vector3();
+    const b = new THREE.Vector3();
+    const land: [number, number, number] = [0.12, 0.012, -0.42];
+    return (yaw: number, pitch: number) => {
+      e.set(-pitch, yaw, 0, "YXZ");
+      a.set(0, 0.06, -0.3).applyEuler(e).setY(a.y + 0.6); // out of the gland
+      b.set(0, 0.05, -0.4).applyEuler(e).setY(b.y + 0.6); // straight back a little before it drops
+      const pts = [
+        a.clone(),
+        b.clone(),
+        new THREE.Vector3((b.x + land[0]) / 2 + 0.02, 0.3, (b.z + land[2]) / 2 - 0.05),
+        new THREE.Vector3(land[0] - 0.005, 0.07, land[2] - 0.03),
+        new THREE.Vector3(...land),
+        new THREE.Vector3(land[0] + (tx - land[0]) * 0.3, 0.012, land[2] + (tz - land[2]) * 0.15 - 0.1),
+        new THREE.Vector3(land[0] + (tx - land[0]) * 0.75, 0.014, tz + 0.16),
+        new THREE.Vector3(tx, ty, tz + 0.05),
+        new THREE.Vector3(tx, ty, tz - 0.004), // into the port
+      ];
+      return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, "centripetal"), 110, 0.0105, 8, false);
+    };
+  }, [tx, ty, tz]);
+  const firstCable = useMemo(() => layCable(0, 0), [layCable]);
+  useEffect(() => {
+    drawn.current = { yaw: 0, pitch: 0 };
+  }, [firstCable]);
+  useEffect(() => () => cableMesh.current?.geometry.dispose(), []);
   const { camera, invalidate } = useThree();
   const cur = useRef({ yaw: 0, pitch: 0 });
   const v = new THREE.Vector3();
@@ -79,6 +103,11 @@ export function CctvCamera({
     cur.current.yaw += (yaw - cur.current.yaw) * k * 0.6;
     cur.current.pitch += (pitch - cur.current.pitch) * k * 0.6;
     head.current.rotation.set(-cur.current.pitch, cur.current.yaw, 0, "YXZ");
+    if (cableMesh.current && (Math.abs(cur.current.yaw - drawn.current.yaw) > 0.004 || Math.abs(cur.current.pitch - drawn.current.pitch) > 0.004)) {
+      drawn.current = { yaw: cur.current.yaw, pitch: cur.current.pitch };
+      cableMesh.current.geometry.dispose();
+      cableMesh.current.geometry = layCable(cur.current.yaw, cur.current.pitch);
+    }
     // keep frames coming only while the head is still catching up
     if (Math.abs(yaw - cur.current.yaw) > 2e-4 || Math.abs(pitch - cur.current.pitch) > 2e-4) invalidate();
   });
@@ -183,11 +212,12 @@ export function CctvCamera({
           {/* cable gland + cable */}
           <Cyl r={0.04} h={0.045} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, -0.268]} color="#232528" roughness={0.55} metalness={0.3} normalMap={kit.knurl(16, 1)} normalScale={0.7} segments={32} />
           <Cyl r={0.026} h={0.03} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, -0.3]} color="#17181a" roughness={0.7} segments={24} />
-          <Tube points={[[0, 0, -0.31], [0, -0.06, -0.42], [0.05, -0.31, -0.48], [0.12, -0.61, -0.42]]} r={0.0105} color="#17181a" roughness={0.6} />
         </group>
       </group>
-      {/* cable along the desk, into the box */}
-      <Tube points={cable} r={0.0105} color="#17181a" roughness={0.6} />
+      {/* the cable: from the gland, down behind the post, along the desk and into the box */}
+      <mesh ref={cableMesh} geometry={firstCable} castShadow receiveShadow frustumCulled={false} dispose={null}>
+        <Surface color="#17181a" roughness={0.6} />
+      </mesh>
     </group>
   );
 }

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { site } from "@/content/site";
 import { photos } from "@/content/gallery";
 import { AccentSwatches } from "./AccentSwatches";
@@ -34,8 +35,8 @@ export function Footer() {
             {peek.length > 0 && (
               <span className="ig-strip" aria-hidden>
                 {peek.map((p) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img key={p.src} src={p.src} alt="" width={56} height={56} style={{ objectFit: "cover", display: "block" }} />
+                  // thumbnails: resized, and fetched only when they are about to show
+                  <Image key={p.src} src={p.src} alt="" width={56} height={56} sizes="56px" style={{ objectFit: "cover", display: "block" }} />
                 ))}
               </span>
             )}

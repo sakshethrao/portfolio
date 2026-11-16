@@ -535,7 +535,7 @@ export default function StudioScene({
       // blocks the page on a synchronous compile
       frameloop={compiled && active ? "demand" : "never"}
       shadows
-      dpr={[1, 1.75]}
+      dpr={[1, 1.5]}
       gl={{ alpha: true, antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1 }}
       camera={{ fov: 30, near: 0.1, far: 40, position: [-2.9, 0.75, 1.9] }}
       style={{ position: "absolute", inset: 0 }}

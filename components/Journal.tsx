@@ -46,6 +46,8 @@ export function Journal() {
                        lazy frame can arrive as a grey box mid-glide; the six
                        originals load up front and the clones hit cache */
                     loading={i < list.length ? "eager" : "lazy"}
+                    // …but behind everything the first screen needs
+                    fetchPriority="low"
                   />
                 ) : (
                   <span className="mono" style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", fontSize: 10, letterSpacing: "0.1em", color: "var(--faint)" }}>PHOTO</span>
