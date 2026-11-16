@@ -12,8 +12,8 @@ import { useReducedMotion } from "framer-motion";
 
 const W = 320; // the scene is drawn in these units, then scaled to the canvas
 const H = 180;
-const LOOP = 15; // seconds
-const IGNITE = 2.4;
+const LOOP = 11; // seconds
+const IGNITE = 0.9;
 const RED = "#ff4d3a";
 const AMBER = "#ffb020";
 const GREEN = "#4ade80";
@@ -250,7 +250,7 @@ export function DetectionViz({ cam = "CAM 04 · FLOOR 2", compact = false }: { c
       carry = carryS = 0;
     };
 
-    const intensity = () => Math.pow(smooth(IGNITE, IGNITE + 6.5, t), 1.5);
+    const intensity = () => Math.pow(smooth(IGNITE - 0.4, IGNITE + 3.2, t), 1.25);
 
     const step = (dt: number) => {
       t += dt;
@@ -412,7 +412,7 @@ export function DetectionViz({ cam = "CAM 04 · FLOOR 2", compact = false }: { c
         ctx.drawImage(sSmoke, p.x - p.size, p.y - p.size, p.size * 2, p.size * 2);
       }
       // smoke gathering under the ceiling as it goes on
-      const haze = smooth(IGNITE + 3, LOOP - 2, t);
+      const haze = smooth(IGNITE + 2, LOOP - 2, t);
       if (haze > 0) {
         const g = ctx.createLinearGradient(0, 0, 0, 70);
         g.addColorStop(0, `rgba(58,58,62,${0.6 * haze})`);
@@ -493,8 +493,8 @@ export function DetectionViz({ cam = "CAM 04 · FLOOR 2", compact = false }: { c
       ctx.fillStyle = v;
       ctx.fillRect(0, 0, W, H);
 
-      if (smokeAt > 0) box(sbox, AMBER, `SMOKE ${(0.58 + 0.27 * smooth(smokeAt, smokeAt + 4, t)).toFixed(2)}`, smokeAt);
-      if (fireAt > 0) box(fbox, RED, `FIRE ${(0.62 + 0.33 * smooth(fireAt, fireAt + 3, t)).toFixed(2)}`, fireAt);
+      if (smokeAt > 0) box(sbox, AMBER, `SMOKE ${(0.58 + 0.27 * smooth(smokeAt, smokeAt + 2.5, t)).toFixed(2)}`, smokeAt);
+      if (fireAt > 0) box(fbox, RED, `FIRE ${(0.62 + 0.33 * smooth(fireAt, fireAt + 1.8, t)).toFixed(2)}`, fireAt);
 
       // out to black before the loop comes round
       const out = smooth(LOOP - 0.9, LOOP - 0.15, t);
@@ -505,7 +505,7 @@ export function DetectionViz({ cam = "CAM 04 · FLOOR 2", compact = false }: { c
     };
 
     const sync = () => {
-      const ph = fireAt < 0 || t > LOOP - 0.5 ? 0 : smokeAt > 0 ? 3 : t - fireAt > 0.7 ? 2 : 1;
+      const ph = fireAt < 0 || t > LOOP - 0.5 ? 0 : smokeAt > 0 ? 3 : t - fireAt > 0.4 ? 2 : 1;
       if (ph !== shown) {
         shown = ph;
         setPhase(ph);
@@ -532,7 +532,7 @@ export function DetectionViz({ cam = "CAM 04 · FLOOR 2", compact = false }: { c
     const hold = process.env.NODE_ENV === "production" ? NaN : Number(new URLSearchParams(location.search).get("qs") ?? NaN);
     if (reduce || hold > 0) {
       // no motion: one frame, a few seconds into the fire, with the alert already out
-      while (t < (hold > 0 ? hold : 9)) step(1 / 30);
+      while (t < (hold > 0 ? hold : 7)) step(1 / 30);
       draw();
       sync();
       const ro = new ResizeObserver(() => {
@@ -572,7 +572,7 @@ export function DetectionViz({ cam = "CAM 04 · FLOOR 2", compact = false }: { c
         const now = e.isIntersecting;
         if (now && !visible) {
           reset();
-          t = IGNITE - 0.2;
+          t = IGNITE;
         }
         visible = now;
         run();
