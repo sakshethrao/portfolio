@@ -371,36 +371,6 @@ button {
 /* ---------------------------------------------------------------------------
    QuantumSight detection scene (DetectionViz)
    --------------------------------------------------------------------------- */
-@keyframes qs-walk {
-  0% {
-    transform: translateX(0) scaleX(1);
-  }
-  48% {
-    transform: translateX(115px) scaleX(1);
-  }
-  50% {
-    transform: translateX(115px) scaleX(-1);
-  }
-  98% {
-    transform: translateX(0) scaleX(-1);
-  }
-  100% {
-    transform: translateX(0) scaleX(1);
-  }
-}
-@keyframes qs-box-follow {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  48%,
-  50% {
-    transform: translateX(115px);
-  }
-  98% {
-    transform: translateX(0);
-  }
-}
 @keyframes qs-flicker {
   0%,
   100% {
@@ -420,15 +390,6 @@ button {
     opacity: 1;
   }
 }
-@keyframes qs-sweep {
-  from {
-    transform: translateX(-40%);
-  }
-  to {
-    transform: translateX(340%);
-  }
-}
-
 /* Parchi + Make demos */
 @keyframes parchi-spin {
   to {
@@ -481,9 +442,14 @@ button {
   pointer-events: none;
   transition: opacity 0.6s var(--ease), visibility 0s 0.6s;
 }
-.studio-poster-wrap[data-live="true"] {
+.studio-poster-wrap[data-live="swap"] {
   opacity: 0;
   visibility: hidden;
+}
+/* same frame as the canvas fading in above it: hold, then step out */
+.studio-poster-wrap[data-live="under"] {
+  visibility: hidden;
+  transition: visibility 0s 0.7s;
 }
 .studio-poster {
   position: absolute;

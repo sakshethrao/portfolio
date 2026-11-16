@@ -6,6 +6,7 @@ import { ContactShadows, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { studioObjects, type StudioObjectKey } from "@/content/studio";
 import { useMood, setMood, type Mood } from "@/lib/timeOfDay";
+import { subscribeScroll } from "@/lib/scroll";
 import { ItemCtx } from "./objects/primitives";
 import { Lighting, LIGHT } from "./lighting";
 import { useOak } from "./materials";
@@ -224,34 +225,49 @@ function Item({
 /* ---------------------------------------------------------------------------
    The desk and the things that just live on it
    --------------------------------------------------------------------------- */
-function Desk({ layout, mood }: { layout: Layout; mood: Mood }) {
+function deskParts(layout: Layout, mood: Mood): React.ReactNode[] {
   const [w, d] = layout.desk;
   const D = layout.decor;
   // the can's label turns to face whoever is looking at the desk
   const canRy = Math.atan2(-(layout.rig.desk.pos[2] - D.can[2]), layout.rig.desk.pos[0] - D.can[0]);
-  return (
-    <ItemCtx.Provider value={{ hover: false, accent: "#000" }}>
-      <group>
-        <DeskTop w={w} d={d} />
-        <Mat size={D.mat.size} position={D.mat.pos} />
-        <ContactShadows position={[0, 0.016, 0]} opacity={0.6} scale={Math.max(w, d) * 1.2} blur={1.6} far={0.9} resolution={1024} frames={1} color="#2a1c10" />
-        <group position={D.lamp.pos} rotation={[0, D.lamp.ry, 0]}><Lamp on={LIGHT[mood].lamp} /></group>
-        <group position={D.mug}><Mug /></group>
-        <group position={D.pencil}><Pencil /></group>
-        <group position={D.plant}><Plant /></group>
-        <group position={D.can} rotation={[0, canRy, 0]}><Can /></group>
-        {D.headphones && <group position={D.headphones.pos} rotation={[0, D.headphones.ry, 0]}><Headphones /></group>}
-      </group>
-    </ItemCtx.Provider>
-  );
+  const parts: React.ReactNode[] = [
+    <DeskTop key="top" w={w} d={d} />,
+    <Mat key="mat" size={D.mat.size} position={D.mat.pos} />,
+    <group key="lamp" position={D.lamp.pos} rotation={[0, D.lamp.ry, 0]}><Lamp on={LIGHT[mood].lamp} /></group>,
+    <group key="mug" position={D.mug}><Mug /></group>,
+    <group key="pencil" position={D.pencil}><Pencil /></group>,
+    <group key="plant" position={D.plant}><Plant /></group>,
+    <group key="can" position={D.can} rotation={[0, canRy, 0]}><Can /></group>,
+  ];
+  if (D.headphones) parts.push(<group key="headphones" position={D.headphones.pos} rotation={[0, D.headphones.ry, 0]}><Headphones /></group>);
+  return parts;
+}
+
+/* ---------------------------------------------------------------------------
+   Building the whole desk in one go froze the page for a couple of seconds.
+   So it goes up a piece at a time, handing the browser back between pieces;
+   nothing is drawn until the last one is in.
+   --------------------------------------------------------------------------- */
+function useStages(total: number) {
+  const [n, setN] = useState(() => (typeof document !== "undefined" && document.hidden ? total : 1));
+  useEffect(() => {
+    performance.mark("studio:stage:" + n);
+    if (n >= total) return;
+    // a hidden tab throttles timers hard, and nobody is watching it anyway
+    if (document.hidden) return setN(total);
+    const t = setTimeout(() => setN((v) => Math.min(total, v + 1)), 0);
+    return () => clearTimeout(t);
+  }, [n, total]);
+  return Math.min(n, total);
 }
 
 /* ---------------------------------------------------------------------------
    Start-up: compile every shader off the main thread first, then let the
    first frame through and tell the page the desk is live.
    --------------------------------------------------------------------------- */
-function Ready({ onCompiled, onReady }: { onCompiled: () => void; onReady: () => void }) {
+function Ready({ onCompiled, onFirstFrame, onReady }: { onCompiled: () => void; onFirstFrame: () => void; onReady: () => void }) {
   const { gl, scene, camera, invalidate } = useThree();
+  const frameloop = useThree((s) => s.frameloop);
   const armed = useRef(false);
   const done = useRef(false);
   const frames = useRef(0);
@@ -266,25 +282,69 @@ function Ready({ onCompiled, onReady }: { onCompiled: () => void; onReady: () =>
       onReady();
     };
     performance.mark("studio:mounted");
+    // the first frames are the last heavy step (shadow maps, texture uploads),
+    // so they wait for a pause in scrolling rather than landing in the middle of one
+    let lastScroll = 0;
+    const unsub = subscribeScroll(() => {
+      lastScroll = performance.now();
+    });
+    const started = performance.now();
     const go = () => {
       if (!alive) return;
+      const now = performance.now();
+      if (now - lastScroll < 300 && now - started < 6000) {
+        t = setTimeout(go, 120);
+        return;
+      }
       performance.mark("studio:compiled");
       armed.current = true;
       onCompiled();
-      invalidate();
-      t = setTimeout(fire, 900); // a hidden tab never gets a frame; don't wait on one
+      t = setTimeout(fire, 2500); // a hidden tab never gets a frame; don't wait on one
     };
-    gl.compileAsync(scene, camera).then(go, go);
+    // send the textures to the GPU one per tick first, so the first frame
+    // doesn't have to decode and upload all of them in one go
+    const textures = new Set<THREE.Texture>();
+    scene.traverse((o) => {
+      const mat = (o as THREE.Mesh).material as THREE.Material | THREE.Material[] | undefined;
+      for (const m of Array.isArray(mat) ? mat : mat ? [mat] : []) {
+        const sm = m as THREE.MeshStandardMaterial;
+        for (const tx of [sm.map, sm.normalMap, sm.roughnessMap, sm.emissiveMap]) if (tx && tx.image) textures.add(tx);
+      }
+    });
+    const queue = [...textures];
+    const upload = () => {
+      if (!alive) return;
+      const tx = queue.pop();
+      if (!tx || document.hidden) {
+        gl.compileAsync(scene, camera).then(go, go);
+        return;
+      }
+      try {
+        gl.initTexture(tx);
+      } catch {
+        // the first frame will upload it instead
+      }
+      t = setTimeout(upload, 0);
+    };
+    upload();
     return () => {
       alive = false;
+      unsub();
       if (t) clearTimeout(t);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ask for the first frame once the loop has actually been switched on
+  useEffect(() => {
+    if (frameloop !== "never" && armed.current) invalidate();
+  }, [frameloop, invalidate]);
+
   useFrame(() => {
     if (!armed.current || done.current) return;
-    if (++frames.current >= 2) {
+    const n = ++frames.current;
+    if (n === 1) onFirstFrame(); // the desk is drawn; now the contact shadows, in a frame of their own
+    if (n >= 4) {
       done.current = true;
       performance.mark("studio:live");
       onReady();
@@ -358,6 +418,8 @@ function Contents({
   onSelect,
   captions,
   mood,
+  onCompiled,
+  onReady,
 }: {
   progress: StudioProgress;
   accent: string;
@@ -367,6 +429,8 @@ function Contents({
   onSelect: (k: StudioObjectKey) => void;
   captions: boolean;
   mood: Mood;
+  onCompiled: () => void;
+  onReady: () => void;
 }) {
   const portrait = usePortrait();
   const layout = portrait ? PORTRAIT : LANDSCAPE;
@@ -379,22 +443,32 @@ function Contents({
   const I = layout.items;
   const L = LIGHT[mood];
 
+  const desk = deskParts(layout, mood);
+  const items: React.ReactNode[] = [
+    <Item key="cctv" id="cctv" slot={I.cctv} {...common}><CctvCamera track={!reduce} accent={accent} cableTo={cable} ir={mood === "night" ? 2.2 : 0.06} /></Item>,
+    <Item key="aibox" id="aibox" slot={I.aibox} {...common}><AiBox accent={accent} /></Item>,
+    <Item key="laptop" id="laptop" slot={I.laptop} {...common}><Laptop glow={L.glow} /></Item>,
+    <Item key="phone" id="phone" slot={I.phone} {...common}><Phone glow={L.glow} /></Item>,
+    <Item key="camera" id="camera" slot={I.camera} {...common}><Camera35 /></Item>,
+    <Item key="pass" id="pass" slot={I.pass} {...common}><BoardingPass /></Item>,
+    <Item key="resume" id="resume" slot={I.resume} {...common}><ResumeSheet /></Item>,
+    <Item key="ball" id="ball" slot={I.ball} {...common}><CricketBall /></Item>,
+    <Item key="paddle" id="paddle" slot={I.paddle} {...common}><Paddle /></Item>,
+    <Item key="drone" id="drone" slot={I.drone} {...common}><Drone /></Item>,
+  ];
+  const total = 1 + desk.length + items.length;
+  const stage = useStages(total);
+  const [grounded, setGrounded] = useState(false);
+  const [w, d] = layout.desk;
+
   return (
     <>
       <Lighting mood={mood} area={Math.max(...layout.desk) * 0.78} lamp={lamp} />
       <Rig progress={progress} reduce={reduce} layout={layout} />
-      <Desk layout={layout} mood={mood} />
-
-      <Item id="cctv" slot={I.cctv} {...common}><CctvCamera track={!reduce} accent={accent} cableTo={cable} ir={mood === "night" ? 2.2 : 0.06} /></Item>
-      <Item id="aibox" slot={I.aibox} {...common}><AiBox accent={accent} /></Item>
-      <Item id="laptop" slot={I.laptop} {...common}><Laptop glow={L.glow} /></Item>
-      <Item id="phone" slot={I.phone} {...common}><Phone glow={L.glow} /></Item>
-      <Item id="camera" slot={I.camera} {...common}><Camera35 /></Item>
-      <Item id="pass" slot={I.pass} {...common}><BoardingPass /></Item>
-      <Item id="resume" slot={I.resume} {...common}><ResumeSheet /></Item>
-      <Item id="ball" slot={I.ball} {...common}><CricketBall /></Item>
-      <Item id="paddle" slot={I.paddle} {...common}><Paddle /></Item>
-      <Item id="drone" slot={I.drone} {...common}><Drone /></Item>
+      <ItemCtx.Provider value={{ hover: false, accent: "#000" }}>{desk.slice(0, stage - 1)}</ItemCtx.Provider>
+      {items.slice(0, Math.max(0, stage - 1 - desk.length))}
+      {grounded && <ContactShadows position={[0, 0.016, 0]} opacity={0.6} scale={Math.max(w, d) * 1.2} blur={1.6} far={0.9} resolution={1024} frames={1} color="#2a1c10" />}
+      {stage >= total && <Ready onCompiled={onCompiled} onFirstFrame={() => setGrounded(true)} onReady={onReady} />}
     </>
   );
 }
@@ -470,9 +544,8 @@ export default function StudioScene({
     >
       <Suspense fallback={null}>
         <DemandFrames watch={`${hovered}|${captions}|${accent}|${mood}`} />
-        <Contents progress={progress} accent={accent} reduce={reduce} hovered={hovered} setHovered={setHovered} onSelect={onSelect} captions={captions} mood={mood} />
+        <Contents progress={progress} accent={accent} reduce={reduce} hovered={hovered} setHovered={setHovered} onSelect={onSelect} captions={captions} mood={mood} onCompiled={() => setCompiled(true)} onReady={onReady} />
         <ShotHook progress={progress} />
-        <Ready onCompiled={() => setCompiled(true)} onReady={onReady} />
       </Suspense>
     </Canvas>
   );

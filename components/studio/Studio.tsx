@@ -58,7 +58,9 @@ export function Studio() {
   const stage = useRef<HTMLDivElement>(null);
   const progress = useRef(0);
   const [webgl, setWebgl] = useState(true);
-  const [live, setLive] = useState(false); // the first real frame is on screen
+  // the first real frame is on screen. "under" = the camera hasn't moved yet,
+  // so the poster stays put beneath the canvas instead of cross-fading with it
+  const [live, setLive] = useState<false | "under" | "swap">(false);
   const mood = useMood();
   // Building the 3D scene is the one heavy job on this page. It waits until
   // the browser is idle and the visitor isn't mid-scroll, so it can never
@@ -76,7 +78,7 @@ export function Studio() {
         return;
       }
       const w = window as unknown as { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => void };
-      if (w.requestIdleCallback) w.requestIdleCallback(() => setBuild(true), { timeout: 1500 });
+      if (w.requestIdleCallback) w.requestIdleCallback(() => setBuild(true), { timeout: 500 });
       else setBuild(true);
     };
     t = setTimeout(attempt, 250);
@@ -143,7 +145,6 @@ export function Studio() {
     router.push(o.href);
   };
 
-  const posterOpacity = useTransform(mv, [0.2, 0.42], [1, 0]);
   const pinned = !reduce && webgl;
 
   return (
@@ -171,12 +172,12 @@ export function Studio() {
         {webgl && (
           <>
             {/* the same frame as a picture, so the desk is there on first paint */}
-            <div className="studio-poster-wrap" data-live={live} aria-hidden>
-              <motion.div className="studio-poster" style={{ opacity: posterOpacity }} />
+            <div className="studio-poster-wrap" data-live={live || undefined} aria-hidden>
+              <div className="studio-poster" />
             </div>
             <div style={{ position: "absolute", inset: 0, opacity: live ? 1 : 0, transition: "opacity 0.6s var(--ease)" }}>
               <SceneBoundary onFail={() => setWebgl(false)}>
-                {build && <StudioScene progress={progress} accent={accent} reduce={reduce} active={active} onSelect={onSelect} onHover={setHover} onReady={() => setLive(true)} />}
+                {build && <StudioScene progress={progress} accent={accent} reduce={reduce} active={active} onSelect={onSelect} onHover={setHover} onReady={() => setLive(progress.current < 0.3 ? "under" : "swap")} />}
               </SceneBoundary>
             </div>
           </>

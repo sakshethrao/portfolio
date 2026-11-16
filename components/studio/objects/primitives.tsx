@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useMemo } from "react";
-import { RoundedBox } from "@react-three/drei";
 import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 
 /**
  * The material kit. Everything on the desk is a real-ish surface now: matte
@@ -100,6 +100,18 @@ export function Surface({
   return <meshStandardMaterial {...common} />;
 }
 
+// rounded boxes are everywhere on the desk; identical ones share one geometry
+const boxes = new Map<string, THREE.BufferGeometry>();
+function roundedBox(args: V3, r: number) {
+  const key = args.join("x") + "r" + r.toFixed(4);
+  let g = boxes.get(key);
+  if (!g) {
+    g = new RoundedBoxGeometry(args[0], args[1], args[2], 3, r);
+    boxes.set(key, g);
+  }
+  return g;
+}
+
 export function Box({
   args,
   radius,
@@ -121,9 +133,9 @@ export function Box({
     );
   }
   return (
-    <RoundedBox args={args} radius={r} smoothness={4} position={position} rotation={rotation} castShadow={shadow} receiveShadow>
+    <mesh geometry={roundedBox(args, r)} position={position} rotation={rotation} castShadow={shadow} receiveShadow dispose={null}>
       <Surface {...surf} />
-    </RoundedBox>
+    </mesh>
   );
 }
 
