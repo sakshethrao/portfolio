@@ -246,6 +246,7 @@ export function MakeFlow() {
         <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
           <button
             onClick={run}
+            data-click-hint={phase === "idle" ? "" : undefined}
             disabled={phase === "running"}
             style={{
               border: "none",

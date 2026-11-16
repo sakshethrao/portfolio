@@ -11,7 +11,7 @@ export const site = {
     "I started a streetwear marketplace in college, spent four years at KPMG, and now I'm working on QuantumSight and a few smaller products. I get curious about things and usually end up trying to build them.",
   location: "Gurugram, India",
   /** blinking status line in the hero */
-  nowBuilding: "Currently building QuantumSight. Based in Gurugram.",
+  nowBuilding: "Currently building QuantumSight.",
   email: "saksheth.rao@gmail.com",
 
   socials: {
@@ -21,7 +21,6 @@ export const site = {
   },
 
   /** footer build-credit line, mirrors the mockup */
-  builtWith: "Made with Next.js and Claude Code.",
 
   /** Google Analytics 4 measurement ID. Public by design — it ships in the
    *  page source of every GA site. Blank disables analytics entirely. */

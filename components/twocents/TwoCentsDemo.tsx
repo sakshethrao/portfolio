@@ -233,6 +233,7 @@ export function TwoCentsDemo() {
               {/* LinkedIn's own comment box */}
               <button
                 onClick={start}
+                data-click-hint={open ? undefined : ""}
                 style={{
                   textAlign: "left", border: `1px solid ${c.postLine}`, borderRadius: 999, padding: "9px 14px",
                   fontSize: 12.5, color: open ? c.ink : "#6a778a", background: "#fff", cursor: open ? "default" : "pointer",

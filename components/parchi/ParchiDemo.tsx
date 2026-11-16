@@ -104,6 +104,7 @@ function UploadFlow({
       {/* left: the "screenshot" */}
       <div
         onClick={step === "upload" ? onDrop : undefined}
+        data-click-hint={step === "upload" ? "" : undefined}
         style={{
           border: step === "upload" ? `1.5px dashed ${c.primary}66` : `1px solid ${c.border}`,
           borderRadius: 12,

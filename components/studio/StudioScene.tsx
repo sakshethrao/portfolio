@@ -227,6 +227,8 @@ function Item({
 function Desk({ layout, mood }: { layout: Layout; mood: Mood }) {
   const [w, d] = layout.desk;
   const D = layout.decor;
+  // the can's label turns to face whoever is looking at the desk
+  const canRy = Math.atan2(-(layout.rig.desk.pos[2] - D.can[2]), layout.rig.desk.pos[0] - D.can[0]);
   return (
     <ItemCtx.Provider value={{ hover: false, accent: "#000" }}>
       <group>
@@ -237,7 +239,7 @@ function Desk({ layout, mood }: { layout: Layout; mood: Mood }) {
         <group position={D.mug}><Mug /></group>
         <group position={D.pencil}><Pencil /></group>
         <group position={D.plant}><Plant /></group>
-        <group position={D.can} rotation={[0, 2.2, 0]}><Can /></group>
+        <group position={D.can} rotation={[0, canRy, 0]}><Can /></group>
         {D.headphones && <group position={D.headphones.pos} rotation={[0, D.headphones.ry, 0]}><Headphones /></group>}
       </group>
     </ItemCtx.Provider>

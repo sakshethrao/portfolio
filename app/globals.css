@@ -507,20 +507,45 @@ html[data-tod="night"] .studio-poster { background-image: url(/studio/poster-nig
 }
 
 .studio-light {
-  pointer-events: auto;
-  background: none;
-  border: 0;
-  padding: 12px 10px;
-  margin: -12px 0;
-  font-size: inherit;
-  letter-spacing: inherit;
-  color: inherit;
+  position: absolute;
+  right: var(--pad);
+  bottom: 14px;
+  z-index: 3;
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 99px;
+  background: transparent;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
   cursor: pointer;
-  transition: color 0.2s var(--ease);
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
 }
-.studio-light:hover { color: var(--ink); }
-@media (max-width: 720px) {
-  .studio-built { display: none; }
+.studio-light:hover { color: var(--ink); border-color: var(--ink); }
+
+/* a pointer on each demo's first action, so it's obvious where to start */
+[data-click-hint] { position: relative; }
+[data-click-hint]::after {
+  content: "\2193  CLICK HERE";
+  position: absolute;
+  top: -14px;
+  right: 14px;
+  z-index: 5;
+  padding: 6px 10px;
+  border-radius: 99px;
+  background: var(--accent);
+  color: #fff;
+  font: 600 10px/1 var(--font-mono), monospace;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.35);
+  animation: click-hint 1.3s ease-in-out infinite;
+}
+@keyframes click-hint {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 /* after dark the top of the page is a dark room: the stage and its type invert */

@@ -60,6 +60,31 @@ export function Studio() {
   const [webgl, setWebgl] = useState(true);
   const [live, setLive] = useState(false); // the first real frame is on screen
   const mood = useMood();
+  // Building the 3D scene is the one heavy job on this page. It waits until
+  // the browser is idle and the visitor isn't mid-scroll, so it can never
+  // stall a scroll that has already started. The poster holds the stage.
+  const [build, setBuild] = useState(false);
+  useEffect(() => {
+    let last = performance.now();
+    let t: ReturnType<typeof setTimeout>;
+    const unsub = subscribeScroll(() => {
+      last = performance.now();
+    });
+    const attempt = () => {
+      if (performance.now() - last < 450) {
+        t = setTimeout(attempt, 200);
+        return;
+      }
+      const w = window as unknown as { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => void };
+      if (w.requestIdleCallback) w.requestIdleCallback(() => setBuild(true), { timeout: 1500 });
+      else setBuild(true);
+    };
+    t = setTimeout(attempt, 250);
+    return () => {
+      unsub();
+      clearTimeout(t);
+    };
+  }, []);
   const [active, setActive] = useState(true);
   const [hover, setHover] = useState<StudioObjectKey | null>(null);
   const mv = useMotionValue(0); // progress as a motion value, for the DOM layers
@@ -118,7 +143,7 @@ export function Studio() {
     router.push(o.href);
   };
 
-  const posterOpacity = useTransform(mv, [0, 0.12], [1, 0]);
+  const posterOpacity = useTransform(mv, [0.2, 0.42], [1, 0]);
   const pinned = !reduce && webgl;
 
   return (
@@ -151,7 +176,7 @@ export function Studio() {
             </div>
             <div style={{ position: "absolute", inset: 0, opacity: live ? 1 : 0, transition: "opacity 0.6s var(--ease)" }}>
               <SceneBoundary onFail={() => setWebgl(false)}>
-                <StudioScene progress={progress} accent={accent} reduce={reduce} active={active} onSelect={onSelect} onHover={setHover} onReady={() => setLive(true)} />
+                {build && <StudioScene progress={progress} accent={accent} reduce={reduce} active={active} onSelect={onSelect} onHover={setHover} onReady={() => setLive(true)} />}
               </SceneBoundary>
             </div>
           </>
@@ -193,7 +218,7 @@ export function Studio() {
             <Magnetic>
               <a href="#builds" className="pill-solid">See what I've built ↓</a>
             </Magnetic>
-            <Link href="/resume" className="pill-outline">My résumé</Link>
+            <Link href="/resume" className="pill-outline">My Resume</Link>
           </div>
         </motion.div>
 
@@ -202,21 +227,19 @@ export function Studio() {
           <>
             <motion.div className="mono wrap" style={{ position: "absolute", left: 0, right: 0, bottom: 26, display: "flex", justifyContent: "space-between", fontSize: 10.5, letterSpacing: "0.08em", color: "var(--faint)", pointerEvents: "none", opacity: hintOpacity }}>
               <span>{studioHint}</span>
-              <button
-                type="button"
-                className="mono studio-light"
-                onClick={() => setMood(MOODS[(MOODS.indexOf(mood) + 1) % MOODS.length])}
-                title="The desk is lit by your local time. Click to change it."
-                suppressHydrationWarning
-              >
-                LIGHT · {MOOD_LABEL[mood]} ↻
-              </button>
-              <span className="studio-built">{site.builtWith}</span>
             </motion.div>
             <motion.div className="mono wrap" style={{ position: "absolute", left: 0, right: 0, bottom: 26, display: "flex", justifyContent: "space-between", fontSize: 10.5, letterSpacing: "0.08em", color: "var(--faint)", pointerEvents: "none", opacity: deskLabelOpacity }}>
               <span>HOVER ANYTHING ON IT</span>
-              <span>{site.location.toUpperCase()}</span>
             </motion.div>
+            {/* the desk is lit by the visitor's clock; this lets them change it */}
+            <button
+              type="button"
+              className="mono studio-light"
+              onClick={() => setMood(MOODS[(MOODS.indexOf(mood) + 1) % MOODS.length])}
+              title="The desk is lit by your local time. Click to change it."
+            >
+              LIGHT · {MOOD_LABEL[mood]} ↻
+            </button>
           </>
         )}
 

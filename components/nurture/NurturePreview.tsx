@@ -85,18 +85,22 @@ function Pill({
   onClick,
   disabled,
   full,
+  hint,
 }: {
   children: React.ReactNode;
   tone?: "primary" | "ghost";
   onClick?: () => void;
   disabled?: boolean;
   full?: boolean;
+  /** show the "click here" pointer on this button */
+  hint?: boolean;
 }) {
   const primary = tone === "primary";
   return (
     <button
       onClick={onClick}
       disabled={disabled}
+      data-click-hint={hint ? "" : undefined}
       style={{
         border: "none",
         cursor: disabled ? "default" : "pointer",
@@ -250,7 +254,7 @@ function Welcome({ go }: { go: (s: Screen) => void }) {
       </div>
 
       <div style={{ position: "relative" }}>
-        <Pill full onClick={() => go("matching")}>
+        <Pill full hint onClick={() => go("matching")}>
           Get started <I d={ic.arrowR} w={15} />
         </Pill>
         <div style={{ textAlign: "center", fontSize: 12, color: c.inkVar, marginTop: 14 }}>

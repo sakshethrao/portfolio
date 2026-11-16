@@ -45,7 +45,6 @@ export function Footer() {
           <AccentSwatches />
         </span>
 
-        <span style={{ color: "var(--faint)" }}>{site.builtWith}</span>
       </div>
       <style>{`
         .ig-strip { position: absolute; left: 0; bottom: calc(100% + 10px); display: flex; gap: 4px; opacity: 0; transform: translateY(6px); transition: opacity .25s var(--ease), transform .25s var(--ease); pointer-events: none; }
