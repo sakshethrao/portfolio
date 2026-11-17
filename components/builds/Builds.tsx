@@ -7,12 +7,34 @@ import { SpreadBrowser } from "./SpreadBrowser";
 import { SpreadLedger } from "./SpreadLedger";
 import { SpreadSmall } from "./SpreadSmall";
 import { Lab } from "./Lab";
+import { BuildsSwitch } from "./BuildsSwitch";
+import type { Project } from "@/lib/types";
+
+/** builds with something to use get the stage; the rest follow as plain rows */
+const STAGED = new Set(["feature", "device", "browser"]);
+
+function spread(project: Project, index: number) {
+  switch (project.layout) {
+    case "feature":
+      return <SpreadQuantumSight key={project.slug} project={project} index={index} />;
+    case "device":
+      return <SpreadDevice key={project.slug} project={project} index={index} />;
+    case "browser":
+      return <SpreadBrowser key={project.slug} project={project} index={index} />;
+    case "compact":
+      return <SpreadLedger key={project.slug} project={project} index={index} />;
+    default:
+      return <SpreadSmall key={project.slug} project={project} index={index} />;
+  }
+}
 
 /**
  * The index of builds — one editorial spread per project, in projects.ts
  * order, composition chosen by `layout`. Adding a build never touches this.
  */
 export function Builds() {
+  const staged = publicProjects.filter((p) => STAGED.has(p.layout));
+  const rest = publicProjects.filter((p) => !STAGED.has(p.layout));
   return (
     <section id="builds" data-section="builds" style={{ position: "relative" }}>
       <div className="wrap" style={{ paddingTop: "clamp(44px, 6.5vw, 96px)", paddingBottom: "clamp(28px, 4vw, 56px)" }}>
@@ -33,21 +55,8 @@ export function Builds() {
         </Reveal>
       </div>
 
-      {publicProjects.map((project, i) => {
-        const index = i + 1;
-        switch (project.layout) {
-          case "feature":
-            return <SpreadQuantumSight key={project.slug} project={project} index={index} />;
-          case "device":
-            return <SpreadDevice key={project.slug} project={project} index={index} />;
-          case "browser":
-            return <SpreadBrowser key={project.slug} project={project} index={index} />;
-          case "compact":
-            return <SpreadLedger key={project.slug} project={project} index={index} />;
-          default:
-            return <SpreadSmall key={project.slug} project={project} index={index} />;
-        }
-      })}
+      <BuildsSwitch projects={staged} stacked={staged.map((p, i) => spread(p, i + 1))} />
+      {rest.map((p, i) => spread(p, staged.length + i + 1))}
 
       <Lab />
 

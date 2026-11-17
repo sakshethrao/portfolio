@@ -1,42 +1,12 @@
 import type { Project } from "@/lib/types";
-import { ParchiDemo } from "@/components/parchi/ParchiDemo";
-import { MakeFlow } from "@/components/make/MakeFlow";
-import { TwoCentsDemo } from "@/components/twocents/TwoCentsDemo";
+import { DEMOS, EMPHASIS, TONE } from "./demos";
 import { ProjectStage } from "./ProjectStage";
 import { Reveal } from "@/components/Reveal";
-
-/** the word set in the serif italic, per build */
-const EMPHASIS: Record<string, string> = {
-  twocents: "your voice",
-  parchi: "logs itself",
-  "influencer-payment-os": "chasing",
-};
-
-/** a build whose spread borrows the product's own ground, the way Nurture does */
-const TINT: Record<string, string> = {
-  twocents: "#eaf2fd",
-};
-
-/** the demo that runs beneath the stage, and the line that labels it */
-const DEMOS: Record<string, { node: React.ReactNode; caption: string }> = {
-  twocents: {
-    node: <TwoCentsDemo />,
-    caption: "RECREATION — CLICK THE COMMENT BOX AND WATCH THE REPLY WRITE ITSELF. THE FEED IS A STAND-IN, NOT LINKEDIN'S UI",
-  },
-  parchi: {
-    node: <ParchiDemo />,
-    caption: "INTERACTIVE DEMO — DROP THE RECEIPT, THEN CHECK THE DASHBOARD",
-  },
-  "influencer-payment-os": {
-    node: <MakeFlow />,
-    caption: "INTERACTIVE DEMO — HIT RUN ONCE, WATCH IT MOVE THROUGH THE SCENARIO",
-  },
-};
 
 /** web-app spread: the stage up top, the live demo running full width beneath */
 export function SpreadBrowser({ project, index, detail = false }: { project: Project; index: number; detail?: boolean }) {
   const demo = DEMOS[project.slug];
-  const tint = TINT[project.slug];
+  const tint = TONE[project.slug]?.bg;
 
   return (
     <section id={`build-${project.slug}`} data-build={project.slug} style={tint ? { background: tint } : undefined}>

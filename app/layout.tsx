@@ -8,7 +8,7 @@ import {
 import "./globals.css";
 import { AccentProvider } from "@/components/AccentProvider";
 import { SmoothScroll } from "@/components/SmoothScroll";
-import { Nav } from "@/components/nav/Nav";
+import { Dock } from "@/components/Dock";
 import { Footer } from "@/components/Footer";
 import { Analytics } from "@/components/Analytics";
 import { site } from "@/content/site";
@@ -92,9 +92,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <a href="#main" className="skip mono">
               Skip to content
             </a>
-            <Nav />
             <main id="main">{children}</main>
             <Footer />
+            <Dock />
           </SmoothScroll>
         </AccentProvider>
         <Analytics />

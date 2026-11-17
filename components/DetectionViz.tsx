@@ -165,13 +165,19 @@ function layer(w: number, h: number) {
   return c;
 }
 
-export function DetectionViz({ cam = "CAM 04 · FLOOR 2", compact = false }: { cam?: string; compact?: boolean }) {
+export function DetectionViz({ cam = "CAM 04 · FLOOR 2", compact = false, play = true }: { cam?: string; compact?: boolean; /** false holds it still, e.g. while its panel is not the one showing */ play?: boolean }) {
   const reduce = !!useReducedMotion();
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const clock = useRef<HTMLSpanElement>(null);
   // 0 watching · 1 fire boxed · 2 alert sent · 3 smoke boxed too
   const [phase, setPhase] = useState(0);
+  const playRef = useRef(play);
+  const evaluate = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    playRef.current = play;
+    evaluate.current?.();
+  }, [play]);
 
   useEffect(() => {
     const cv = canvas.current;
@@ -567,15 +573,21 @@ export function DetectionViz({ cam = "CAM 04 · FLOOR 2", compact = false }: { c
     };
     // arriving at the panel is the cue: the fire starts the moment it is in view,
     // not wherever a loop that ran off-screen happens to be
+    let seen = false;
+    const check = () => {
+      const now = seen && playRef.current;
+      if (now && !visible) {
+        reset();
+        t = IGNITE;
+      }
+      visible = now;
+      run();
+    };
+    evaluate.current = check;
     const io = new IntersectionObserver(
       ([e]) => {
-        const now = e.isIntersecting;
-        if (now && !visible) {
-          reset();
-          t = IGNITE;
-        }
-        visible = now;
-        run();
+        seen = e.isIntersecting;
+        check();
       },
       { threshold: 0.4 },
     );
@@ -588,6 +600,7 @@ export function DetectionViz({ cam = "CAM 04 · FLOOR 2", compact = false }: { c
     document.addEventListener("visibilitychange", run);
     draw();
     return () => {
+      evaluate.current = null;
       io.disconnect();
       ro.disconnect();
       document.removeEventListener("visibilitychange", run);

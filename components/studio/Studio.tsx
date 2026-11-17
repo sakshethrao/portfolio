@@ -190,7 +190,7 @@ export function Studio() {
             position: "relative",
             zIndex: 2,
             width: "100%",
-            paddingTop: "clamp(96px, 16vh, 180px)",
+            paddingTop: "clamp(56px, 9vh, 120px)",
             pointerEvents: "none",
             opacity: pinned ? identityOpacity : 1,
             y: pinned ? identityY : 0,
@@ -226,10 +226,10 @@ export function Studio() {
         {/* hint + desk label */}
         {pinned && (
           <>
-            <motion.div className="mono wrap" style={{ position: "absolute", left: 0, right: 0, bottom: 26, display: "flex", justifyContent: "space-between", fontSize: 10.5, letterSpacing: "0.08em", color: "var(--faint)", pointerEvents: "none", opacity: hintOpacity }}>
+            <motion.div className="mono wrap studio-hint" style={{ position: "absolute", left: 0, right: 0, bottom: 26, display: "flex", justifyContent: "space-between", fontSize: 10.5, letterSpacing: "0.08em", color: "var(--faint)", pointerEvents: "none", opacity: hintOpacity }}>
               <span>{studioHint}</span>
             </motion.div>
-            <motion.div className="mono wrap" style={{ position: "absolute", left: 0, right: 0, bottom: 26, display: "flex", justifyContent: "space-between", fontSize: 10.5, letterSpacing: "0.08em", color: "var(--faint)", pointerEvents: "none", opacity: deskLabelOpacity }}>
+            <motion.div className="mono wrap studio-hint" style={{ position: "absolute", left: 0, right: 0, bottom: 26, display: "flex", justifyContent: "space-between", fontSize: 10.5, letterSpacing: "0.08em", color: "var(--faint)", pointerEvents: "none", opacity: deskLabelOpacity }}>
               <span>HOVER ANYTHING ON IT</span>
             </motion.div>
             {/* the desk is lit by the visitor's clock; this lets them change it */}
