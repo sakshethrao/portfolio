@@ -15,7 +15,7 @@ import { Lab } from "./Lab";
 export function Builds() {
   return (
     <section id="builds" data-section="builds" style={{ position: "relative" }}>
-      <div className="wrap" style={{ paddingTop: "clamp(56px, 9vw, 128px)", paddingBottom: "clamp(28px, 4vw, 56px)" }}>
+      <div className="wrap" style={{ paddingTop: "clamp(44px, 6.5vw, 96px)", paddingBottom: "clamp(28px, 4vw, 56px)" }}>
         <Reveal>
           <div className="grid-12" style={{ alignItems: "end", rowGap: 18 }}>
             <div style={{ gridColumn: "1 / span 12" }} className="builds-head">

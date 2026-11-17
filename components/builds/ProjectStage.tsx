@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Project } from "@/lib/types";
 import { StatusBadge } from "@/components/StatusBadge";
+import { Reveal } from "@/components/Reveal";
 
 /**
  * The text half of a spread: running meta line, title, tagline, links.
@@ -29,26 +30,27 @@ export function ProjectStage({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18, minWidth: 0 }}>
-      <div className="mono" style={{ display: "flex", gap: 18, alignItems: "center", flexWrap: "wrap", fontSize: 11, letterSpacing: "0.06em", color: faint }}>
+      {/* each line arrives a beat after the one above it */}
+      <Reveal className="mono" style={{ display: "flex", gap: 18, alignItems: "center", flexWrap: "wrap", fontSize: 11, letterSpacing: "0.06em", color: faint }}>
         <span>{String(index).padStart(2, "0")}</span>
         <StatusBadge status={project.status} light={dark} />
         <span>{project.period.toUpperCase()}</span>
         <span style={{ color: faint }}>{project.category.toUpperCase()}</span>
-      </div>
+      </Reveal>
 
-      <h3 className="display" style={{ fontWeight: 500, fontSize: titleSize, margin: 0, color: dark ? "#fff" : "var(--ink)" }}>
+      <Reveal as="h3" delay={0.07} className="display" style={{ fontWeight: 500, fontSize: titleSize, margin: 0, color: dark ? "#fff" : "var(--ink)" }}>
         {project.title}
-      </h3>
+      </Reveal>
 
-      <p style={{ fontSize: "clamp(17px, 1.5vw, 21px)", lineHeight: 1.45, color: muted, margin: 0, maxWidth: 520 }}>
+      <Reveal as="p" delay={0.14} style={{ fontSize: "clamp(17px, 1.5vw, 21px)", lineHeight: 1.45, color: muted, margin: 0, maxWidth: 520 }}>
         {emphasis ? <Emph text={project.tagline} word={emphasis} /> : project.tagline}
-      </p>
+      </Reveal>
 
-      <div className="mono" style={{ fontSize: 11.5, letterSpacing: "0.03em", color: faint }}>
+      <Reveal delay={0.21} className="mono" style={{ fontSize: 11.5, letterSpacing: "0.03em", color: faint }}>
         {project.tech.join("  ·  ")}
-      </div>
+      </Reveal>
 
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 6 }}>
+      <Reveal delay={0.28} style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 6 }}>
         {project.liveUrl && (
           <a href={project.liveUrl} target="_blank" rel="noreferrer" className="pill-solid" style={dark ? { background: "#fff", color: "var(--ink)", borderColor: "#fff" } : undefined}>
             Open it ↗
@@ -64,7 +66,7 @@ export function ProjectStage({
             Code ↗
           </a>
         )}
-      </div>
+      </Reveal>
     </div>
   );
 }

@@ -1,12 +1,35 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-import { createElement, type ReactNode } from "react";
+import { createElement, useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 
 /**
  * Restrained scroll-in. One gesture, used everywhere, so the whole site moves
- * with the same rhythm. No bounce, no stagger unless asked.
+ * with the same rhythm: fade up 14px over 0.62s, once, when the reader has
+ * actually reached it (a little inside the viewport, not at the first pixel).
+ * Give siblings a rising `delay` (about 0.07s apart) to lead the eye down a stack.
+ *
+ * It is a CSS transition switched on by one shared observer, so a page full of
+ * these costs nothing while scrolling.
  */
+let io: IntersectionObserver | null = null;
+function observer() {
+  if (io) return io;
+  io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        (e.target as HTMLElement).dataset.in = "";
+        io!.unobserve(e.target);
+      }
+    },
+    // the top margin is deliberately enormous: anything above the trigger line
+    // counts as reached, so jumping past a block (an anchor link, the End key)
+    // can never leave it hidden
+    { rootMargin: "100000px 0px -12% 0px" },
+  );
+  return io;
+}
+
 export function Reveal({
   children,
   delay = 0,
@@ -18,27 +41,30 @@ export function Reveal({
   children: ReactNode;
   delay?: number;
   y?: number;
-  as?: keyof typeof motion;
+  as?: string;
   className?: string;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }) {
-  const reduce = useReducedMotion();
-  const Tag = motion[as] as typeof motion.div;
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (!("IntersectionObserver" in window)) {
+      el.dataset.in = "";
+      return;
+    }
+    const o = observer();
+    o.observe(el);
+    return () => o.unobserve(el);
+  }, []);
 
-  if (reduce) {
-    return createElement(as as string, { className, style }, children);
-  }
-
-  return (
-    <Tag
-      className={className}
-      style={style}
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </Tag>
+  return createElement(
+    as,
+    {
+      ref,
+      className: className ? `reveal ${className}` : "reveal",
+      style: { ...style, "--reveal-d": `${delay}s`, "--reveal-y": `${y}px` } as CSSProperties,
+    },
+    children,
   );
 }

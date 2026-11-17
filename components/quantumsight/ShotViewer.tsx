@@ -27,7 +27,7 @@ export function ShotViewer({ shots }: { shots: Shot[] }) {
               fontSize: 11,
               letterSpacing: "0.06em",
               cursor: "pointer",
-              transition: "all .2s var(--ease)",
+              transition: "background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease)",
             }}
           >
             {x.label.toUpperCase()}

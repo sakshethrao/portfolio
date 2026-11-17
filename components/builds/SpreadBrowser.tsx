@@ -3,6 +3,7 @@ import { ParchiDemo } from "@/components/parchi/ParchiDemo";
 import { MakeFlow } from "@/components/make/MakeFlow";
 import { TwoCentsDemo } from "@/components/twocents/TwoCentsDemo";
 import { ProjectStage } from "./ProjectStage";
+import { Reveal } from "@/components/Reveal";
 
 /** the word set in the serif italic, per build */
 const EMPHASIS: Record<string, string> = {
@@ -46,12 +47,12 @@ export function SpreadBrowser({ project, index, detail = false }: { project: Pro
           </div>
 
           {demo && (
-            <div style={{ gridColumn: "1 / -1", minWidth: 0 }}>
+            <Reveal delay={0.12} style={{ gridColumn: "1 / -1", minWidth: 0 }}>
               {demo.node}
               <span className="mono" style={{ display: "block", marginTop: 10, fontSize: 10.5, color: "var(--faint)", letterSpacing: "0.06em" }}>
                 {demo.caption}
               </span>
-            </div>
+            </Reveal>
           )}
         </div>
       </div>

@@ -200,7 +200,8 @@ button {
   transition:
     background 0.2s var(--ease),
     color 0.2s var(--ease),
-    border-color 0.2s var(--ease);
+    border-color 0.2s var(--ease),
+    transform 0.12s var(--ease);
 }
 .pill-outline {
   border: 1px solid var(--line-strong);
@@ -217,6 +218,31 @@ button {
 .pill-solid:hover {
   background: var(--accent);
   border-color: var(--accent);
+}
+
+.pill-outline:active,
+.pill-solid:active {
+  transform: scale(0.97);
+}
+
+/* scroll-in (see components/Reveal.tsx) */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-y, 14px), 0);
+  transition:
+    opacity 0.62s cubic-bezier(0.23, 1, 0.32, 1) var(--reveal-d, 0s),
+    transform 0.62s cubic-bezier(0.23, 1, 0.32, 1) var(--reveal-d, 0s);
+}
+.reveal[data-in] {
+  opacity: 1;
+  transform: none;
+}
+/* reduced motion: keep the fade that says "this is new", drop the travel */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transform: none;
+    transition: opacity 0.3s ease-out;
+  }
 }
 
 /* link underline that grows from the left */

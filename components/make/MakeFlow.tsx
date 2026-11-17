@@ -227,7 +227,7 @@ export function MakeFlow() {
                       justifyContent: "center",
                       color: active ? "#fff" : c.muted,
                       boxShadow: current ? `0 0 0 6px ${c.purpleSoft}` : "0 2px 6px rgba(24,16,54,0.06)",
-                      transition: "all .25s ease",
+                      transition: "background .25s ease, color .25s ease, box-shadow .25s ease, border-color .25s ease",
                       flex: "none",
                     }}
                   >

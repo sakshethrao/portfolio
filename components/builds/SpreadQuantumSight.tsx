@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { Project } from "@/lib/types";
 import { DetectionViz } from "@/components/DetectionViz";
 import { ProjectStage } from "./ProjectStage";
+import { Reveal } from "@/components/Reveal";
 
 /**
  * The one dark spread. The real (cropped) live-feed screenshot sits behind
@@ -48,7 +49,7 @@ export function SpreadQuantumSight({ project, index }: { project: Project; index
             )}
           </div>
 
-          <div style={{ position: "relative", minWidth: 0 }}>
+          <Reveal delay={0.12} style={{ position: "relative", minWidth: 0 }}>
             <div style={{ position: "relative", aspectRatio: "16 / 10", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
               <Image
                 src="/quantumsight/feed-crop.jpg"
@@ -65,7 +66,7 @@ export function SpreadQuantumSight({ project, index }: { project: Project; index
                 LIVE FEED · REAL DASHBOARD, STYLISED SCENE
               </span>
             </div>
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>
