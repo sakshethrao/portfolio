@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { scroll, subscribeScroll } from "@/lib/scroll";
 import { useActiveSection } from "@/lib/useActiveSection";
+import { useMood } from "@/lib/timeOfDay";
 
 const ITEMS: { label: string; short?: string; href: string; key: string; wide?: boolean }[] = [
   { label: "Builds", href: "/#builds", key: "builds" },
@@ -24,6 +25,16 @@ const RING = 2 * Math.PI * 15;
 export function Dock() {
   const pathname = usePathname();
   const section = useActiveSection("section", 0.5, [pathname]);
+  // is a dark band under the dock? Then the glass goes clear and the text white
+  const mood = useMood();
+  const [probe, setProbe] = useState(2000);
+  useEffect(() => {
+    const set = () => setProbe(Math.max(2, window.innerHeight - 44));
+    set();
+    window.addEventListener("resize", set);
+    return () => window.removeEventListener("resize", set);
+  }, []);
+  const onDark = useActiveSection("nav", probe, [pathname, mood, probe]) === "light";
   const ring = useRef<SVGCircleElement>(null);
   const left = useRef<HTMLSpanElement>(null);
   const line = useRef<HTMLDivElement>(null);
@@ -76,7 +87,7 @@ export function Dock() {
         <div ref={line} />
       </div>
 
-      <nav className="dock mono" aria-label="Primary">
+      <nav className="dock mono" aria-label="Primary" data-on={onDark ? "dark" : undefined}>
         <Link href="/" className="dock-home" aria-label="Saksheth Rao, back to the top">
           <svg viewBox="0 0 36 36" aria-hidden>
             <circle cx="18" cy="18" r="15" className="dock-ring-bg" />

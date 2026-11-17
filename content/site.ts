@@ -45,9 +45,9 @@ export const site = {
 
   /** accent colour picker — first entry is the default. Flat colours only. */
   accents: [
-    { name: "Signal red", value: "#FF3B30" },
-    { name: "Field green", value: "#1A8F4C" },
-    { name: "Ultramarine", value: "#2A5CFF" },
+    { name: "Coral", value: "#F2796B" },
+    { name: "Sage", value: "#5FB58A" },
+    { name: "Periwinkle", value: "#7C96F5" },
   ],
 } as const;
 

@@ -24,6 +24,7 @@ export function Showcase({ projects }: { projects: Project[] }) {
   const wrap = useRef<HTMLDivElement>(null);
   const rail = useRef<HTMLOListElement>(null);
   const [active, setActive] = useState(0);
+  const [under, setUnder] = useState(false); // the stage is what sits behind the dock
   const n = projects.length;
 
   useEffect(() => {
@@ -40,6 +41,8 @@ export function Showcase({ projects }: { projects: Project[] }) {
       const i = Math.floor(f);
       setActive((a) => (a === i ? a : i));
       rail.current?.style.setProperty("--seg", (f - i).toFixed(3));
+      const u = scroll.y + window.innerHeight > top + 60 && scroll.y < top + travel + 40;
+      setUnder((v) => (v === u ? v : u));
     };
     const both = () => {
       measure();
@@ -58,6 +61,12 @@ export function Showcase({ projects }: { projects: Project[] }) {
   }, [n]);
 
   const tone = TONE[projects[active].slug] ?? { bg: "#ffffff" };
+  // tell the dock when it is floating over the dark build
+  const dark = under && !!tone.dark;
+  useEffect(() => {
+    document.documentElement.toggleAttribute("data-stage-dark", dark);
+    return () => document.documentElement.removeAttribute("data-stage-dark");
+  }, [dark]);
   const go = (slug: string) => {
     const t = document.getElementById(`build-${slug}`);
     if (t) scrollTo(t);

@@ -261,7 +261,7 @@ export function Studio() {
               animation: "studio-label-in .18s ease both",
             }}
           >
-            <span style={{ position: "absolute", top: -16, left: -1.5, fontSize: 9, fontWeight: 600, letterSpacing: "0.06em", background: accent, color: "#fff", padding: "1px 5px" }}>
+            <span style={{ position: "absolute", top: -16, left: -1.5, fontSize: 9, fontWeight: 600, letterSpacing: "0.06em", background: accent, color: "#15171a", padding: "1px 5px" }}>
               PERSON 0.97
             </span>
           </div>
