@@ -62,28 +62,15 @@ export function Studio() {
   // so the poster stays put beneath the canvas instead of cross-fading with it
   const [live, setLive] = useState<false | "under" | "swap">(false);
   const mood = useMood();
-  // Building the 3D scene is the one heavy job on this page. It waits until
-  // the browser is idle and the visitor isn't mid-scroll, so it can never
-  // stall a scroll that has already started. The poster holds the stage.
+  // The desk is the first thing on the page, so it starts building as soon as
+  // the page has painted, scrolling or not. The work is cut into small steps
+  // (see StudioScene), so it no longer needs to wait for a quiet moment.
   const [build, setBuild] = useState(false);
   useEffect(() => {
-    let last = performance.now();
-    let t: ReturnType<typeof setTimeout>;
-    const unsub = subscribeScroll(() => {
-      last = performance.now();
-    });
-    const attempt = () => {
-      if (performance.now() - last < 450) {
-        t = setTimeout(attempt, 200);
-        return;
-      }
-      const w = window as unknown as { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => void };
-      if (w.requestIdleCallback) w.requestIdleCallback(() => setBuild(true), { timeout: 500 });
-      else setBuild(true);
-    };
-    t = setTimeout(attempt, 250);
+    const id = requestAnimationFrame(() => setBuild(true));
+    const t = setTimeout(() => setBuild(true), 300); // a hidden tab gets no frame
     return () => {
-      unsub();
+      cancelAnimationFrame(id);
       clearTimeout(t);
     };
   }, []);

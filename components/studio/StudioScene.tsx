@@ -6,7 +6,6 @@ import { ContactShadows, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { studioObjects, type StudioObjectKey } from "@/content/studio";
 import { useMood, setMood, type Mood } from "@/lib/timeOfDay";
-import { subscribeScroll } from "@/lib/scroll";
 import { ItemCtx } from "./objects/primitives";
 import { Lighting, LIGHT } from "./lighting";
 import { useOak } from "./materials";
@@ -282,24 +281,12 @@ function Ready({ onCompiled, onFirstFrame, onReady }: { onCompiled: () => void; 
       onReady();
     };
     performance.mark("studio:mounted");
-    // the first frames are the last heavy step (shadow maps, texture uploads),
-    // so they wait for a pause in scrolling rather than landing in the middle of one
-    let lastScroll = 0;
-    const unsub = subscribeScroll(() => {
-      lastScroll = performance.now();
-    });
-    const started = performance.now();
     const go = () => {
       if (!alive) return;
-      const now = performance.now();
-      if (now - lastScroll < 300 && now - started < 6000) {
-        t = setTimeout(go, 120);
-        return;
-      }
       performance.mark("studio:compiled");
       armed.current = true;
       onCompiled();
-      t = setTimeout(fire, 2500); // a hidden tab never gets a frame; don't wait on one
+      t = setTimeout(fire, 1500); // a hidden tab never gets a frame; don't wait on one
     };
     // send the textures to the GPU one per tick first, so the first frame
     // doesn't have to decode and upload all of them in one go
@@ -329,7 +316,6 @@ function Ready({ onCompiled, onFirstFrame, onReady }: { onCompiled: () => void; 
     upload();
     return () => {
       alive = false;
-      unsub();
       if (t) clearTimeout(t);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
