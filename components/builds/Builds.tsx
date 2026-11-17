@@ -6,7 +6,6 @@ import { SpreadDevice } from "./SpreadDevice";
 import { SpreadBrowser } from "./SpreadBrowser";
 import { SpreadLedger } from "./SpreadLedger";
 import { SpreadSmall } from "./SpreadSmall";
-import { Lab } from "./Lab";
 import { BuildsSwitch } from "./BuildsSwitch";
 import type { Project } from "@/lib/types";
 
@@ -58,7 +57,6 @@ export function Builds() {
       <BuildsSwitch projects={staged} stacked={staged.map((p, i) => spread(p, i + 1))} />
       {rest.map((p, i) => spread(p, staged.length + i + 1))}
 
-      <Lab />
 
       <style>{`
         @media (min-width: 900px) {
